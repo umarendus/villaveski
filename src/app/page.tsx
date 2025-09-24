@@ -10,53 +10,34 @@ import emailjs from "@emailjs/browser";
 
 
 
-import { Monitor, Pencil, Cpu, Smartphone } from "lucide-react";
-
 const steps = [
   {
     id: 1,
-    icon: <Monitor size={60} />,
-    title: "Kaardistamine",
-    text: "Räägime koos läbi sinu ettevõtte eesmärgid ja ootused. Uurime, millised on sinu kliendid ja mida nad veebilehelt otsivad. Selle põhjal selgitame välja, millist veebilahendust sul tegelikult vaja on.",
+    image: "/canva/card-1.webp",
+    title: "Villatöö",
+    text: "Me ketrame lõnga, valmistame villavorsti ja heideloori. Villa ei osta ega vaheta lõnga vastu – töötleme villast lõnga teenusena ning oma villa kasutades saame teha lõnga vastavalt tellija soovile.",
   },
   {
     id: 2,
-    icon: <Pencil size={60} />,
-    title: "Disain",
-    text: "Loome disainilahenduse, mis toetab sinu brändi ja kõnetab sihtrühma. Kujundus on kaasaegne, kasutajasõbralik ja mobiilisõbralik.",
+    image: "/canva/card-2.webp",
+    title: "Õpitoad",
+    text: "Meie õpitubades saab õppida lõnga ketramist, kudumist, villavorsti ja heide-vaipade valmistamist ning isikupäraste villatoodete loomist. Kutsuge meid külla või tulge meie juurde Sörve poolsaarele!",
   },
   {
     id: 3,
-    icon: <Cpu size={60} />,
-    title: "AI-ga ehitus",
-    text: "Ehitusprotsessis kasutame kaasaegseid tööriistu ja AI lahendusi, et saavutada efektiivne, kiire ja kvaliteetne veebilehe arendus.",
+    image: "/canva/card-3.webp",
+    title: "Külastus",
+    text: "Enne külastust palume oma tulekust teada anda, kohapeal saab osta villatooteid, vaadata villatööstust töös ning tutvuda lõnga ketramise, kudumise ja vaipade valmistamise protsessidega.",
   },
   {
     id: 4,
-    icon: <Smartphone size={60} />,
-    title: "Testimine ja ülekandmine",
-    text: "Testime veebilehte erinevatel seadmetel ja brauseritel, et tagada laitmatu toimivus. Seejärel viime lahenduse live-keskkonda.",
+    image: "/canva/card-4.webp",
+    title: "Tooted",
+    text: "Kohapeal ja erinevatel laatadel, kus oleme esindatud, saab osta käsitööna valmistatud ketratud lõnga, villavorsti, heie- ja heide-vaipu ning villast mütse, salle ja muid aksessuaare, esitada tellimustöid ning tellimusi saame saata üle maailma.",
   },
 ];
 
-export const services = [
-  {
-    title: "Disain",
-    img: "/canva/card-1.webp", 
-  },
-  {
-    title: "Veebiarendus",
-    img: "/canva/card-2.webp",
-  },
-  {
-    title: "Wordpress arendus",
-    img: "/canva/card-3.webp",
-  },
-  {
-    title: "Kodulehe Haldus",
-    img: "/canva/card-4.webp",
-  },
-];
+
 export default function Home() {
 
 const videoRef = useRef<HTMLVideoElement>(null);
@@ -203,431 +184,436 @@ emailjs.send(
     <div className="min-h-screen">
       <Header />
       
-      {/* Hero Section */}
-<section id="meist" className="relative h-screen flex items-center">
-  {/* Background Image */}
+
+<section id="kodu" className="relative h-screen flex items-center">
+
   <div 
-    className="absolute inset-0 bg-cover bg-left bg-no-repeat"
+    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
     style={{
-      backgroundImage: `url('/section1-bg.webp')`
+      backgroundImage: `url('/villaveski-bg.webp')`
     }}
   />
 
   {/* Content Overlay */}
   <div className="relative z-10 w-full px-6 pt-0">
-<div
-  className={`max-w-2xl hero-content text-left ml-0 lg:ml-12 ${
-    isShortScreen ? "-mt-30" : "-mt-30 md:-mt-80"
-  }`}
->
-  <h1 className="text-5xl md:text-6xl lg:text-7xl text-white mb-6 drop-shadow-lg text-left font-light">
-    Aitame väikeettevõtetel{" "}
-    <span className="block">
-      <span className="font-bold">nähtavaks</span> saada
-    </span>
-  </h1>
-
-  <p className="text-lg md:text-xl text-white/95 mb-10 max-w-lg drop-shadow-md text-left">
-    Loome AI-toega kaasaegseid veebilehti, 
-    mis aitavad sul jõuda klientideni soodsama hinnaga.
-  </p>
-
-  <div className="text-left">
-    <Link href="#teenused" scroll={true}>
-      <button className="bg-white/85 hover:bg-white text-gray-900 px-10 py-4 rounded-full font-semibold transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-xl">
-        Vaata lähemalt
-      </button>
-    </Link>
-  </div>
-</div>
-
+    <div className="flex flex-col items-center justify-center pt-87 h-full text-center relative">
+      {/* SÖRVE pealkiri koos lambadega */}
+      <div className="flex items-center justify-center gap-4 mb-4 hidden md:flex">
+        <Image
+          src="/sheep-black-l.svg"
+          alt="Sheep Left"
+          width={0}
+          height={0}
+          sizes="100vh"
+          className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+          style={{ 
+            filter: 'invert(1) brightness(2)',
+            height: 'clamp(4rem, 9vw, 9rem)'
+          }}
+        />
+        <h1 className="text-9xl text-white drop-shadow-2xl" 
+            style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(4rem, 9vw, 9rem)' }}>
+          SÖRVE
+        </h1>
+        <Image
+          src="/sheep-black-r.svg"
+          alt="Sheep Right"
+          width={0}
+          height={0}
+          sizes="100vh"
+          className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+          style={{ 
+            filter: 'invert(1) brightness(2)',
+            height: 'clamp(4rem, 9vw, 9rem)'
+          }}
+        />
+      </div>
+      
+      {/* SÖRVE ainult mobiilis (ilma lambadeta) */}
+      <h1 className="text-9xl text-white mb-4 drop-shadow-2xl md:hidden" 
+          style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(4rem, 9vw, 9rem)' }}>
+        SÖRVE
+      </h1>
+      <h2 className="text-5xl md:text-8xl text-white drop-shadow-2xl text-center" 
+          style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(2rem, 5vw, 5rem)' }}>
+        VILLAVESKI
+      </h2>
+    </div>
   </div>
 </section>
 
 
 <section
-  id="teenused"
-  className="w-full text-black relative flex items-stretch min-h-[900px] overflow-hidden"
+  id="meist"
+  className="w-full md:min-h-[900px] relative"
 >
-  {/* Taustapilt – peidus väiksematel ekraanidel */}
+  {/* Läbipaistev overlay taustapildi jaoks */}
   <div
-    className="hidden lg:block absolute inset-0 bg-center bg-no-repeat bg-cover max-w-[1920px] mx-auto"
+    className="absolute inset-0"
     style={{
-      backgroundImage: `url('/service-background.svg')`,
+      backgroundImage: "url('/meielugu-bg.webp')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      opacity: 0.1, // siin määrad läbipaistvuse
+      zIndex: -1,   // nii et overlay jääb taha
     }}
   />
 
-  {/* Dekoratiivne SVG – mobiil vasakul, desktop paremal */}
-  <div className="absolute top-0 right-0 lg:right-0 pointer-events-none z-0">
-    <Image
-      src="/screen-settings.svg"
-      alt="Screen Settings"
-      width={100}
-      height={100}
-      className="w-[80px] h-auto lg:w-[100px] lg:h-auto"
-    />
+  {/* Ülemine bänner pildiga */}
+  <div
+    className="mt-5 relative h-30 md:h-50 w-full bg-cover bg-center flex items-center justify-center"
+    style={{ backgroundImage: "url('/meielugu-banner.webp')" }}
+  >
+    <h2
+      className="text-white text-4xl drop-shadow-lg"
+      style={{
+        fontFamily: "'Abril Fatface', serif",
+        fontSize: "clamp(1.7rem, 4vw, 10rem)",
+      }}
+    >
+      MEIE LUGU
+    </h2>
   </div>
 
-  {/* Grid sisu */}
-  <div className="relative w-full max-w-7xl mx-auto px-6 md:grid md:grid-cols-12 gap-10 h-full z-10">
-    {/* VASAK POOL */}
-    <div className="relative md:col-span-8 flex flex-col justify-center py-20 md:py-0 md:mt-20">
-      <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-4 text-center">
-        TEENUSED
-      </h2>
+  {/* Tekstiosa */}
+  <div className="py-16 px-4 max-w-4xl mx-auto text-center text-gray-900 relative z-10">
+    <p className="text-lg md:text-2xl mb-6 leading-relaxed">
+      Meie, Egon ja Merike Sepp, rajasime oma kodu Sõrve poolsaarele Lepiku
+      talusse, kuhu meid tõi Egoni lapsepõlvemälestuste side paigaga ning soov
+      elada maal, eemal linnakärast.
+    </p>
 
-      <p className="text-gray-700 max-w-xl text-lg mb-10 mx-auto text-center">
-        Pakume terviklikke veebilahendusi, mis katavad kogu protsessi alates
-        disainist kuni lõpliku veebileheni. Loome kasutajasõbraliku ja kaasaegse UX/UI disaini,
-        arendame nii kohandatud veebilehti kui ka WordPressi lahendusi ning pakume veebilehe
-        haldust, et sinu sait oleks alati ajakohane ja toimiv.
-      </p>
+    <p className="text-lg md:text-2xl mb-6 leading-relaxed border-b pb-6 border-gray-600 w-[70%] mx-auto">
+      Kohalikus lambakasvatuses nägime kasutamata võimalust, sest suur osa
+      villa jäi väärtustamata.
+    </p>
 
-      {/* Kaardid */}
-      <div className="flex md:grid md:grid-cols-4 gap-6 md:gap-6 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory touch-pan-x">
-        {services.map((s) => (
-          <div
-            key={s.title}
-            className="relative rounded-2xl overflow-hidden shadow-md group 
-                       flex-shrink-0 w-[50%] sm:w-[40%] md:w-auto aspect-[2/3] snap-start mx-2 md:mx-0"
-          >
-            <Image
-              src={s.img}
-              alt={s.title}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 768px) 40vw, 25vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-            
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 
-                            bg-black/80 text-white py-3 rounded-full 
-                            text-base font-bold text-center w-[calc(100%-16px)]">
-              {s.title}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <p className="text-lg md:text-2xl font-semibold mb-6 leading-relaxed text-gray-800">
+  Nii sündiski Sõrve Villaveski – siin pakume erinevatele villatüüpidele võimaluse saada kvaliteetseks lõngaks või nišitoodeteks, avades loomakasvatajatele uue väljundi.
+    </p>
 
-    {/* PAREM POOL */}
-    <div className="relative md:col-span-4 flex flex-col justify-center py-10 md:py-0 text-lg pl-6 md:pl-10 md:mt-23">
-      <p className="text-gray-700 mb-4">
-        <strong>Meie eesmärk</strong> on teha <br />veebilahendus sinu jaoks lihtsalt kiirelt <br />ja odavalt.
-      </p>
-      <p className="text-gray-700 mb-4 relative">
-        Olgu see <br />
-        uue veebilehe kavandamine, <br />
-        olemasoleva täiustamine<br />
-        või täisfunktsionaalse e-poe rajamine.
-        <span className="absolute -bottom-6 left-0 w-[30%] border-b-1 border-black"></span>
-      </p>
-      <p className="text-gray-700 mb-6">
-        <br />
-        Viime projekti lõpuni nii, et tulemus oleks kasutajasõbralik, kaasaegne ja sinu ärile kasulik.
-      </p>
-      <div className="flex justify-start">
-        <button className="px-5 py-2 mb-20 md:mb-0 rounded-full border border-black bg-black text-white font-bold 
-                           translate-y-8 hover:bg-gray-800 transform hover:translate-y-7
-                           transition-all duration-300 ease-in-out">
-          <Link href="#kontakt">
-            Kirjuta meile
-          </Link>
-        </button>
-      </div>
-    </div>
+    {/* Nupp */}
+    <button className="mt-8">
+      <Link
+        href="/meielugu"
+        className="px-6 py-2 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition inline-block"
+      >
+        Loe lähemalt
+      </Link>
+    </button>
   </div>
 
-  {/* Alumine joon */}
-  <hr className="absolute left-0 w-full border-t bottom-[570px] md:bottom-[180px]" />
+  {/* Alumine bänner */}
+  <div
+    className="mt-5 relative h-30 md:h-90 w-full bg-cover bg-center flex items-center justify-center"
+    style={{ backgroundImage: "url('/idea-banner.webp')" }}
+  >
+    <h2
+      className="text-white text-4xl drop-shadow-lg"
+      style={{
+        fontFamily: "'Abril Fatface', serif",
+        fontSize: 'clamp(1.7rem, 2vw, 4rem)'
+      }}
+    >
+      SÜDA JA HING IGA LÕNGA SEES
+    </h2>
+  </div>
 </section>
 
 
 
- <section
-  id="protsess"
-  className="w-full text-white relative min-h-[900px] flex items-stretch py-16 text-center bg-[#272324] lg:bg-transparent overflow-hidden"
->
-  {/* Background image with overlay */}
-  <div className="hidden lg:block absolute inset-0 max-w-[1920px] mx-auto">
-    <div className="absolute inset-0 bg-black opacity-50"></div>
-    <div className="absolute inset-0 bg-center bg-no-repeat bg-cover" style={{ backgroundImage: `url('/process-background.svg')` }} />
-  </div>
 
-  {/* Dekoratiivne SVG */}
-  <div className="absolute top-0 right-0 lg:right-0 pointer-events-none z-0">
-    <Image
-      src="/screen-settings-w.svg"
-      alt="Screen Settings"
-      width={100}
-      height={100}
-      className="w-[80px] h-auto lg:w-[100px] lg:h-auto"
-    />
-  </div>
+
+
+ <section
+  id="teenused"
+  className="w-full min-h-[900px]"
+>
 
   {/* Desktop version */}
-  <div className="hidden lg:block relative z-10 w-full">
-    <h2 className="text-3xl md:text-5xl font-bold md:mt-7 mb-20 text-center">PROTSESS</h2>
+<div className="hidden lg:block relative z-10 w-full min-h-[900px]">
+  <h2
+    className="text-black text-center text-4xl my-16"
+    style={{
+      fontFamily: "'Abril Fatface', serif",
+      fontSize: "clamp(2rem, 4vw, 6rem)",
+    }}
+  >
+    TEENUSED
+  </h2>
 
-    {/* Icons row */}
-    <div className="flex justify-center gap-25 mb-12">
-      {steps.map((step) => (
-        <button
-          key={step.id}
-          onClick={() => handleStepClick(step.id)}
-          className="flex flex-col items-center space-y-2"
-        >
-          <div
-            className={`p-4 rounded-full transition-colors ${
-              active === step.id ? "text-white" : "text-gray-500"
+  <div className="flex justify-center gap-25 mb-12">
+    {steps.map((step) => (
+      <button
+        key={step.id}
+        onClick={() => handleStepClick(step.id)}
+        className="flex flex-col items-center space-y-2"
+      >
+        <div className="relative">
+          <Image
+            src={step.image}
+            alt={step.title}
+            width={150}
+            height={150}
+            className={`rounded-full object-cover aspect-square transition-all duration-300 ${
+              active === step.id
+                ? "brightness-100"
+                : "brightness-50 hover:brightness-80"
             }`}
-          >
-            <div className="relative">
-              {step.icon}
-              <span
-                className={`absolute -top-3 -right-3 text-sm font-bold ${
-                  active === step.id ? "text-white" : "text-gray-500"
-                }`}
-              >
-                {step.id}
-              </span>
-            </div>
-          </div>
-        </button>
-      ))}
-    </div>
+          />
+        </div>
+<span
+  className={`text-xl text-black transition-colors duration-300 ${
+    active === step.id ? "font-bold" : "font-medium"
+  }`}
+>
+  {step.title}
+</span>
 
-    {/* Active content */}
-    {active >= 1 && active <= steps.length && (
-      <div className={`max-w-3xl mx-auto relative min-h-[200px] transition-opacity duration-600 ${
-        isTransitioning ? 'opacity-0' : 'opacity-100'
-      }`}>
-        <h3 className="text-3xl font-medium pb-2 mb-15 w-[80%] border-b mx-auto">
-          {steps[active - 1].title}
-        </h3>
-        <p className="text-xl text-gray-300 leading-relaxed mb-32">
-          {steps[active - 1].text}
-        </p>
-      </div>
-    )}
-
-    {/* Dots indicator */}
-    <div className="absolute bottom-10 left-0 right-0 flex justify-center space-x-2">
-      {steps.map((_, index) => (
-        <div
-          key={index}
-          className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-            active === index + 1 ? "bg-white" : "bg-gray-500"
-          }`}
-        ></div>
-      ))}
-    </div>
+      </button>
+    ))}
   </div>
+
+  {/* Active content */}
+  {active >= 1 && active <= steps.length && (
+    <div
+      className={`max-w-3xl mx-auto relative min-h-[200px] transition-opacity duration-600 ${
+        isTransitioning ? "opacity-0" : "opacity-100"
+      }`}
+    >
+      <h3 className="text-3xl font-medium pb-2 mb-15 w-[50%] border-b mx-auto text-center text-black">
+        {steps[active - 1].title}
+      </h3>
+      <p className="text-xl text-black leading-relaxed mb-8 text-center">
+        {steps[active - 1].text}
+      </p>
+
+      {/* Step-specific button */}
+      <div className="text-center mb-24">
+        {active === 1 && (
+          <Link
+            href="/villatoo"
+            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+          >
+            Loe lähemalt meie Villatööst
+          </Link>
+        )}
+        {active === 2 && (
+          <Link
+            href="/opitoad"
+            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+          >
+            Loe lähemalt Õpitubadest
+          </Link>
+        )}
+        {active === 3 && (
+          <Link
+            href="/kulastus"
+            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+          >
+            Loe lähemalt Külastustest
+          </Link>
+        )}
+        {active === 4 && (
+          <Link
+            href="/tooted"
+            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+          >
+            Loe lähemalt Toodetest
+          </Link>
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Dots indicator */}
+  <div className="absolute bottom-30 left-0 right-0 flex justify-center space-x-2">
+    {steps.map((_, index) => (
+      <div
+        key={index}
+        className="w-2 h-2 rounded-full transition-colors duration-300"
+        style={{
+          backgroundColor: active === index + 1 ? "#be9f7a" : "#000000",
+        }}
+      ></div>
+    ))}
+  </div>
+</div>
 
   {/* Mobile version - accordion style */}
   <div className="lg:hidden relative z-10 w-full px-4">
-      <h2 className="text-3xl font-bold mb-8">PROTSESS</h2>
+      <h2 className="text-black text-center text-4xl my-10 font-bold " style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(2rem, 4vw, 6rem)' }}>TEENUSED</h2>
 
       {steps.map((step) => (
         <div key={step.id}>
           <button
             onClick={() => setActive(active === step.id ? 0 : step.id)}
-            className="w-full text-left py-2 hover:bg-gray-700 transition-colors border-t border-white"
+            className="w-full text-left py-2 hover:bg-gray-50 transition-colors border-t border-gray-500"
           >
             <div className="flex items-center gap-2">
-              <div className={active === step.id ? "text-white" : "text-gray-400"}>
-                {React.cloneElement(step.icon, { size: 32 })}
+              <div className="relative">
+                <Image
+                  src={step.image}
+                  alt={step.title}
+                  width={40}
+                  height={40}
+                  className={`rounded-full object-cover aspect-square transition-all duration-300 ${
+                    active === step.id 
+                      ? "opacity-100" 
+                      : "opacity-90"
+                  }`}
+                />
               </div>
-              <h3 className="p-4 text-xl font-semibold">{step.id}. {step.title}</h3>
+              <h3 className="p-4 text-xl text-black font-semibold">{step.title}</h3>
             </div>
           </button>
           <div className={`transition-all duration-300 ease-in-out overflow-hidden ${active === step.id ? 'max-h-96' : 'max-h-0'}`}>
-            <p className="p-4 text-gray-300 leading-relaxed">{step.text}</p>
+            <p className="p-4 text-gray-800 leading-relaxed">{step.text}</p>
+            {/* Step-specific button */}
+      <div className="text-center mb-24">
+        {active === 1 && (
+          <Link
+            href="/villatoo"
+            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+          >
+            Loe lähemalt meie Villatööst
+          </Link>
+        )}
+        {active === 2 && (
+          <Link
+            href="/opitoad"
+            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+          >
+            Loe lähemalt Õpitubadest
+          </Link>
+        )}
+        {active === 3 && (
+          <Link
+            href="/kulastus"
+            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+          >
+            Loe lähemalt Külastustest
+          </Link>
+        )}
+        {active === 4 && (
+          <Link
+            href="/tooted"
+            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+          >
+            Loe lähemalt Toodetest
+          </Link>
+        )}
+      </div>
           </div>
         </div>
       ))}
   </div>
 </section>
 
-
-      
-<section
-  id="hinnapoliitika"
-  className="w-full text-black relative flex items-stretch md:min-h-[900px] py-19 overflow-hidden"
->
-  {/* Taustapilt – peidus väiksematel ekraanidel */}
-  <div className="hidden lg:block absolute inset-0 max-w-[1920px] mx-auto">
-    <div className="absolute inset-0  opacity-20"></div> {/* Overlay */}
-    <div
-      className="absolute inset-0 bg-center bg-no-repeat bg-cover"
-      style={{ backgroundImage: `url('/price-background.svg')` }}
-    />
-  </div>
-
-  {/* Paremas ülanurgas SVG */}
-<div className="absolute top-0 right-0 lg:top-0 lg:right-0 pointer-events-none z-0">
-  <Image
-    src="/screen-settings.svg"
-    alt="Screen Settings"
-    width={100}   // väike suurus
-    height={100}
-    className="w-[80px] h-auto lg:w-[100px] lg:h-auto"
-  />
-</div>
-
-  <div className="max-w-3xl mx-auto px-0 relative z-10 space-y-8">
-    <h2 className="text-3xl md:text-5xl font-bold md:mb-32 text-center">
-      HINNAPOLIITIKA
-    </h2>
-
-    <div className="md:space-y-6 space-y-8 px-10 md:px-0 text-gray-800 text-left leading-relaxed text-xl">
-      <p>
-        <span className="font-bold">HINNA</span><br />
-        arvutame sinu vajaduste ja disainisoovide põhjal – nende kaardistamisel
-        selgub töömaht, mille järgi saame pakkuda sobiva lahenduse.
-      </p>
-
-      <p>
-         <span className="font-bold">OLENEVALT EESMÄRGIST</span><br />
-        võib see olla lihtne veebileht, mis jagab infot ja kuhu kliente suunata,
-        või põhjalikum lahendus, mis aitab sul otsingutes silma paista.
-      </p>
-
-      <p>
-        <span className="font-bold">HALDUSTEENUSE</span><br />
-        puhul lepime kokku igakuise tasu, mis tagab, <br />
-        et veebileht püsib alati ajakohane ja töökindel.
-      </p>
-
-      <p>
-        Kokkuvõttes on see investeering sinu ettevõtte nähtavusse ja
-        usaldusväärsusse – veebinähtavus on tänapäeval hädavajalik, et{" "}
-        <span className="font-bold">konkurentidega sammu pidada.</span>
-      </p>
-    </div>
-  </div>
-</section>
+      <div
+        className="relative h-30 md:h-60 w-full bg-cover bg-center flex items-center justify-center"
+        style={{ backgroundImage: "url('/kirjuta-meile.webp')" }} // asenda enda pildiga
+      >
+        <h2 className="text-black text-4xl" style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(1.7rem, 4vw, 10rem)' }}>KIRJUTA MEILE</h2>
+      </div>
 
 
 <section
   id="kontakt"
   className="relative min-h-screen md:min-h-[900px] flex items-center justify-center p-6 overflow-hidden"
 >
-{/* Taustavideo */}
-
-<div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-  {/* Background image */}
-  <Image
-    src="/see/video-background-pic.jpg"
-    alt="Background preview"
-    fill
-    className="object-cover"
+{/* Taustapilt - desktop: vasakule poolele, mobile: ainult ülemisele osale */}
+<div className="absolute top-0 left-0 md:w-1/2 w-full md:h-full h-1/2 overflow-hidden z-0">
+  <div 
+    className="absolute inset-0 bg-cover bg-right bg-no-repeat"
+    style={{
+      backgroundImage: `url('/villaveski-bg.webp')`
+    }}
   />
-
-  {/* Video */}
-  <video
-    ref={videoRef}
-    src="/see/bg-video-dark.mp4"
-    loop
-    muted
-    playsInline
-    preload="auto"
-    poster="/see/video-background-pic.jpg"
- 
-    className="absolute inset-0 w-full h-full object-cover"
-  ></video>
-
-  {/* Blur + helepruun overlay */}
-  <div className="absolute inset-0 backdrop-blur-sm bg-[#fafafa]/10 pointer-events-none"></div>
 </div>
 
 
-
-
-
-
-  {/* Dekoratiivne SVG */}
-  <div className="absolute top-0 right-0 lg:right-0 pointer-events-none z-0">
-    <Image
-      src="/screen-settings-w.svg"
-      alt="Screen Settings"
-      width={100}
-      height={100}
-      className="w-[80px] h-auto lg:w-[100px] lg:h-auto"
-    />
-  </div>
-
-  {/* Tausta SVG */}
-  <div className="absolute top-0 left-0 right-0 hidden lg:flex justify-center pointer-events-none z-10">
-    <Image
-      src="/contact-bg.svg"
-      alt="Background"
-      width={1000}
-      height={1080}
-      className="min-w-[1920px]"
-    />
-  </div>
-
   {/* Sisu */}
-  <div className="relative max-w-4xl w-full grid md:grid-cols-2 gap-12 items-start z-20">
-    {/* Vasak pool */}
-    <div className="text-white md:mt-20">
-      <div className="grid grid-cols-2 gap-4 mb-2">
+  <div className="relative w-full grid md:grid-cols-2 md:gap-0 gap-0 md:items-center items-stretch min-h-[900px] z-20">
+    {/* Vasak pool - terve vasak pool desktop, ülemine osa mobile */}
+    <div className="text-white flex flex-col items-center justify-center md:h-full min-h-[450px]">
+      <div className="gap-4 mb-8">
         <div>
-          <h1 className="text-7xl font-extrabold leading-tight mb-6 md:mb-0 md:-translate-y-6">
-            KIRJUTA <br /> MEILE
+          <h1 className="text-9xl text-white drop-shadow-2xl mb-6" 
+            style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(4rem, 9vw, 9rem)' }}>
+            SÖRVE
           </h1>
-          <p className="mb-4 font-bold">
-            Võta ühendust <br />
-            kasvõi meili kaudu:
-          </p>
-          <a
-            href="mailto:umarendus@gmail.com"
-            className="inline-block bg-gray-200 text-black px-6 py-2 mb-2 rounded-full font-semibold hover:bg-gray-300 transition"
-          >
-            umarendus@gmail.com
-          </a>
-        </div>
-        <div className="flex items-center justify-center md:translate-y-0 translate-y-3">
-          <Image
-            src="/logo-lower.svg"
-            alt="Logo"
-            width={160}
-            height={160}
-            className="w-full h-auto max-w-[160px]"
-          />
-        </div>
-      </div>
+          
+          <div className="flex items-center justify-center gap-4 mb-8 hidden md:flex">
+            <Image
+              src="/sheep-black-l.svg"
+              alt="Sheep Left"
+              width={0}
+              height={0}
+              sizes="100vh"
+              className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+              style={{ 
+                filter: 'invert(1) brightness(2)',
+                height: 'clamp(4rem, 9vw, 9rem)'
+              }}
+            />
 
-      <div>
-        <p className="mt-4 mb-2 font-bold">
-          Kas sul on veebileht, mis ei too kliente, või pole lehte üldse?
+            <Image
+              src="/sheep-black-r.svg"
+              alt="Sheep Right"
+              width={0}
+              height={0}
+              sizes="100vh"
+              className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+              style={{ 
+                filter: 'invert(1) brightness(2)',
+                height: 'clamp(4rem, 9vw, 9rem)'
+              }}
+            />
+          </div>
+          
+          <h2 className="text-5xl md:text-8xl text-white drop-shadow-2xl mb-8 text-center" 
+            style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(2rem, 5vw, 5rem)' }}>
+            VILLAVESKI
+          </h2>
+
+          <div className="text-center mb-8">
+            <a
+              href="mailto:saaremaalong@gmail.com"
+              className="inline-block bg-gray-200 text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-300 transition"
+            >
+              saaremaalong@gmail.com
+            </a>
+          </div>
+        </div>
+
+        <p className="mt-8 mb-2 text-center font-bold">
+          Saaremaa Lõng MTÜ
         </p>
-        <p className="border-t pt-2 border-gray-300 w-[70%]">
-          Ära muretse, meie loome AI-toega kaasaegseid veebilehti, mis aitavad
-          sul jõuda klientideni soodsama hinnaga.
-        </p>
+
       </div>
     </div>
 
-    {/* Parem pool (vorm brauseriakna stiilis) */}
-    <div className="bg-white/95 rounded-lg shadow-md overflow-hidden  mb-40 md:mt-20 z-20">
-      <div className="flex items-center px-6 py-4 border-b border-gray-600">
-        <Image src="/home.svg" alt="Home" width={16} height={16} className="mr-2" />
-        <span className="flex-1 text-center text-sm text-gray-600 border border-gray-700 rounded-full px-3 py-0.5 select-none">
-          www.sinuleht.ee
-        </span>
-      </div>
+    {/* Parem pool - terve parem pool desktop, alumine osa mobile */}
+    <div className="overflow-hidden z-20 flex flex-col justify-center items-center md:h-full min-h-[450px] bg-white md:bg-transparent">
 
-<form onSubmit={handleSubmit} className="p-8 space-y-4 max-w-lg mx-auto">
+      {/* Form headline */}
+      <h2 className="hidden md:block text-black text-4xl mb-0 md:mb-8 font-bold text-center max-w-md mx-auto" 
+          style={{ fontFamily: "'Glacial Indifference'", fontSize: 'clamp(2rem, 4vw, 4rem)' }}>
+        KIRJUTA MEILE
+      </h2>
+
+<form onSubmit={handleSubmit} className="p-8 space-y-4 w-full max-w-md mx-auto">
       <div>
         <input
           type="text"
           name="nimi"
-          placeholder="*Teie nimi"
+          placeholder="Teie nimi"
           value={formData.nimi}
           onChange={handleChange}
           required
-          className="w-full border-b border-black outline-none py-2 text-black placeholder-gray-500 text-sm"
+          className="w-full border-b border-black outline-none py-2 text-center text-black placeholder-gray-800 text-m"
         />
       </div>
 
@@ -635,11 +621,11 @@ emailjs.send(
         <input
           type="text"
           name="number"
-          placeholder="*Teie number"
+          placeholder="Teie number"
           value={formData.number}
           onChange={handleChange}
           required
-          className="w-full border-b border-black outline-none py-2 text-black placeholder-gray-500 text-sm"
+          className="w-full border-b border-black outline-none py-2 text-center text-black placeholder-gray-800 text-m"
         />
       </div>
 
@@ -647,29 +633,29 @@ emailjs.send(
         <input
           type="email"
           name="email"
-          placeholder="*Teie e-mail"
+          placeholder="Teie e-mail"
           value={formData.email}
           onChange={handleChange}
           required
-          className="w-full border-b border-black outline-none py-2 text-black placeholder-gray-500 text-sm"
+          className="w-full border-b border-black outline-none py-2 text-center text-black placeholder-gray-800 text-m"
         />
       </div>
 
       <div>
         <textarea
           name="projekt"
-          placeholder="*Kirjeldage oma projekti"
+          placeholder="Kirjeldus"
           value={formData.projekt}
           onChange={handleChange}
           required
-          className="w-full border border-black rounded-md p-2 text-black h-28 resize-none placeholder-gray-500 text-sm"
+          className="w-full border border-black rounded-md p-2 text-center text-black h-28 resize-none placeholder-gray-800 text-m"
         />
       </div>
 <div className="flex flex-col items-center space-y-2">
   <button
     type="submit"
     disabled={loading}
-    className="bg-black text-white font-bold px-6 py-2 rounded-full hover:bg-gray-800 transition cursor-pointer disabled:opacity-50"
+    className="bg-black text-white font-bold px-6 py-2 rounded-full text-center hover:bg-gray-800 transition cursor-pointer disabled:opacity-50"
   >
     {loading ? "Saadan..." : "Kirjuta meile"}
   </button>
@@ -689,7 +675,17 @@ emailjs.send(
     </div>
   </div>
 
-  <div className="absolute bottom-0 left-0 w-full border-t border-white flex justify-start items-center mb-20 gap-6 py-5 px-10 md:px-20 z-30">
+  
+</section>
+
+<footer className="border-t text-black text-center py-10">
+  {/* Ülemine tekst */}
+  <h3 className="text-lg font-semibold mb-6">
+    JÄLGI MEID KA SOTSIAALMEEDIAS
+  </h3>
+
+  {/* Ikoonid */}
+  <div className="flex justify-center items-center gap-6 mb-6">
     <a
       href="https://www.facebook.com/umarendus"
       target="_blank"
@@ -701,7 +697,7 @@ emailjs.send(
         alt="Facebook"
         width={28}
         height={28}
-        className="invert"
+      
       />
     </a>
     <a
@@ -715,12 +711,16 @@ emailjs.send(
         alt="LinkedIn"
         width={28}
         height={28}
-        className="invert"
+        
       />
     </a>
   </div>
-</section>
 
+  {/* Õiguste teema */}
+  <p className="text-sm">
+    &copy; {new Date().getFullYear()} Sörve Villaveski. Kõik õigused kaitstud.
+  </p>
+</footer>
 
       
 
