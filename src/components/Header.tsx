@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation"; // 🔥
 import { motion, AnimatePresence } from "framer-motion";
 
 const sections = ["kodu", "meist", "teenused", "kontakt"];
@@ -10,6 +11,10 @@ const sections = ["kodu", "meist", "teenused", "kontakt"];
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [active, setActive] = useState("kodu");
+
+  const router = useRouter();
+  const pathname = usePathname(); // 🔥 kontrollib kus oled
+  const isHome = pathname === "/";
 
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
@@ -24,28 +29,40 @@ export default function Header() {
     window.scrollTo({ top: offsetPosition, behavior: "smooth" });
   };
 
+  const handleClick = (id: string, isMobile = false) => {
+    if (isMobile) setMobileMenuOpen(false);
+
+    if (pathname !== "/") {
+      router.push(`/#${id}`);
+    } else {
+      setTimeout(() => scrollToSection(id), isMobile ? 300 : 0);
+    }
+  };
+
   useEffect(() => {
+    if (!isHome) return; // 🔥 ainult avalehel jälgime sektsioone
+
     const observers: IntersectionObserver[] = [];
 
     sections.forEach((id) => {
       const section = document.getElementById(id);
       if (!section) return;
 
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) setActive(id);
-    });
-  },
-  { threshold: 0.2 } 
-);
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) setActive(id);
+          });
+        },
+        { threshold: 0.2 }
+      );
 
       observer.observe(section);
       observers.push(observer);
     });
 
     return () => observers.forEach((observer) => observer.disconnect());
-  }, []);
+  }, [isHome]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -70,11 +87,6 @@ const observer = new IntersectionObserver(
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-  };
-
-  const handleMobileClick = (id: string) => {
-    setMobileMenuOpen(false);
-    setTimeout(() => scrollToSection(id), 300);
   };
 
   return (
@@ -130,17 +142,15 @@ const observer = new IntersectionObserver(
           {sections.map((id) => (
             <button
               key={id}
-              onClick={() => scrollToSection(id)}
-              className={`relative font-medium text-sm tracking-wide transition-colors duration-300 ${
-                active === id
+              onClick={() => handleClick(id)}
+              className={`relative font-medium text-m tracking-wide transition-colors duration-300 ${
+                isHome && active === id
                   ? "text-gray-900 font-semibold"
-                  : active === ""
-                  ? "text-gray-800 hover:text-gray-900"
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
               {id.toUpperCase()}
-              {active === id && (
+              {isHome && active === id && (
                 <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-gray-900 transition-all duration-300" />
               )}
             </button>
@@ -203,7 +213,7 @@ const observer = new IntersectionObserver(
               {sections.map((id) => (
                 <motion.div key={id} variants={itemVariants}>
                   <button
-                    onClick={() => handleMobileClick(id)}
+                    onClick={() => handleClick(id, true)}
                     className="block text-black text-2xl font-semibold tracking-wide hover:text-gray-700 transition-colors"
                   >
                     {id.toUpperCase()}
@@ -214,21 +224,14 @@ const observer = new IntersectionObserver(
               {/* Socials */}
               <div className="flex justify-center gap-6 mt-4">
                 <motion.a
-                  href="https://www.facebook.com/umarendus"
+                  href="https://www.facebook.com/groups/416254748471887/"
                   target="_blank"
                   rel="noopener noreferrer"
                   variants={itemVariants}
                 >
-                  <Image src="/facebook.svg" alt="Facebook" width={30} height={30} />
+                  <Image src="/facebook.svg" alt="Facebook" width={38} height={38} />
                 </motion.a>
-                <motion.a
-                  href="http://linkedin.com/company/umarendus"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  variants={itemVariants}
-                >
-                  <Image src="/linkedin.svg" alt="LinkedIn" width={30} height={30} />
-                </motion.a>
+                
               </div>
             </motion.div>
           </motion.div>

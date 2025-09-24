@@ -1,9 +1,10 @@
 'use client'
 
 import Header from "../components/Header";
+import Footer from "../components/Footer";
 import React from "react";
 import Link from "next/link";
-
+import { motion } from "framer-motion";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import emailjs from "@emailjs/browser";
@@ -130,14 +131,7 @@ useEffect(() => {
     }, 10000);
   };
 
-  const [isShortScreen, setIsShortScreen] = useState(false);
 
-useEffect(() => {
-  const checkHeight = () => setIsShortScreen(window.innerHeight < 760);
-  checkHeight();
-  window.addEventListener("resize", checkHeight);
-  return () => window.removeEventListener("resize", checkHeight);
-}, []);
 
 const [formData, setFormData] = useState({
     nimi: "",
@@ -185,64 +179,110 @@ emailjs.send(
       <Header />
       
 
-<section id="kodu" className="relative h-screen flex items-center">
+ <section id="kodu" className="relative h-screen flex items-center">
 
-  <div 
-    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-    style={{
-      backgroundImage: `url('/villaveski-bg.webp')`
-    }}
-  />
+      {/* Taust */}
+      <motion.div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url('/villaveski-bg.webp')` }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5 }}
+      />
 
-  {/* Content Overlay */}
-  <div className="relative z-10 w-full px-6 pt-0">
-    <div className="flex flex-col items-center justify-center pt-87 h-full text-center relative">
-      {/* SÖRVE pealkiri koos lambadega */}
-      <div className="flex items-center justify-center gap-4 mb-4 hidden md:flex">
-        <Image
-          src="/sheep-black-l.svg"
-          alt="Sheep Left"
-          width={0}
-          height={0}
-          sizes="100vh"
-          className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
-          style={{ 
-            filter: 'invert(1) brightness(2)',
-            height: 'clamp(4rem, 9vw, 9rem)'
-          }}
-        />
-        <h1 className="text-9xl text-white drop-shadow-2xl" 
-            style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(4rem, 9vw, 9rem)' }}>
-          SÖRVE
-        </h1>
-        <Image
-          src="/sheep-black-r.svg"
-          alt="Sheep Right"
-          width={0}
-          height={0}
-          sizes="100vh"
-          className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
-          style={{ 
-            filter: 'invert(1) brightness(2)',
-            height: 'clamp(4rem, 9vw, 9rem)'
-          }}
-        />
+      {/* Content Overlay */}
+      <div className="relative z-10 w-full px-6 pt-0">
+        <div className="flex flex-col items-center justify-center pt-87 h-full text-center relative">
+
+          {/* Desktop pealkiri koos lambadega */}
+          <div className="flex items-center justify-center gap-4 mb-4 hidden md:flex">
+            
+            {/* Vasak lambake */}
+            <motion.div
+              initial={{ x: -50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 60, damping: 20, duration: 1.5, delay: 1.6 }}
+            >
+              <Image
+                src="/sheep-black-l.svg"
+                alt="Sheep Left"
+                width={0}
+                height={0}
+                sizes="100vh"
+                className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+                style={{ 
+                  filter: 'invert(1) brightness(2)',
+                  height: 'clamp(4rem, 9vw, 9rem)'
+                }}
+              />
+            </motion.div>
+
+            {/* SÖRVE VILLAVESKI */}
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 80, damping: 15, delay: 2.2, duration: 1.5 }}
+              className="text-center"
+            >
+              <h1
+                className="text-9xl text-white drop-shadow-2xl"
+                style={{ fontFamily: "'Abril Fatface'", fontSize: 'clamp(4rem, 9vw, 9rem)' }}
+              >
+                SÖRVE
+              </h1>
+              <h2
+                className="text-5xl md:text-8xl text-white drop-shadow-2xl"
+                style={{ fontFamily: "'Abril Fatface'", fontSize: 'clamp(2rem, 5vw, 5rem)' }}
+              >
+                VILLAVESKI
+              </h2>
+            </motion.div>
+
+            {/* Parem lambake */}
+            <motion.div
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 60, damping: 20, duration: 1.5, delay: 1.6 }}
+            >
+              <Image
+                src="/sheep-black-r.svg"
+                alt="Sheep Right"
+                width={0}
+                height={0}
+                sizes="100vh"
+                className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+                style={{ 
+                  filter: 'invert(1) brightness(2)',
+                  height: 'clamp(4rem, 9vw, 9rem)'
+                }}
+              />
+            </motion.div>
+          </div>
+
+          {/* Mobiilvaade */}
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 80, damping: 15, delay: 2.2, duration: 1.5 }}
+            className="md:hidden text-center"
+          >
+            <h1
+              className="text-9xl text-white mb-4 drop-shadow-2xl"
+              style={{ fontFamily: "'Abril Fatface'", fontSize: 'clamp(4rem, 9vw, 9rem)' }}
+            >
+              SÖRVE
+            </h1>
+            <h2
+              className="text-5xl md:text-8xl text-white drop-shadow-2xl"
+              style={{ fontFamily: "'Abril Fatface'", fontSize: 'clamp(2rem, 5vw, 5rem)' }}
+            >
+              VILLAVESKI
+            </h2>
+          </motion.div>
+
+        </div>
       </div>
-      
-      {/* SÖRVE ainult mobiilis (ilma lambadeta) */}
-      <h1 className="text-9xl text-white mb-4 drop-shadow-2xl md:hidden" 
-          style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(4rem, 9vw, 9rem)' }}>
-        SÖRVE
-      </h1>
-      <h2 className="text-5xl md:text-8xl text-white drop-shadow-2xl text-center" 
-          style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(2rem, 5vw, 5rem)' }}>
-        VILLAVESKI
-      </h2>
-    </div>
-  </div>
-</section>
-
-
+    </section>
 <section
   id="meist"
   className="w-full md:min-h-[900px] relative"
@@ -304,6 +344,34 @@ emailjs.send(
     </button>
   </div>
 
+            <div className="flex items-center justify-center gap-0 mb-8 md:flex">
+            <Image
+              src="/sheep-black-l.svg"
+              alt="Sheep Left"
+              width={0}
+              height={0}
+              sizes="100vh"
+              className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+              style={{ 
+                filter: ' brightness(2)',
+                height: 'clamp(2rem, 2vw, 2rem)'
+              }}
+            />
+
+            <Image
+              src="/sheep-black-r.svg"
+              alt="Sheep Right"
+              width={0}
+              height={0}
+              sizes="100vh"
+              className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+              style={{ 
+                filter: ' brightness(2)',
+                height: 'clamp(2rem, 2vw, 2rem)'
+              }}
+            />
+          </div>
+
   {/* Alumine bänner */}
   <div
     className="mt-5 relative h-30 md:h-90 w-full bg-cover bg-center flex items-center justify-center"
@@ -332,7 +400,7 @@ emailjs.send(
 >
 
   {/* Desktop version */}
-<div className="hidden lg:block relative z-10 w-full min-h-[900px]">
+<div className="hidden lg:block relative z-10 w-full min-h-[850px]">
   <h2
     className="text-black text-center text-4xl my-16"
     style={{
@@ -449,7 +517,7 @@ emailjs.send(
         <div key={step.id}>
           <button
             onClick={() => setActive(active === step.id ? 0 : step.id)}
-            className="w-full text-left py-2 hover:bg-gray-50 transition-colors border-t border-gray-500"
+            className="w-full text-center py-2 hover:bg-gray-50 transition-colors border-t border-gray-500"
           >
             <div className="flex items-center gap-2">
               <div className="relative">
@@ -469,46 +537,76 @@ emailjs.send(
             </div>
           </button>
           <div className={`transition-all duration-300 ease-in-out overflow-hidden ${active === step.id ? 'max-h-96' : 'max-h-0'}`}>
-            <p className="p-4 text-gray-800 leading-relaxed">{step.text}</p>
-            {/* Step-specific button */}
-      <div className="text-center mb-24">
-        {active === 1 && (
-          <Link
-            href="/villatoo"
-            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
-          >
-            Loe lähemalt meie Villatööst
-          </Link>
-        )}
-        {active === 2 && (
-          <Link
-            href="/opitoad"
-            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
-          >
-            Loe lähemalt Õpitubadest
-          </Link>
-        )}
-        {active === 3 && (
-          <Link
-            href="/kulastus"
-            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
-          >
-            Loe lähemalt Külastustest
-          </Link>
-        )}
-        {active === 4 && (
-          <Link
-            href="/tooted"
-            className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
-          >
-            Loe lähemalt Toodetest
-          </Link>
-        )}
-      </div>
-          </div>
+  <p className="p-4 text-gray-800 leading-relaxed text-center mx-auto">
+    {step.text}
+  </p>
+  {/* Step-specific button */}
+  <div className="text-center mb-24">
+    {active === 1 && (
+      <Link
+        href="/villatoo"
+        className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+      >
+        Loe lähemalt meie Villatööst
+      </Link>
+    )}
+    {active === 2 && (
+      <Link
+        href="/opitoad"
+        className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+      >
+        Loe lähemalt Õpitubadest
+      </Link>
+    )}
+    {active === 3 && (
+      <Link
+        href="/kulastus"
+        className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+      >
+        Loe lähemalt Külastustest
+      </Link>
+    )}
+    {active === 4 && (
+      <Link
+        href="/tooted"
+        className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+      >
+        Loe lähemalt Toodetest
+      </Link>
+    )}
+  </div>
+</div>
+
         </div>
       ))}
   </div>
+  <div className="flex items-center justify-center gap-0 mb-8 md:flex">
+            <Image
+              src="/sheep-black-l.svg"
+              alt="Sheep Left"
+              width={0}
+              height={0}
+              sizes="100vh"
+              className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+              style={{ 
+                filter: ' brightness(2)',
+                height: 'clamp(2rem, 2vw, 2rem)'
+              }}
+            />
+
+            <Image
+              src="/sheep-black-r.svg"
+              alt="Sheep Right"
+              width={0}
+              height={0}
+              sizes="100vh"
+              className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+              style={{ 
+                filter: ' brightness(2)',
+                height: 'clamp(2rem, 2vw, 2rem)'
+              }}
+            />
+          </div>
 </section>
 
       <div
@@ -540,8 +638,8 @@ emailjs.send(
     <div className="text-white flex flex-col items-center justify-center md:h-full min-h-[450px]">
       <div className="gap-4 mb-8">
         <div>
-          <h1 className="text-9xl text-white drop-shadow-2xl mb-6" 
-            style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(4rem, 9vw, 9rem)' }}>
+          <h1 className="text-9xl text-white text-center drop-shadow-2xl mb-6" 
+            style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(5rem, 9vw, 9rem)' }}>
             SÖRVE
           </h1>
           
@@ -678,51 +776,8 @@ emailjs.send(
   
 </section>
 
-<footer className="border-t text-black text-center py-10">
-  {/* Ülemine tekst */}
-  <h3 className="text-lg font-semibold mb-6">
-    JÄLGI MEID KA SOTSIAALMEEDIAS
-  </h3>
 
-  {/* Ikoonid */}
-  <div className="flex justify-center items-center gap-6 mb-6">
-    <a
-      href="https://www.facebook.com/umarendus"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="hover:opacity-70 transition"
-    >
-      <Image
-        src="/facebook.svg"
-        alt="Facebook"
-        width={28}
-        height={28}
-      
-      />
-    </a>
-    <a
-      href="http://linkedin.com/company/umarendus"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="hover:opacity-70 transition"
-    >
-      <Image
-        src="/linkedin.svg"
-        alt="LinkedIn"
-        width={28}
-        height={28}
-        
-      />
-    </a>
-  </div>
-
-  {/* Õiguste teema */}
-  <p className="text-sm">
-    &copy; {new Date().getFullYear()} Sörve Villaveski. Kõik õigused kaitstud.
-  </p>
-</footer>
-
-      
+      <Footer />
 
 
     </div>

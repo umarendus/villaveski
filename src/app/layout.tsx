@@ -1,10 +1,18 @@
+// ./src/app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
+import { Abril_Fatface } from "next/font/google";  // ✅ import Google Font
 
 export const metadata: Metadata = {
   title: "Villa Veski",
   description: "Villa Veski - premium accommodation and services.",
 };
+
+// Configure font
+const abrilFatface = Abril_Fatface({
+  subsets: ["latin"],
+  weight: "400", // this font only has 400
+});
 
 export default function RootLayout({
   children,
@@ -13,13 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="preload" as="image" href="/section1-bg.webp" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet" />
-      </head>
-      <body className="antialiased">
+      <body className={`${abrilFatface.className} antialiased`}>
         {children}
       </body>
     </html>
