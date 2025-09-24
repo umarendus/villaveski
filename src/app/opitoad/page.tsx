@@ -22,7 +22,13 @@ export default function OpiToadPage() {
         </h2>
       </div>
 
-<div className="text-black font-medium text-xl max-w-4xl mx-auto my-12 px-6 text-center space-y-6">
+   <div
+        className="text-black text-xl max-w-4xl mx-auto my-12 px-6 text-center space-y-6"
+        style={{
+          fontFamily: "var(--font-glacial)", // kõik p kasutavad Glacial Indifference
+          fontWeight: 300, // LIGHT variant
+        }}
+      >
   <p>
     Meie õpitoad pakuvad unikaalset võimalust sukelduda traditsioonilise villatööstuse maailma ja õppida käsitöö saladusi. Osalejad saavad tutvuda lõnga ketramise, kudumise ja villavorsti valmistamise protsessiga ning proovida ise villast tooteid luua. Õpitubades on võimalik valmistada isikupäraseid mütse, salle, heie- ja heide-vaipu, kasutades erinevaid värve ja tekstuure vastavalt oma soovile. 
   </p>

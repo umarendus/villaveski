@@ -318,18 +318,31 @@ emailjs.send(
 
   {/* Tekstiosa */}
   <div className="py-16 px-4 max-w-4xl mx-auto text-center text-gray-900 relative z-10">
-    <p className="text-lg md:text-2xl mb-6 leading-relaxed">
+<p
+  className="text-lg md:text-2xl mb-6 leading-relaxed"
+  style={{
+    fontFamily: "var(--font-glacial)", // Glacial Indifference
+
+  }}
+>
+      
       Meie, Egon ja Merike Sepp, rajasime oma kodu Sõrve poolsaarele Lepiku
       talusse, kuhu meid tõi Egoni lapsepõlvemälestuste side paigaga ning soov
       elada maal, eemal linnakärast.
     </p>
 
-    <p className="text-lg md:text-2xl mb-6 leading-relaxed border-b pb-6 border-gray-600 w-[70%] mx-auto">
+    <p className="text-lg md:text-2xl mb-6 leading-relaxed border-b pb-6 border-gray-600 w-[70%] mx-auto" style={{
+    fontFamily: "var(--font-glacial)", // Glacial Indifference
+
+  }}>
       Kohalikus lambakasvatuses nägime kasutamata võimalust, sest suur osa
       villa jäi väärtustamata.
     </p>
 
-    <p className="text-lg md:text-2xl font-semibold mb-6 leading-relaxed text-gray-800">
+    <p className="text-lg md:text-2xl font-semibold mb-6 leading-relaxed text-gray-800" style={{
+    fontFamily: "var(--font-glacial)", // Glacial Indifference
+  
+  }}>
   Nii sündiski Sõrve Villaveski – siin pakume erinevatele villatüüpidele võimaluse saada kvaliteetseks lõngaks või nišitoodeteks, avades loomakasvatajatele uue väljundi.
     </p>
 
@@ -338,6 +351,10 @@ emailjs.send(
       <Link
         href="/meielugu"
         className="px-6 py-2 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition inline-block"
+        style={{
+    fontFamily: "var(--font-glacial)", // Glacial Indifference
+
+  }}
       >
         Loe lähemalt
       </Link>
@@ -411,7 +428,9 @@ emailjs.send(
     TEENUSED
   </h2>
 
-  <div className="flex justify-center gap-25 mb-12">
+  <div className="flex justify-center gap-25 mb-12"   style={{
+    fontFamily: "var(--font-glacial)", // Glacial Indifference
+  }}>
     {steps.map((step) => (
       <button
         key={step.id}
@@ -432,6 +451,7 @@ emailjs.send(
           />
         </div>
 <span
+
   className={`text-xl text-black transition-colors duration-300 ${
     active === step.id ? "font-bold" : "font-medium"
   }`}
@@ -446,6 +466,9 @@ emailjs.send(
   {/* Active content */}
   {active >= 1 && active <= steps.length && (
     <div
+     style={{
+    fontFamily: "var(--font-glacial)", // Glacial Indifference
+  }}
       className={`max-w-3xl mx-auto relative min-h-[200px] transition-opacity duration-600 ${
         isTransitioning ? "opacity-0" : "opacity-100"
       }`}
@@ -510,7 +533,10 @@ emailjs.send(
 </div>
 
   {/* Mobile version - accordion style */}
-  <div className="lg:hidden relative z-10 w-full px-4">
+  <div className="lg:hidden relative z-10 w-full px-4"
+  style={{
+    fontFamily: "var(--font-glacial)", // Glacial Indifference
+  }}>
       <h2 className="text-black text-center text-4xl my-10 font-bold " style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(2rem, 4vw, 6rem)' }}>TEENUSED</h2>
 
       {steps.map((step) => (
@@ -672,11 +698,14 @@ emailjs.send(
           </div>
           
           <h2 className="text-5xl md:text-8xl text-white drop-shadow-2xl mb-8 text-center" 
-            style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(2rem, 5vw, 5rem)' }}>
+            style={{ fontFamily: "'Abril Fatface'", fontSize: 'clamp(2rem, 5vw, 5rem)' }}>
             VILLAVESKI
           </h2>
 
-          <div className="text-center mb-8">
+          <div className="text-center mb-8"
+           style={{
+    fontFamily: "var(--font-glacial)", // Glacial Indifference
+  }}>
             <a
               href="mailto:saaremaalong@gmail.com"
               className="inline-block bg-gray-200 text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-300 transition"
@@ -686,7 +715,10 @@ emailjs.send(
           </div>
         </div>
 
-        <p className="mt-8 mb-2 text-center font-bold">
+        <p className="mt-8 mb-2 text-center font-bold" 
+         style={{
+    fontFamily: "var(--font-glacial)", // Glacial Indifference
+  }}>
           Saaremaa Lõng MTÜ
         </p>
 
@@ -698,11 +730,14 @@ emailjs.send(
 
       {/* Form headline */}
       <h2 className="hidden md:block text-black text-4xl mb-0 md:mb-8 font-bold text-center max-w-md mx-auto" 
-          style={{ fontFamily: "'Glacial Indifference'", fontSize: 'clamp(2rem, 4vw, 4rem)' }}>
+          style={{ fontFamily: "var(--font-glacial)", fontSize: 'clamp(2rem, 4vw, 4rem)' }}>
         KIRJUTA MEILE
       </h2>
 
-<form onSubmit={handleSubmit} className="p-8 space-y-4 w-full max-w-md mx-auto">
+<form onSubmit={handleSubmit} className="p-8 space-y-4 w-full max-w-md mx-auto"
+style={{
+    fontFamily: "var(--font-glacial)", // Glacial Indifference
+  }}>
       <div>
         <input
           type="text"

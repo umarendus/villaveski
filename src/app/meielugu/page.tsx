@@ -20,7 +20,13 @@ export default function MeieLuguPage() {
         </h2>
       </div>
 
-      <div className="text-black font-medium text-xl max-w-4xl mx-auto my-12 px-6 text-center space-y-6">
+         <div
+        className="text-black text-xl max-w-4xl mx-auto my-12 px-6 text-center space-y-6"
+        style={{
+          fontFamily: "var(--font-glacial)", // kõik p kasutavad Glacial Indifference
+          fontWeight: 300, // LIGHT variant
+        }}
+      >
         <p>
           Sörve Villaveski lugu sai alguse soovist anda Saaremaa lammaste villale uus elu ning luua piirkonnale väärtuslik ja kestlik tegevusvaldkond. Meie eesmärk on käsitleda villa inimlikult, muutes selle kvaliteetseks lõngaks ja eripärasteks nišitoodeteks, mis ühendavad traditsioonilise käsitöö ja kaasaegse disaini. 
         </p>

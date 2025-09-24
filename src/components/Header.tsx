@@ -90,7 +90,10 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white backdrop-blur-md px-6 py-0 border-b border-white/20 shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white backdrop-blur-md px-6 py-0 border-b border-white/20 shadow-sm"
+    style={{
+    fontFamily: "var(--font-glacial)", // Glacial Indifference
+  }}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Left Logo - Desktop */}
         <Link

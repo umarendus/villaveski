@@ -22,7 +22,13 @@ export default function TootedPage() {
         </h2>
       </div>
 
-<div className="text-black font-medium text-xl max-w-4xl mx-auto my-12 px-6 text-center space-y-6">
+   <div
+        className="text-black text-xl max-w-4xl mx-auto my-12 px-6 text-center space-y-6"
+        style={{
+          fontFamily: "var(--font-glacial)", // kõik p kasutavad Glacial Indifference
+          fontWeight: 300, // LIGHT variant
+        }}
+      >
   <p>
     Sörve Villaveski tooted on käsitööna valmistatud, kõrge kvaliteediga ja ainulaadsed. Meie peamine valdkond on ketratud lõng, villavorst, heie- ja heide-vaibad ning villast valmistatud mütsid, sallid ja muud aksessuaarid. Iga toode on loodud hoolikalt ja inimlikult töödeldud villast, ühendades traditsioonilise käsitöö ja kaasaegse disaini. 
   </p>
