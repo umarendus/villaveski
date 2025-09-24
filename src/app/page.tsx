@@ -41,36 +41,7 @@ const steps = [
 
 export default function Home() {
 
-const videoRef = useRef<HTMLVideoElement>(null);
 
-useEffect(() => {
-  const video = videoRef.current;
-  if (!video) return;
-
-  // Käivitub niipea kui esimesed kaadrid on saadaval
-  const handleLoadedData = () => {
-
-    video.play();
-  };
-
-  video.addEventListener("loadeddata", handleLoadedData);
-
-  // Ensure video plays when it comes into view
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        video.play();
-      }
-    });
-  }, { threshold: 0.1 });
-
-  observer.observe(video);
-
-  return () => {
-    video.removeEventListener("loadeddata", handleLoadedData);
-    observer.unobserve(video);
-  };
-}, []);
 
 
   const [active, setActive] = useState(1);
@@ -102,8 +73,8 @@ useEffect(() => {
         setTimeout(() => {
           setActive(prev => (prev >= steps.length ? 1 : prev + 1));
           setIsTransitioning(false);
-        }, 300); // Half of transition duration
-      }, 3000);
+        }, 500); // Half of transition duration
+      }, 6000);
     }
 
     return () => {
@@ -128,7 +99,7 @@ useEffect(() => {
     // Resume auto-advance after 10 seconds of inactivity
     setTimeout(() => {
       setUserInteracted(false);
-    }, 10000);
+    }, 20000);
   };
 
 
