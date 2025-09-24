@@ -1,0 +1,69 @@
+/* ✅ Put @import FIRST */
+@import url('https://fonts.cdnfonts.com/css/glacial-indifference-2');
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'Glacial Indifference', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Glacial Indifference', monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    
+    --foreground: #ededed;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Glacial Indifference', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+
+
+.hero-content p {
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+@keyframes flow {
+  0% {
+    stroke-dashoffset: 16;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.flow-path {
+  animation: flow 3s infinite linear;
+}
+
+.flow-indicator {
+  animation: bounce 2s infinite;
+  transform-origin: center;
+}
+
+.flow-path-sidebar {
+  animation: flow 2s infinite linear;
+}
+
+.flow-arrow {
+  animation: pulse 2s infinite;
+}

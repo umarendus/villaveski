@@ -1,0 +1,3 @@
+# Repository Configuration
+
+targetFramework: Playwright
