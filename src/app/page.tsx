@@ -398,7 +398,7 @@ emailjs.send(
       className="text-white text-4xl drop-shadow-lg"
       style={{
         fontFamily: "'Abril Fatface', serif",
-        fontSize: 'clamp(1.7rem, 2vw, 4rem)'
+        fontSize: 'clamp(1.4rem, 3vw, 4rem)'
       }}
     >
       SÜDA JA HING IGA LÕNGA SEES

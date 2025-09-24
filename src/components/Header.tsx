@@ -111,34 +111,33 @@ export default function Header() {
         </Link>
 
         {/* Mobile Sheep Logos */}
-        <div className="lg:hidden flex items-center gap-px">
-          <Link
-            href="/"
-            className="relative flex items-center h-full hover:opacity-80 transition-opacity"
-          >
-            <Image
-              src="/sheep-black-l.svg"
-              alt="Logo"
-              width={0}
-              height={0}
-              sizes="100vh"
-              className="h-full w-auto object-contain"
-            />
-          </Link>
-          <Link
-            href="/"
-            className="relative flex items-center h-full hover:opacity-80 transition-opacity"
-          >
-            <Image
-              src="/sheep-black-r.svg"
-              alt="Logo"
-              width={0}
-              height={0}
-              sizes="100vh"
-              className="h-full w-auto object-contain"
-            />
-          </Link>
-        </div>
+<div className="lg:hidden flex items-center gap-1">
+  <Link
+    href="/"
+    className="relative flex items-center h-full hover:opacity-80 transition-opacity"
+  >
+    <Image
+      src="/sheep-black-l.svg"
+      alt="Logo"
+      width={40}
+      height={40}
+      className="h-8 w-auto md:h-12" // 📏 väiksem mobiilil, suurem md ekraanil
+    />
+  </Link>
+  <Link
+    href="/"
+    className="relative flex items-center h-full hover:opacity-80 transition-opacity"
+  >
+    <Image
+      src="/sheep-black-r.svg"
+      alt="Logo"
+      width={40}
+      height={40}
+      className="h-8 w-auto md:h-12" // 📏 sama reegel
+    />
+  </Link>
+</div>
+
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center space-x-10">
