@@ -417,7 +417,7 @@ emailjs.send(
             className={`rounded-full object-cover aspect-square transition-all duration-300 ${
               active === step.id
                 ? "brightness-100"
-                : "brightness-50 hover:brightness-80"
+                : "brightness-20 hover:brightness-80"
             }`}
           />
         </div>
