@@ -582,7 +582,7 @@ useEffect(() => {
         className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
           active === 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
         }`}
-        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 800 }}
       >
         Loe lähemalt meie Villatööst
       </Link>
@@ -592,7 +592,7 @@ useEffect(() => {
         className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
           active === 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
         }`}
-        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 800 }}
       >
         Loe lähemalt Õpitubadest
       </Link>
@@ -602,7 +602,7 @@ useEffect(() => {
         className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
           active === 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
         }`}
-        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 800 }}
       >
         Loe lähemalt Külastustest
       </Link>
@@ -612,7 +612,7 @@ useEffect(() => {
         className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
           active === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
         }`}
-        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 800 }}
       >
         Loe lähemalt Toodetest
       </Link>
