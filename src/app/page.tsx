@@ -106,9 +106,8 @@ export default function Home() {
 
 const [formData, setFormData] = useState({
     nimi: "",
-    number: "",
     email: "",
-    projekt: "",
+    kirjeldus: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -135,7 +134,7 @@ emailjs.send(
         () => {
           setLoading(false);
           setSuccess(true);
-          setFormData({ nimi: "", number: "", email: "", projekt: "" }); // puhasta vorm
+          setFormData({ nimi: "", email: "", kirjeldus: "" }); // puhasta vorm
         },
         () => {
           setLoading(false);
@@ -763,17 +762,17 @@ style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
 
       <div>
        <label
-  htmlFor="projekt"
+  htmlFor="kirjeldus"
   className="block mb-2 mt-6 text-center  text-gray-900"
 >
   Sõnumi sisu
 </label>
 
 <textarea
-  id="projekt"
-  name="projekt"
+  id="kirjeldus"
+  name="kirjeldus"
 
-  value={formData.projekt}
+  value={formData.kirjeldus}
   onChange={handleChange}
   required
   className="w-full border border-black rounded-md p-2 text-center text-black h-28 resize-none placeholder-gray-800 text-m"
