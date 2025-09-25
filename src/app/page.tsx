@@ -147,19 +147,39 @@ emailjs.send(
   // algväärtus serveris → lihtsalt 180, client-side uuendatakse useEffect'iga
   const [xValue, setXValue] = useState(180);
 
-  useEffect(() => {
-    const updateX = () => {
-      if (window.innerWidth <= 700) {
-        setXValue(100); // mobiil
-      } else {
-        setXValue(180); // suurem ekraan
-      }
-    };
+useEffect(() => {
+  // Laiuse ja x väärtuse piirid
+  const MIN_W = 460;
+  const MAX_W = 1160;
+  const MIN_X = 70;
+  const MAX_X = 180;
 
-    updateX(); // kohe kontroll
-    window.addEventListener("resize", updateX);
-    return () => window.removeEventListener("resize", updateX);
-  }, []);
+  const updateX = () => {
+    const w = window.innerWidth;
+
+    if (w <= MIN_W) {
+      setXValue(MIN_X);
+      return;
+    }
+    if (w >= MAX_W) {
+      setXValue(MAX_X);
+      return;
+    }
+
+    // Lineaarne interpolatsioon vahemikus [MIN_W, MAX_W] -> [MIN_X, MAX_X]
+    const t = (w - MIN_W) / (MAX_W - MIN_W); // 0..1
+    const x = MIN_X + t * (MAX_X - MIN_X);
+
+    // Soovi korral võid ümardada:
+    // setXValue(Math.round(x));
+    setXValue(x);
+  };
+
+  updateX(); // kohe alguses
+  window.addEventListener("resize", updateX);
+  return () => window.removeEventListener("resize", updateX);
+}, []);
+
 
   return (
     
@@ -205,7 +225,7 @@ emailjs.send(
           height={0}
           sizes="100vh"
           className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
-          style={{ filter: "invert(1) brightness(2)", height: "clamp(4rem, 9vw, 9rem)" }}
+          style={{ filter: "invert(1) brightness(2)", height: "clamp(2.8rem, 8vw, 8rem)" }}
         />
       </motion.div>
 
@@ -221,7 +241,7 @@ emailjs.send(
     className="text-white drop-shadow-2xl"
     style={{
       fontFamily: "'Abril Fatface'",
-      fontSize: "clamp(4rem, 9vw, 7rem)",
+      fontSize: "clamp(2.6rem, 9vw, 6.5rem)",
       lineHeight: 1.1, // väiksem reavahe
     }}
   >
@@ -231,7 +251,7 @@ emailjs.send(
     className="text-white drop-shadow-2xl"
     style={{
       fontFamily: "'Abril Fatface'",
-      fontSize: "clamp(2rem, 5vw, 4rem)",
+      fontSize: "clamp(1.6rem, 5.5vw, 3.6rem)",
       lineHeight: 1.1, // väiksem reavahe
     }}
   >
@@ -259,19 +279,10 @@ emailjs.send(
           height={0}
           sizes="100vh"
           className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
-          style={{ filter: "invert(1) brightness(2)", height: "clamp(4rem, 9vw, 9rem)" }}
+          style={{ filter: "invert(1) brightness(2)", height: "clamp(2.8rem, 8vw, 8rem)" }}
         />
       </motion.div>
 </div>
-
-
-
-
-          {/* Mobiilvaade */}
-
-
-
-
 
         </div>
       </div>
