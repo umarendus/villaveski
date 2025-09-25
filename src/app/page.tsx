@@ -197,7 +197,9 @@ useEffect(() => {
       {/* Taust */}
       <motion.div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url('/villaveski-bg.webp')` }}
+        style={{ backgroundImage: `url('/villaveski-bg.webp')`,
+          filter: "brightness(0.9)",
+         }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
