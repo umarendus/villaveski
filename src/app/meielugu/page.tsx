@@ -6,7 +6,7 @@ export default function MeieLuguPage() {
     <div>
       <Header />
       <div
-        className="mt-15 relative h-30 md:h-50 w-full bg-cover bg-center flex items-center justify-center"
+        className="md:mt-15 mt-12 relative h-30 md:h-50 w-full bg-cover bg-center flex items-center justify-center"
         style={{ backgroundImage: "url('/meielugu-banner.webp')" }}
       >
         <h2

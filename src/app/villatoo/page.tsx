@@ -6,7 +6,7 @@ export default function VillaTooPage() {
     <div>
       <Header />
 <div
-  className="mt-15 relative h-30 md:h-50 w-full bg-cover bg-center flex items-center justify-center"
+  className="md:mt-15 mt-12 relative h-30 md:h-50 w-full bg-cover bg-center flex items-center justify-center"
   style={{
     backgroundImage: "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/canva/card-1.webp')"
   }}
