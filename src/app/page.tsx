@@ -146,6 +146,7 @@ emailjs.send(
 
   // algväärtus serveris → lihtsalt 180, client-side uuendatakse useEffect'iga
   const [xValue, setXValue] = useState(180);
+  const [isLowHeight, setIsLowHeight] = useState(false);
 
 useEffect(() => {
   // Laiuse ja x väärtuse piirid
@@ -154,9 +155,14 @@ useEffect(() => {
   const MIN_X = 70;
   const MAX_X = 180;
 
-  const updateX = () => {
+  const updateLayout = () => {
     const w = window.innerWidth;
+    const h = window.innerHeight;
 
+    // Kontrolli kõrgust pt-87 vs pt-17 jaoks
+    setIsLowHeight(h <= 475);
+
+    // X-väärtuse arvutamine
     if (w <= MIN_W) {
       setXValue(MIN_X);
       return;
@@ -175,9 +181,9 @@ useEffect(() => {
     setXValue(x);
   };
 
-  updateX(); // kohe alguses
-  window.addEventListener("resize", updateX);
-  return () => window.removeEventListener("resize", updateX);
+  updateLayout(); // kohe alguses
+  window.addEventListener("resize", updateLayout);
+  return () => window.removeEventListener("resize", updateLayout);
 }, []);
 
 
@@ -200,7 +206,7 @@ useEffect(() => {
 
       {/* Content Overlay */}
       <div className="relative z-10 w-full px-6 pt-0">
-        <div className="flex flex-col items-center justify-center pt-87 h-full text-center relative">
+        <div className={`flex flex-col items-center justify-center ${isLowHeight ? 'pt-17' : 'pt-87'} h-full text-center relative`}>
 
           {/* Desktop pealkiri koos lambadega */}
 <div className="flex items-center justify-center mb-4 md:flex relative">

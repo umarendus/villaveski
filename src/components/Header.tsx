@@ -11,6 +11,7 @@ const sections = ["kodu", "meist", "teenused", "kontakt"];
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [active, setActive] = useState("kodu");
+  const [isLowHeight, setIsLowHeight] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname(); // 🔥 kontrollib kus oled
@@ -92,7 +93,12 @@ export default function Header() {
       if (window.innerWidth >= 1024 && mobileMenuOpen) {
         setMobileMenuOpen(false);
       }
+      // Update height-based state
+      setIsLowHeight(window.innerHeight <= 475);
     };
+
+    // Set initial state
+    handleResize();
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -229,7 +235,7 @@ export default function Header() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex flex-col items-center space-y-6 py-10 text-center"
+              className={`flex flex-col items-center ${isLowHeight ? 'space-y-0' : 'space-y-6'} py-10 text-center`}
             >
               {sections.map((id) => (
                 <motion.div key={id} variants={itemVariants}>
