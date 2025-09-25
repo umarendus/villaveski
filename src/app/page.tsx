@@ -410,7 +410,7 @@ useEffect(() => {
 
  <section
   id="teenused"
-  className="w-full min-h-[900px]"
+  className="w-full md:min-h-[900px]"
 >
 
   {/* Desktop version */}
@@ -538,75 +538,92 @@ useEffect(() => {
         <div key={step.id}>
           <button
             onClick={() => setActive(active === step.id ? 0 : step.id)}
-            className="w-full text-center py-2 hover:bg-gray-50 transition-colors border-t border-gray-500"
+            className="w-full text-center py-2 hover:bg-gray-50 transition-all duration-500 ease-in-out border-t border-gray-500"
             style={{ fontFamily: "var(--font-raleway)" }}
           >
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Image
-                  src={step.image}
-                  alt={step.title}
-                  width={40}
-                  height={40}
-                  className={`rounded-full object-cover aspect-square transition-all duration-300 ${
-                    active === step.id 
-                      ? "opacity-100" 
-                      : "opacity-90"
-                  }`}
-                />
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Image
+                    src={step.image}
+                    alt={step.title}
+                    width={40}
+                    height={40}
+                    className={`rounded-full object-cover aspect-square transition-all duration-300 ${
+                      active === step.id 
+                        ? "opacity-100" 
+                        : "opacity-90"
+                    }`}
+                  />
+                </div>
+                <h3 className="p-4 text-xl text-black font-semibold">{step.title}</h3>
               </div>
-              <h3 className="p-4 text-xl text-black font-semibold">{step.title}</h3>
+              <svg
+                className={`w-6 h-6 text-black transition-transform duration-500 ease-in-out mr-4 ${
+                  active === step.id ? 'rotate-180' : 'rotate-0'
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
           </button>
-          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${active === step.id ? 'max-h-96' : 'max-h-0'}`}>
-  <p className="p-4 text-gray-800 leading-relaxed text-center mx-auto">
-    {step.text}
-  </p>
-  {/* Step-specific button */}
-  <div className="text-center mb-24">
-    {active === 1 && (
+          <div className={`transition-all duration-500 ease-in-out overflow-hidden ${active === step.id ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+  <div className={`transform transition-transform duration-500 ease-in-out ${active === step.id ? 'translate-y-0' : '-translate-y-4'}`}>
+    <p className="p-4 text-gray-800 leading-relaxed text-center mx-auto">
+      {step.text}
+    </p>
+    {/* Step-specific button */}
+    <div className="text-center mb-6 relative h-16">
       <Link
         href="/villatoo"
-        className="inline-block px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
+        className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
+          active === 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
+        }`}
         style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
       >
         Loe lähemalt meie Villatööst
       </Link>
-    )}
-    {active === 2 && (
+      
       <Link
         href="/opitoad"
-        className="inline-block px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
+        className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
+          active === 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
+        }`}
         style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
       >
         Loe lähemalt Õpitubadest
       </Link>
-    )}
-    {active === 3 && (
+      
       <Link
         href="/kulastus"
-        className="inline-block px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
-        style={{ fontFamily: "var(--font-raleway)"}}
+        className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
+          active === 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
+        }`}
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
       >
         Loe lähemalt Külastustest
       </Link>
-    )}
-    {active === 4 && (
+      
       <Link
         href="/tooted"
-        className="inline-block px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
+        className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
+          active === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
+        }`}
         style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
       >
         Loe lähemalt Toodetest
       </Link>
-    )}
+    </div>
   </div>
 </div>
 
         </div>
       ))}
   </div>
-  <div className="flex items-center justify-center gap-0 mb-8 md:flex">
+  <div className="flex items-center justify-center gap-0 my-15 md:flex">
             <Image
               src="/sheep-black-l.svg"
               alt="Sheep Left"
