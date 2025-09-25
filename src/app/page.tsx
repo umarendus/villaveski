@@ -144,6 +144,23 @@ emailjs.send(
       );
   };
 
+  // algväärtus serveris → lihtsalt 180, client-side uuendatakse useEffect'iga
+  const [xValue, setXValue] = useState(180);
+
+  useEffect(() => {
+    const updateX = () => {
+      if (window.innerWidth <= 700) {
+        setXValue(100); // mobiil
+      } else {
+        setXValue(180); // suurem ekraan
+      }
+    };
+
+    updateX(); // kohe kontroll
+    window.addEventListener("resize", updateX);
+    return () => window.removeEventListener("resize", updateX);
+  }, []);
+
   return (
     
     <div className="min-h-screen">
@@ -166,98 +183,101 @@ emailjs.send(
         <div className="flex flex-col items-center justify-center pt-87 h-full text-center relative">
 
           {/* Desktop pealkiri koos lambadega */}
-          <div className="flex items-center justify-center gap-4 mb-4 hidden md:flex">
-            
-            {/* Vasak lambake */}
-            <motion.div
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 60, damping: 20, duration: 1.5, delay: 1.6 }}
-            >
-              <Image
-                src="/sheep-black-l.svg"
-                alt="Sheep Left"
-                width={0}
-                height={0}
-                sizes="100vh"
-                className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
-                style={{ 
-                  filter: 'invert(1) brightness(2)',
-                  height: 'clamp(4rem, 9vw, 9rem)'
-                }}
-              />
-            </motion.div>
+<div className="flex items-center justify-center mb-4 md:flex relative">
 
-            {/* SÖRVE VILLAVESKI */}
-            <motion.div
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 80, damping: 15, delay: 2.2, duration: 1.5 }}
-              className="text-center"
-            >
-              <h1
-                className="text-9xl text-white drop-shadow-2xl"
-                style={{ fontFamily: "'Abril Fatface'", fontSize: 'clamp(4rem, 9vw, 9rem)' }}
-              >
-                SÖRVE
-              </h1>
-              <h2
-                className="text-5xl md:text-8xl text-white drop-shadow-2xl"
-                style={{ fontFamily: "'Abril Fatface'", fontSize: 'clamp(2rem, 5vw, 5rem)' }}
-              >
-                VILLAVESKI
-              </h2>
-            </motion.div>
+  
 
-            {/* Parem lambake */}
-            <motion.div
-              initial={{ x: 50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 60, damping: 20, duration: 1.5, delay: 1.6 }}
-            >
-              <Image
-                src="/sheep-black-r.svg"
-                alt="Sheep Right"
-                width={0}
-                height={0}
-                sizes="100vh"
-                className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
-                style={{ 
-                  filter: 'invert(1) brightness(2)',
-                  height: 'clamp(4rem, 9vw, 9rem)'
-                }}
-              />
-            </motion.div>
-          </div>
+  {/* Vasak lambake */}
+  <motion.div
+        initial={{ opacity: 0, x: 0 }}
+        animate={{ opacity: 1, x: -xValue }}
+        transition={{
+          opacity: { duration: 1.2, delay: 1.0 },
+          x: { type: "spring", stiffness: 60, damping: 20, delay: 2.0, duration: 1.2 },
+        }}
+        className="relative"
+        style={{ marginRight: "10px" }}
+      >
+        <Image
+          src="/sheep-black-l.svg"
+          alt="Sheep Left"
+          width={0}
+          height={0}
+          sizes="100vh"
+          className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+          style={{ filter: "invert(1) brightness(2)", height: "clamp(4rem, 9vw, 9rem)" }}
+        />
+      </motion.div>
+
+  {/* Tekst */}
+<motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ duration: 1.5, delay: 2.6, ease: "easeOut" }}
+  className="absolute text-center"
+  style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)" }}
+>
+  <h1
+    className="text-white drop-shadow-2xl"
+    style={{
+      fontFamily: "'Abril Fatface'",
+      fontSize: "clamp(4rem, 9vw, 7rem)",
+      lineHeight: 1.1, // väiksem reavahe
+    }}
+  >
+    SÖRVE
+  </h1>
+  <h2
+    className="text-white drop-shadow-2xl"
+    style={{
+      fontFamily: "'Abril Fatface'",
+      fontSize: "clamp(2rem, 5vw, 4rem)",
+      lineHeight: 1.1, // väiksem reavahe
+    }}
+  >
+    VILLAVESKI
+  </h2>
+</motion.div>
+
+
+
+  {/* Parem lambake */}
+   <motion.div
+        initial={{ opacity: 0, x: 0 }}
+        animate={{ opacity: 1, x: xValue }}
+        transition={{
+          opacity: { duration: 1.2, delay: 1.0 },
+          x: { type: "spring", stiffness: 60, damping: 20, delay: 2.0, duration: 1.2 },
+        }}
+        className="relative"
+        style={{ marginLeft: "10px" }}
+      >
+        <Image
+          src="/sheep-black-r.svg"
+          alt="Sheep Right"
+          width={0}
+          height={0}
+          sizes="100vh"
+          className="h-full w-auto object-contain filter invert brightness-0 contrast-100"
+          style={{ filter: "invert(1) brightness(2)", height: "clamp(4rem, 9vw, 9rem)" }}
+        />
+      </motion.div>
+</div>
+
+
+
 
           {/* Mobiilvaade */}
-          <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 80, damping: 15, delay: 2.2, duration: 1.5 }}
-            className="md:hidden text-center"
-          >
-            <h1
-              className="text-9xl text-white mb-4 drop-shadow-2xl"
-              style={{ fontFamily: "'Abril Fatface'", fontSize: 'clamp(4rem, 9vw, 9rem)' }}
-            >
-              SÖRVE
-            </h1>
-            <h2
-              className="text-5xl md:text-8xl text-white drop-shadow-2xl"
-              style={{ fontFamily: "'Abril Fatface'", fontSize: 'clamp(2rem, 5vw, 5rem)' }}
-            >
-              VILLAVESKI
-            </h2>
-          </motion.div>
+
+
+
+
 
         </div>
       </div>
     </section>
-<section
-  id="meist"
-  className="w-full md:min-h-[900px] relative"
->
+    
+<section id="meist" className="w-full min-h-screen relative">
   {/* Läbipaistev overlay taustapildi jaoks */}
   <div
     className="absolute inset-0"
@@ -288,44 +308,34 @@ emailjs.send(
   </div>
 
   {/* Tekstiosa */}
-  <div className="py-16 px-4 max-w-4xl mx-auto text-center text-gray-900 relative z-10">
-<p
-  className="text-lg md:text-2xl mb-6 leading-relaxed"
-  style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
-
-  }}
->
+  <div className="py-16 px-4 max-w-4xl mx-auto text-center text-black relative z-10">
+<p className="text-lg md:text-xl mb-6 leading-relaxed">
       
       Meie, Egon ja Merike Sepp, rajasime oma kodu Sõrve poolsaarele Lepiku
       talusse, kuhu meid tõi Egoni lapsepõlvemälestuste side paigaga ning soov
       elada maal, eemal linnakärast.
     </p>
 
-    <p className="text-lg md:text-2xl mb-6 leading-relaxed border-b pb-6 border-gray-600 w-[70%] mx-auto" style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
-
-  }}>
+    <p className="text-lg md:text-xl mb-6 leading-relaxed border-b pb-6 border-gray-600 w-[70%] mx-auto" >
       Kohalikus lambakasvatuses nägime kasutamata võimalust, sest suur osa
       villa jäi väärtustamata.
     </p>
 
-    <p className="text-lg md:text-2xl font-semibold mb-6 leading-relaxed text-gray-800" style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
-  
-  }}>
+<p
+  className="text-lg md:text-xl mb-6 leading-relaxed text-gray-800"
+  style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+>
   Nii sündiski Sõrve Villaveski – siin pakume erinevatele villatüüpidele võimaluse saada kvaliteetseks lõngaks või nišitoodeteks, avades loomakasvatajatele uue väljundi.
-    </p>
+</p>
+
 
     {/* Nupp */}
     <button className="mt-8">
       <Link
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 700 }}
         href="/meielugu"
         className="px-6 py-2 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition inline-block"
-        style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
 
-  }}
       >
         Loe lähemalt
       </Link>
@@ -390,7 +400,7 @@ emailjs.send(
   {/* Desktop version */}
 <div className="hidden lg:block relative z-10 w-full min-h-[850px]">
   <h2
-    className="text-black text-center text-4xl my-16"
+    className="text-black text-center text-3xl my-16"
     style={{
       fontFamily: "'Abril Fatface', serif",
       fontSize: "clamp(2rem, 4vw, 6rem)",
@@ -399,16 +409,16 @@ emailjs.send(
     TEENUSED
   </h2>
 
-  <div className="flex justify-center gap-25 mb-12"   style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
-  }}>
+  <div className="flex justify-center gap-25 mb-12"
+  style={{ fontFamily: "var(--font-raleway)", fontWeight: 200 }}>
+
     {steps.map((step) => (
       <button
         key={step.id}
         onClick={() => handleStepClick(step.id)}
         className="flex flex-col items-center space-y-2"
       >
-        <div className="relative">
+        <div className="relative cursor-pointer">
           <Image
             src={step.image}
             alt={step.title}
@@ -423,7 +433,7 @@ emailjs.send(
         </div>
 <span
 
-  className={`text-xl text-black transition-colors duration-300 ${
+  className={`cursor-pointer text-xl text-black transition-colors duration-300 ${
     active === step.id ? "font-bold" : "font-medium"
   }`}
 >
@@ -437,14 +447,13 @@ emailjs.send(
   {/* Active content */}
   {active >= 1 && active <= steps.length && (
     <div
-     style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
-  }}
+
       className={`max-w-3xl mx-auto relative min-h-[200px] transition-opacity duration-600 ${
         isTransitioning ? "opacity-0" : "opacity-100"
       }`}
     >
-      <h3 className="text-3xl font-medium pb-2 mb-15 w-[50%] border-b mx-auto text-center text-black">
+      <h3 className="text-3xl font-medium pb-2 mb-15 w-[50%] border-b mx-auto text-center text-black"
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}>
         {steps[active - 1].title}
       </h3>
       <p className="text-xl text-black leading-relaxed mb-8 text-center">
@@ -452,7 +461,8 @@ emailjs.send(
       </p>
 
       {/* Step-specific button */}
-      <div className="text-center mb-24">
+      <div className="text-center mb-24"
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}>
         {active === 1 && (
           <Link
             href="/villatoo"
@@ -505,9 +515,7 @@ emailjs.send(
 
   {/* Mobile version - accordion style */}
   <div className="lg:hidden relative z-10 w-full px-4"
-  style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
-  }}>
+>
       <h2 className="text-black text-center text-4xl my-10 font-bold " style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(2rem, 4vw, 6rem)' }}>TEENUSED</h2>
 
       {steps.map((step) => (
@@ -515,6 +523,7 @@ emailjs.send(
           <button
             onClick={() => setActive(active === step.id ? 0 : step.id)}
             className="w-full text-center py-2 hover:bg-gray-50 transition-colors border-t border-gray-500"
+            style={{ fontFamily: "var(--font-raleway)" }}
           >
             <div className="flex items-center gap-2">
               <div className="relative">
@@ -542,7 +551,8 @@ emailjs.send(
     {active === 1 && (
       <Link
         href="/villatoo"
-        className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+        className="inline-block px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
       >
         Loe lähemalt meie Villatööst
       </Link>
@@ -550,7 +560,8 @@ emailjs.send(
     {active === 2 && (
       <Link
         href="/opitoad"
-        className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+        className="inline-block px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
       >
         Loe lähemalt Õpitubadest
       </Link>
@@ -558,7 +569,8 @@ emailjs.send(
     {active === 3 && (
       <Link
         href="/kulastus"
-        className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+        className="inline-block px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
+        style={{ fontFamily: "var(--font-raleway)"}}
       >
         Loe lähemalt Külastustest
       </Link>
@@ -566,7 +578,8 @@ emailjs.send(
     {active === 4 && (
       <Link
         href="/tooted"
-        className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
+        className="inline-block px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-colors"
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
       >
         Loe lähemalt Toodetest
       </Link>
@@ -606,17 +619,17 @@ emailjs.send(
           </div>
 </section>
 
-      <div
+
+
+<section
+  id="kontakt">
+          <div
         className="relative h-30 md:h-60 w-full bg-cover bg-center flex items-center justify-center"
         style={{ backgroundImage: "url('/kirjuta-meile.webp')" }} // asenda enda pildiga
       >
         <h2 className="text-black text-4xl" style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(1.7rem, 4vw, 10rem)' }}>KIRJUTA MEILE</h2>
       </div>
-
-
-<section
-  id="kontakt"
-  className="relative min-h-screen md:min-h-[900px] flex items-center justify-center p-6 overflow-hidden"
+  <div className="relative min-h-screen md:min-h-[900px] flex items-center justify-center p-6 overflow-hidden"
 >
 {/* Taustapilt - desktop: vasakule poolele, mobile: ainult ülemisele osale */}
 <div className="absolute top-0 left-0 md:w-1/2 w-full md:h-full h-1/2 overflow-hidden z-0">
@@ -674,12 +687,12 @@ emailjs.send(
           </h2>
 
           <div className="text-center mb-8"
-           style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
-  }}>
+           style={{ fontFamily: "var(--font-raleway)", fontWeight: 400 }}
+  >
             <a
               href="mailto:saaremaalong@gmail.com"
-              className="inline-block bg-gray-200 text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-300 transition"
+              className="inline-block bg-gray-200 text-black px-6 py-2 rounded-full hover:bg-gray-300 transition"
+              
             >
               saaremaalong@gmail.com
             </a>
@@ -687,9 +700,8 @@ emailjs.send(
         </div>
 
         <p className="mt-8 mb-2 text-center font-bold" 
-         style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
-  }}>
+         style={{ fontFamily: "var(--font-raleway)", fontWeight: 600 }}
+  >
           Saaremaa Lõng MTÜ
         </p>
 
@@ -700,33 +712,20 @@ emailjs.send(
     <div className="overflow-hidden z-20 flex flex-col justify-center items-center md:h-full min-h-[450px] bg-white md:bg-transparent">
 
       {/* Form headline */}
-      <h2 className="hidden md:block text-black text-4xl mb-0 md:mb-8 font-bold text-center max-w-md mx-auto" 
-          style={{ fontFamily: "var(--font-glacial)", fontSize: 'clamp(2rem, 4vw, 4rem)' }}>
+      <h2 className="hidden md:block text-black text-4xl mb-0 md:mb-10 font-bold text-center max-w-md mx-auto" 
+          style={{ fontFamily: "var(--font-raleway)", fontSize: 'clamp(2rem, 4vw, 4rem)' }}>
         KIRJUTA MEILE
       </h2>
 
 <form onSubmit={handleSubmit} className="p-8 space-y-4 w-full max-w-md mx-auto"
-style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
-  }}>
+style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+  >
       <div>
         <input
           type="text"
           name="nimi"
           placeholder="Teie nimi"
           value={formData.nimi}
-          onChange={handleChange}
-          required
-          className="w-full border-b border-black outline-none py-2 text-center text-black placeholder-gray-800 text-m"
-        />
-      </div>
-
-      <div>
-        <input
-          type="text"
-          name="number"
-          placeholder="Teie number"
-          value={formData.number}
           onChange={handleChange}
           required
           className="w-full border-b border-black outline-none py-2 text-center text-black placeholder-gray-800 text-m"
@@ -746,22 +745,32 @@ style={{
       </div>
 
       <div>
-        <textarea
-          name="projekt"
-          placeholder="Kirjeldus"
-          value={formData.projekt}
-          onChange={handleChange}
-          required
-          className="w-full border border-black rounded-md p-2 text-center text-black h-28 resize-none placeholder-gray-800 text-m"
-        />
+       <label
+  htmlFor="projekt"
+  className="block mb-2 mt-6 text-center  text-gray-900"
+>
+  Sõnumi sisu
+</label>
+
+<textarea
+  id="projekt"
+  name="projekt"
+
+  value={formData.projekt}
+  onChange={handleChange}
+  required
+  className="w-full border border-black rounded-md p-2 text-center text-black h-28 resize-none placeholder-gray-800 text-m"
+></textarea>
+
       </div>
-<div className="flex flex-col items-center space-y-2">
+<div className="flex flex-col items-center space-y-2 mt-4">
   <button
     type="submit"
     disabled={loading}
+    style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
     className="bg-black text-white font-bold px-6 py-2 rounded-full text-center hover:bg-gray-800 transition cursor-pointer disabled:opacity-50"
   >
-    {loading ? "Saadan..." : "Kirjuta meile"}
+    {loading ? "Saadan..." : "Pane teele"}
   </button>
 
   {success && (
@@ -779,7 +788,7 @@ style={{
     </div>
   </div>
 
-  
+  </div>
 </section>
 
 

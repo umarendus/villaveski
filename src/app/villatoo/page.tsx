@@ -23,10 +23,6 @@ export default function VillaTooPage() {
       </div>
    <div
         className="text-black text-xl max-w-4xl mx-auto my-12 px-6 text-center space-y-6"
-        style={{
-          fontFamily: "var(--font-glacial)", // kõik p kasutavad Glacial Indifference
-          fontWeight: 300, // LIGHT variant
-        }}
       >
   <p>
     Sörve Villaveskis käsitleme hoolikalt villa, muutes Saaremaa ning teiste paikade lammaste villa kvaliteetseks lõngaks ja käsitöötoodeteks. Meie põhiline tegevus on lõnga ketramine, villavorsti valmistamine, heie- ja heide-vaipade loomine ning villast mütside, sallide ja muude aksessuaaride käsitööna valmistamine. Lisaks pakume külastajatele ja huvilistele õpitubasid, kus saab õppida lõnga ketramist, kudumist ning villatoodete valmistamist.

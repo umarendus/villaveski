@@ -23,10 +23,7 @@ export default function KulastusPage() {
       </div>
    <div
         className="text-black text-xl max-w-4xl mx-auto my-12 px-6 text-center space-y-6"
-        style={{
-          fontFamily: "var(--font-glacial)", // kõik p kasutavad Glacial Indifference
-          fontWeight: 300, // LIGHT variant
-        }}
+        
       >
   <p>
     Sörve Villaveski külastus pakub ainulaadset võimalust näha kogu villatööstuse protsessi oma silmaga. Külastajad saavad vaadata, kuidas villa töödeldakse lõngaks, kuidas valmivad villavorst ja heie- ning heide-vaibad ning kuidas käsitöötooted, nagu mütsid ja sallid, tekivad käsitöömeistrite käe all. See on hariv ja inspireeriv kogemus, mis võimaldab mõista traditsioonilise villatööstuse väärtust ning käsitöö olulisust tänapäeva maailmas.

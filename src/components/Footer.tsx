@@ -3,9 +3,7 @@ import Image from "next/image";
 export default function Footer() {
   return (
 <footer className="border-t text-black text-center py-10"
-style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
-  }}>
+style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}>
   {/* Ülemine tekst */}
   <h3 className="text-lg font-semibold mb-6">
     JÄLGI MEID KA SOTSIAALMEEDIAS

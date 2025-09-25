@@ -9,15 +9,14 @@ export const metadata: Metadata = {
   description: "Villa Veski - premium accommodation and services.",
 };
 
-// Local font (Glacial Indifference)
-const glacialIndifference = localFont({
+// Local font (Raleway)
+const raleway = localFont({
   src: [
-    { path: "../fonts/GlacialIndifference-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../fonts/GlacialIndifference-Regular.woff", weight: "400", style: "normal" },
-    { path: "../fonts/GlacialIndifference-Bold.woff2", weight: "700", style: "normal" },
-    { path: "../fonts/GlacialIndifference-Bold.woff", weight: "700", style: "normal" },
+    { path: "../fonts/raleway-light.woff2", weight: "300", style: "normal" },
+    { path: "../fonts/raleway-regular.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/raleway-bold.woff2", weight: "700", style: "normal" },
   ],
-  variable: "--font-glacial",
+  variable: "--font-raleway",
   display: "swap",
 });
 
@@ -37,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${glacialIndifference.variable} ${abrilFatface.variable} antialiased`}
+        className={` ${raleway.variable} ${abrilFatface.variable} antialiased`}
       >
         {children}
       </body>

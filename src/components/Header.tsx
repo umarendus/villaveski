@@ -39,30 +39,53 @@ export default function Header() {
     }
   };
 
-  useEffect(() => {
-    if (!isHome) return; // 🔥 ainult avalehel jälgime sektsioone
+ useEffect(() => {
+  if (!isHome) return;
 
-    const observers: IntersectionObserver[] = [];
+  // Track latest visibility ratio for each observed section
+  const visibility = new Map<string, number>();
 
-    sections.forEach((id) => {
-      const section = document.getElementById(id);
-      if (!section) return;
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const target = entry.target;
+        if (target instanceof HTMLElement) {
+          const id = target.id;
+          // Use 0 when not intersecting to deprioritize hidden sections
+          visibility.set(id, entry.isIntersecting ? entry.intersectionRatio : 0);
+        }
+      }
 
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) setActive(id);
-          });
-        },
-        { threshold: 0.2 }
-      );
+      // Pick the single most visible section across all currently tracked
+      let bestId: string | null = null;
+      let bestRatio = -1;
+      for (const [id, ratio] of visibility) {
+        if (ratio > bestRatio) {
+          bestRatio = ratio;
+          bestId = id;
+        }
+      }
+      if (bestId) setActive(bestId);
+    },
+    {
+      threshold: Array.from({ length: 101 }, (_, i) => i / 100), // 0...1 sammuga
+      rootMargin: "-40% 0px -40% 0px", // annab keskele eelise
+    }
+  );
 
+  sections.forEach((id) => {
+    const section = document.getElementById(id);
+    if (section) {
+      visibility.set(id, 0); // init with 0
       observer.observe(section);
-      observers.push(observer);
-    });
+    }
+  });
 
-    return () => observers.forEach((observer) => observer.disconnect());
-  }, [isHome]);
+  return () => {
+    observer.disconnect();
+    visibility.clear();
+  };
+}, [isHome]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -91,14 +114,12 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white backdrop-blur-md px-6 py-0 border-b border-white/20 shadow-sm"
-    style={{
-    fontFamily: "var(--font-glacial)", // Glacial Indifference
-  }}>
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}>
+      <div className="max-w-4xl mx-auto flex items-center justify-between">
         {/* Left Logo - Desktop */}
         <Link
           href="/"
-          className="hidden lg:flex relative items-center h-full hover:opacity-80 transition-opacity"
+          className="hidden lg:flex relative items-center h-full cursor-pointer hover:opacity-80 transition-opacity"
         >
           <Image
             src="/sheep-black-l.svg"
@@ -114,7 +135,7 @@ export default function Header() {
 <div className="lg:hidden flex items-center gap-1">
   <Link
     href="/"
-    className="relative flex items-center h-full hover:opacity-80 transition-opacity"
+    className="relative flex items-center h-full cursor-pointer hover:opacity-80 transition-opacity"
   >
     <Image
       src="/sheep-black-l.svg"
@@ -126,7 +147,7 @@ export default function Header() {
   </Link>
   <Link
     href="/"
-    className="relative flex items-center h-full hover:opacity-80 transition-opacity"
+    className="relative flex items-center h-full cursor-pointer hover:opacity-80 transition-opacity"
   >
     <Image
       src="/sheep-black-r.svg"
@@ -145,16 +166,14 @@ export default function Header() {
             <button
               key={id}
               onClick={() => handleClick(id)}
-              className={`relative font-medium text-m tracking-wide transition-colors duration-300 ${
+              className={`relative font-medium text-m tracking-wide cursor-pointer transition-colors duration-300 ${
                 isHome && active === id
                   ? "text-gray-900 font-semibold"
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
               {id.toUpperCase()}
-              {isHome && active === id && (
-                <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-gray-900 transition-all duration-300" />
-              )}
+           
             </button>
           ))}
         </nav>
@@ -162,7 +181,7 @@ export default function Header() {
         {/* Right Logo - Desktop */}
         <Link
           href="/"
-          className="hidden lg:flex relative items-center h-full hover:opacity-80 transition-opacity"
+          className="hidden lg:flex relative items-center h-full cursor-pointer hover:opacity-80 transition-opacity"
         >
           <Image
             src="/sheep-black-r.svg"
@@ -177,7 +196,7 @@ export default function Header() {
         {/* Mobile menu button */}
         <button
           onClick={toggleMobileMenu}
-          className="lg:hidden text-black p-2 rounded-md transition-transform duration-200 ease-in-out"
+          className="lg:hidden text-black p-2 rounded-md cursor-pointer transition-transform duration-200 ease-in-out"
           aria-label="Toggle mobile menu"
         >
           <svg
@@ -216,7 +235,7 @@ export default function Header() {
                 <motion.div key={id} variants={itemVariants}>
                   <button
                     onClick={() => handleClick(id, true)}
-                    className="block text-black text-2xl font-semibold tracking-wide hover:text-gray-700 transition-colors"
+                    className="block text-black text-2xl font-semibold tracking-wide cursor-pointer hover:text-gray-700 transition-colors"
                   >
                     {id.toUpperCase()}
                   </button>
