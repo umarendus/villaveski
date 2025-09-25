@@ -745,7 +745,7 @@ useEffect(() => {
     <div className="overflow-hidden z-20 flex flex-col justify-center items-center md:h-full min-h-[450px] bg-white md:bg-transparent">
 
       {/* Form headline */}
-      <h2 className="hidden md:block text-black text-4xl mb-0 md:mb-10 font-bold text-center max-w-md mx-auto" 
+      <h2 className="hidden md:block md:mt-3 text-black text-4xl mb-0 md:mb-10 font-bold text-center max-w-md mx-auto" 
           style={{ fontFamily: "var(--font-raleway)", fontSize: 'clamp(2rem, 4vw, 4rem)' }}>
         KIRJUTA MEILE
       </h2>
