@@ -10,8 +10,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Glacial Indifference', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Glacial Indifference', monospace;
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-mono: monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -28,7 +28,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Glacial Indifference', system-ui, -apple-system, sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 * {

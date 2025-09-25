@@ -410,7 +410,7 @@ useEffect(() => {
 
  <section
   id="teenused"
-  className="w-full md:min-h-[900px]"
+  className="w-full "
 >
 
   {/* Desktop version */}
@@ -623,7 +623,7 @@ useEffect(() => {
         </div>
       ))}
   </div>
-  <div className="flex items-center justify-center gap-0 my-15 md:flex">
+  <div className="flex items-center justify-center gap-0 mt-15 md:mt-0 mb-8 md:flex">
             <Image
               src="/sheep-black-l.svg"
               alt="Sheep Left"
