@@ -4,10 +4,27 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Abril_Fatface } from "next/font/google";
 
+// Metadata koos manifesti ja ikoonidega
 export const metadata: Metadata = {
   title: "Sörve Villaveski",
   description: "Villaveski - süda ja hing iga lõnga sees.",
+  icons: {
+    icon: [
+      { url: "/icon0.svg", type: "image/svg+xml" },
+      { url: "/icon1.png", type: "image/png", sizes: "192x192" },
+      { url: "/apple-icon.png", type: "image/png", rel: "apple-touch-icon" },
+    ],
+  },
+  manifest: "/manifest.json",
 };
+
+// Viewport koos themeColor
+export function generateViewport() {
+  return {
+    viewport: "width=device-width, initial-scale=1",
+    themeColor: "#ffffff",
+  };
+}
 
 // Local font (Raleway)
 const raleway = localFont({
@@ -28,16 +45,10 @@ const abrilFatface = Abril_Fatface({
   display: "swap",
 });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={` ${raleway.variable} ${abrilFatface.variable} antialiased`}
-      >
+      <body className={`${raleway.variable} ${abrilFatface.variable} antialiased`}>
         {children}
       </body>
     </html>
