@@ -295,18 +295,7 @@ useEffect(() => {
       </div>
     </section>
 
-    {/* Uudo täissuuruses pilt */}
-    <section className="w-full h-screen relative">
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: "url('/uudo.webp')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      />
-    </section>
+
     
 <section id="meist" className="w-full min-h-screen relative">
   {/* Läbipaistev overlay taustapildi jaoks */}
