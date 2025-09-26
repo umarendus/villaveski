@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Header from "../../components/Header";
+import Link from "next/link";
 
 export default function OpiToadPage() {
   return (
@@ -34,12 +35,12 @@ export default function OpiToadPage() {
   <p>
     Külastades meie õpitubasid või villaveskit, saab igaüks näha ja proovida, kuidas traditsiooniline käsitöö kohtub kaasaegse disaini ja praktiliste teadmistega. Lisaks käsitööle õpetame masinatel kudumist, dafting-masinaga vaibaloomist ning palju muud. Õpitubade kaudu loodame inspireerida inimesi väärtustama käsitöötooteid, mõistma villa väärtust ning kogema rõõmu oma kätega midagi ainulaadset luues.
   </p>
-  <a
+  <Link
     href="/#kontakt"
     className="inline-block bg-black text-white rounded-full px-8 py-4 text-lg font-semibold hover:bg-gray-800 transition-colors duration-300"
   >
     Võta ühendust
-  </a>
+  </Link>
 </div>
       <Footer/>
     </div>

@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 
 import Header from "../../components/Header";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function VillaTooPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -116,12 +117,12 @@ export default function VillaTooPage() {
     Me vaatame teie soovid üle, arvestame villa omadustega ning lepime kokku konkreetse hinna ja teenuse tingimused.
   </p>
 
-  <a
+  <Link
     href="/#kontakt"
     className="inline-block bg-black text-white rounded-full px-8 py-4 text-lg font-semibold hover:bg-gray-800 transition-colors duration-300"
   >
     Võta ühendust
-  </a>
+  </Link>
 </div>
 
         

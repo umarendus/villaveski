@@ -1,6 +1,7 @@
 import Footer from "@/components/Footer";
 import Header from "../../components/Header";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function MeieLuguPage() {
   return (
@@ -102,12 +103,12 @@ export default function MeieLuguPage() {
         className="text-black text-xl max-w-4xl mx-auto my-12 px-6 text-center space-y-6"
         
       >
-  <a
+  <Link
     href="/#kontakt"
     className="inline-block bg-black text-white rounded-full px-8 py-4 text-lg font-semibold hover:bg-gray-800 transition-colors duration-300"
   >
     Võta ühendust
-  </a>
+  </Link>
 </div>
         
       </div>

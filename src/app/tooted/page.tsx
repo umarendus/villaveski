@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Header from "../../components/Header";
+import Link from "next/link";
 
 export default function TootedPage() {
   return (
@@ -35,12 +36,12 @@ export default function TootedPage() {
   <p>
     Meie tooteid saab osta kohapeal villaveskis ja erinevatel laatadel, kus oleme esindatud. Lisaks on võimalik esitada tellimustöid ja saata tooteid üle maailma, võimaldades igal huvilisel nautida meie villatoodete unikaalsust ja käsitöö kvaliteeti. Iga toode peegeldab pühendumust käsitööle, traditsioonile ja kohaliku kogukonna toetamisele.
   </p>
-    <a
+    <Link
     href="/#kontakt"
     className="inline-block bg-black text-white rounded-full px-8 py-4 text-lg font-semibold hover:bg-gray-800 transition-colors duration-300"
   >
     Võta ühendust
-  </a>
+  </Link>
 </div>
 
       <Footer/>
