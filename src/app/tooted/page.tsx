@@ -26,14 +26,21 @@ export default function TootedPage() {
         className="text-black text-xl max-w-4xl mx-auto my-12 px-6 text-center space-y-6"
       >
   <p>
-    Sörve Villaveski tooted on käsitööna valmistatud, kõrge kvaliteediga ja ainulaadsed. Meie peamine valdkond on ketratud lõng, villavorst, heie- ja heide-vaibad ning villast valmistatud mütsid, sallid ja muud aksessuaarid. Iga toode on loodud hoolikalt ja inimlikult töödeldud villast, ühendades traditsioonilise käsitöö ja kaasaegse disaini. 
+    Sörve Villaveski tooted on käsitööna valmistatud, kõrge kvaliteediga ja ainulaadsed. Meie peamine valdkond on ketratud lõng, villavorst, heie- ja heide-vaibad ning lõngast valmistatud mütsid, sallid ja muud aksessuaarid. Iga toode on loodud hoolikalt ja inimlikult töödeldud villast, ühendades traditsioonilise käsitöö ja kaasaegse disaini. 
   </p>
   <p>
-    Me ei osta villa ega vaheta seda lõnga vastu – töötleme villa teenusena ning oma villa kasutades valmistame lõnga vastavalt tellija soovile. Meie toodete valmistamisel on keskne eesmärk pakkuda kohalikele lammaste kasvatajatele väljundit ja väärtustada iga villaühikut, säilitades samal ajal traditsioonilise villatööstuse oskused ja kvaliteedi.
+  Meil on poolkamm ketrusmasinad, ehk villakiud on paralleelselt sirgu kammitud, mis annab lõngale sileda ja ühtlase struktuuri. Samuti kasutame dafting-masinat, mis võimaldab luua tihedamaid ja tugevamaid vaipu ning teisi tooteid. Meie tooted on saadaval erinevates värvitoonides ja paksustes, võimaldades igal kliendil leida just endale sobiv toode.
   </p>
+
   <p>
     Meie tooteid saab osta kohapeal villaveskis ja erinevatel laatadel, kus oleme esindatud. Lisaks on võimalik esitada tellimustöid ja saata tooteid üle maailma, võimaldades igal huvilisel nautida meie villatoodete unikaalsust ja käsitöö kvaliteeti. Iga toode peegeldab pühendumust käsitööle, traditsioonile ja kohaliku kogukonna toetamisele.
   </p>
+    <a
+    href="/#kontakt"
+    className="inline-block bg-black text-white rounded-full px-8 py-4 text-lg font-semibold hover:bg-gray-800 transition-colors duration-300"
+  >
+    Võta ühendust
+  </a>
 </div>
 
       <Footer/>

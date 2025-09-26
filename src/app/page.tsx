@@ -306,7 +306,7 @@ useEffect(() => {
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
-      opacity: 0.1, // siin määrad läbipaistvuse
+      opacity: 0.2, // siin määrad läbipaistvuse
       zIndex: -1,   // nii et overlay jääb taha
     }}
   />
@@ -345,9 +345,19 @@ useEffect(() => {
   className="text-lg md:text-xl mb-6 leading-relaxed text-gray-800"
   style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
 >
-  Nii sündiski Sõrve Villaveski – siin pakume erinevatele villatüüpidele võimaluse saada kvaliteetseks lõngaks või nišitoodeteks, avades loomakasvatajatele uue väljundi.
+  Nii sündiski Sõrve Villaveski – siin pakume erinevatele villatüüpidele võimaluse saada kvaliteetseks lõngaks või nišitoodeteks, avasime loomakasvatajatele uue väljundi.
 </p>
 
+<div className="flex justify-center mt-8">
+  <Image
+    src="/egon_merike.webp"
+    alt="Egon ja Merike Sepp"
+    width={400} // Saad muuta suurust vastavalt soovile
+    height={400}
+    className="rounded-full object-cover"
+    draggable={false}
+  />
+</div>
 
     {/* Nupp */}
     <button className="mt-8">
@@ -745,6 +755,7 @@ useEffect(() => {
          style={{ fontFamily: "var(--font-raleway)", fontWeight: 600 }}
   >
           Saaremaa Lõng MTÜ
+          
         </p>
 
       </div>

@@ -34,6 +34,12 @@ export default function KulastusPage() {
   <p>
     Külastamine sobib nii lastele kui täiskasvanutele, algajatele ja kogenud käsitööhuvilistele, pakkudes inspiratsiooni, teadmisi ja elamusi kogu perele. See on suurepärane võimalus mõista, kuidas traditsiooniline käsitöö kohtub tänapäevase disaini ja kvaliteetse villa tootmisega, ning kogeda rõõmu ja uhkust oma silmaga näha, kuidas villa saab väärtuslikeks toodeteks muundada.
   </p>
+  <a
+    href="/#kontakt"
+    className="inline-block bg-black text-white rounded-full px-8 py-4 text-lg font-semibold hover:bg-gray-800 transition-colors duration-300"
+  >
+    Võta ühendust
+  </a>
 </div>
 
       <Footer/>

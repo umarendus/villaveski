@@ -4,17 +4,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Abril_Fatface } from "next/font/google";
 
-// Metadata koos manifesti ja ikoonidega
 export const metadata: Metadata = {
   title: "Sörve Villaveski",
   description: "Villaveski - süda ja hing iga lõnga sees.",
-  icons: {
-    icon: [
-      { url: "/icon0.svg", type: "image/svg+xml" },
-      { url: "/icon1.png", type: "image/png", sizes: "192x192" },
-      { url: "/apple-icon.png", type: "image/png", rel: "apple-touch-icon" },
-    ],
-  },
   manifest: "/manifest.json",
 };
 
@@ -48,6 +40,15 @@ const abrilFatface = Abril_Fatface({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        {/* Favicons ja Apple icons */}
+        <link rel="icon" href="/favicon.ico?v=2" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icon1.png?v=2" />
+        <link rel="apple-touch-icon" href="/apple-icon.png?v=2" />
+        <link rel="mask-icon" href="/icon0.svg" color="#ffffff" />
+        {/* Manifest */}
+        <link rel="manifest" href="/manifest.json?v=2" />
+      </head>
       <body className={`${raleway.variable} ${abrilFatface.variable} antialiased`}>
         {children}
       </body>
