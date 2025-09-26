@@ -5,7 +5,7 @@ import localFont from "next/font/local";
 import { Abril_Fatface } from "next/font/google";
 
 export const metadata: Metadata = {
-  title: "Villaveski",
+  title: "Sörve Villaveski",
   description: "Villaveski - süda ja hing iga lõnga sees.",
 };
 
