@@ -436,17 +436,19 @@ useEffect(() => {
         onClick={() => handleStepClick(step.id)}
         className="flex flex-col items-center space-y-2"
       >
-        <div className="relative cursor-pointer">
+        <div className="relative cursor-pointer select-none">
           <Image
             src={step.image}
             alt={step.title}
             width={150}
             height={150}
-            className={`rounded-full object-cover aspect-square transition-all duration-300 ${
+            draggable={false}
+            className={`rounded-full object-cover aspect-square transition-all duration-300 pointer-events-none ${
               active === step.id
                 ? "brightness-100"
                 : "brightness-20 hover:brightness-80"
             }`}
+            style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none' }}
           />
         </div>
 <span
@@ -532,7 +534,7 @@ useEffect(() => {
 </div>
 
   {/* Mobile version - accordion style */}
-  <div className="lg:hidden relative z-10 w-full px-1"
+  <div className="lg:hidden relative z-10 mx-5  px-1"
 >
       <h2 className="text-black text-center text-4xl my-10 font-bold " style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(2rem, 4vw, 6rem)' }}>TEENUSED</h2>
 
@@ -540,7 +542,9 @@ useEffect(() => {
         <div key={step.id}>
           <button
             onClick={() => setActive(active === step.id ? 0 : step.id)}
-            className="w-full text-center py-2 hover:bg-gray-50 transition-all duration-500 ease-in-out border-t border-gray-500"
+            className={`w-full text-center py-2 hover:bg-gray-50 transition-all duration-500 ease-in-out border-t border-gray-500 ${
+              active === step.id ? 'bg-gray-50' : ''
+            }`}
             style={{ fontFamily: "var(--font-raleway)" }}
           >
             <div className="flex items-center justify-between w-full">
@@ -549,8 +553,9 @@ useEffect(() => {
                   <Image
                     src={step.image}
                     alt={step.title}
-                    width={40}
-                    height={40}
+                    draggable={false}
+                    width={60}
+                    height={60}
                     className={`rounded-full object-cover aspect-square transition-all duration-300 ${
                       active === step.id 
                         ? "opacity-100" 
