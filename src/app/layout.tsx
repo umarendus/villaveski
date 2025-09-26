@@ -5,8 +5,8 @@ import localFont from "next/font/local";
 import { Abril_Fatface } from "next/font/google";
 
 export const metadata: Metadata = {
-  title: "Villa Veski",
-  description: "Villa Veski - premium accommodation and services.",
+  title: "Villaveski",
+  description: "Villaveski - süda ja hing iga lõnga sees.",
 };
 
 // Local font (Raleway)
