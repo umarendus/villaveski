@@ -486,7 +486,7 @@ useEffect(() => {
             href="/villatoo"
             className="inline-block px-8 py-3 bg-black text-white font-bold rounded-full hover:bg-gray-800 transition-colors"
           >
-            Loe lähemalt meie Villatööst
+            Loe lähemalt Villatööst
           </Link>
         )}
         {active === 2 && (
@@ -532,7 +532,7 @@ useEffect(() => {
 </div>
 
   {/* Mobile version - accordion style */}
-  <div className="lg:hidden relative z-10 w-full px-4"
+  <div className="lg:hidden relative z-10 w-full px-1"
 >
       <h2 className="text-black text-center text-4xl my-10 font-bold " style={{ fontFamily: "'Abril Fatface', serif", fontSize: 'clamp(2rem, 4vw, 6rem)' }}>TEENUSED</h2>
 
@@ -581,17 +581,17 @@ useEffect(() => {
     <div className="text-center mb-6 relative h-16">
       <Link
         href="/villatoo"
-        className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
+        className={`absolute left-1/2 transform -translate-x-1/2 px-12 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out w-11/12 max-w-sm ${
           active === 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
         }`}
         style={{ fontFamily: "var(--font-raleway)", fontWeight: 800 }}
       >
-        Loe lähemalt meie Villatööst
+        Loe lähemalt Villatööst
       </Link>
       
       <Link
         href="/opitoad"
-        className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
+        className={`absolute left-1/2 transform -translate-x-1/2 px-12 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out w-11/12 max-w-sm ${
           active === 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
         }`}
         style={{ fontFamily: "var(--font-raleway)", fontWeight: 800 }}
@@ -601,7 +601,7 @@ useEffect(() => {
       
       <Link
         href="/kulastus"
-        className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
+        className={`absolute left-1/2 transform -translate-x-1/2 px-12 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out w-11/12 max-w-sm ${
           active === 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
         }`}
         style={{ fontFamily: "var(--font-raleway)", fontWeight: 800 }}
@@ -611,7 +611,7 @@ useEffect(() => {
       
       <Link
         href="/tooted"
-        className={`absolute left-1/2 transform -translate-x-1/2 px-8 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out ${
+        className={`absolute left-1/2 transform -translate-x-1/2 px-12 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition-all duration-500 ease-in-out w-11/12 max-w-sm ${
           active === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
         }`}
         style={{ fontFamily: "var(--font-raleway)", fontWeight: 800 }}
