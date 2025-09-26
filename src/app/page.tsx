@@ -802,7 +802,7 @@ style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
   <button
     type="submit"
     disabled={loading}
-    style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+    style={{ fontFamily: "var(--font-raleway)", fontWeight: 800 }}
     className="bg-black text-white font-bold px-6 py-2 rounded-full text-center hover:bg-gray-800 transition cursor-pointer disabled:opacity-50"
   >
     {loading ? "Saadan..." : "Pane teele"}
