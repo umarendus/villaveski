@@ -345,12 +345,12 @@ useEffect(() => {
   className="text-lg md:text-xl mb-6 leading-relaxed text-gray-800"
   style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
 >
-  Nii sündiski Sõrve Villaveski – siin pakume erinevatele villatüüpidele võimaluse saada kvaliteetseks lõngaks või nišitoodeteks, avasime loomakasvatajatele uue väljundi.
+  Nii sündiski Sõrve Villaveski – villatööstuses pakume erinevatele villatüüpidele võimaluse saada kvaliteetseks lõngaks või nišitoodeteks, avasime loomakasvatajatele uue väljundi.
 </p>
 
 <div className="flex justify-center mt-8">
   <Image
-    src="/egon_merike.webp"
+    src="/UusEgonMerike.webp"
     alt="Egon ja Merike Sepp"
     width={400} // Saad muuta suurust vastavalt soovile
     height={400}
