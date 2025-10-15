@@ -8,7 +8,8 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import emailjs from "@emailjs/browser";
-
+import { useRouter } from "next/navigation";
+import { supabase } from "./lib/supabaseClient";
 
 
 const steps = [
@@ -38,18 +39,36 @@ const steps = [
   },
 ];
 
+type Photo = {
+  id: number;
+  title: string;
+  image_url: string;
+};
 
 export default function Home() {
 
 
 
 
+  const [photos, setPhotos] = useState<Photo[]>([]);
+    const router = useRouter();
   const [active, setActive] = useState(1);
   const [userInteracted, setUserInteracted] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  useEffect(() => {
+    loadPhotos();
+  }, []);
+
+  async function loadPhotos() {
+    const { data, error } = await supabase
+      .from("photos")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (!error && data) setPhotos(data);
+  }
 
   // Check if screen is desktop size (lg breakpoint: 1024px)
   useEffect(() => {
@@ -299,6 +318,7 @@ useEffect(() => {
     
 <section id="meist" className="w-full min-h-screen relative">
   {/* Läbipaistev overlay taustapildi jaoks */}
+  
   <div
     className="absolute inset-0"
     style={{
@@ -310,6 +330,27 @@ useEffect(() => {
       zIndex: -1,   // nii et overlay jääb taha
     }}
   />
+
+<div className="max-w-6xl mx-auto px-6 mb-5 pt-5">
+  <div className="flex space-x-4 overflow-x-auto pb-2">
+    {photos.slice(0, 5).map((photo) => (
+      <div
+        key={photo.id}
+        className="relative min-w-[200px] h-48 flex-shrink-0 cursor-pointer rounded-lg overflow-hidden"
+        onClick={() => router.push("/tooted")}
+      >
+        <Image
+          src={photo.image_url}
+          alt={photo.title}
+          fill
+          className="object-cover transition-transform duration-300 hover:scale-105"
+        />
+
+      </div>
+    ))}
+  </div>
+</div>
+
 
   {/* Ülemine bänner pildiga */}
   <div
