@@ -331,22 +331,33 @@ useEffect(() => {
     }}
   />
 <h2
-  className="text-black text-4xl drop-shadow-lg text-center pt-5"
+  className="w-full text-center text-black text-4xl drop-shadow-lg pt-5"
   style={{
     fontFamily: "'Abril Fatface', serif",
-    fontSize: "clamp(0.4rem, 2vw, 5rem)",
+    fontSize: "clamp(1.6rem, 2.2vw, 3.5rem)", // tõstetud alumine piir, et ei muutuks liiga väikeseks
+    display: "block", // kindlustab, et võtab kogu rea
   }}
 >
-GALERII
+  GALERII
 </h2>
 
+
 <div className="max-w-6xl mx-auto px-6 mb-5 pt-5">
-  <div className="flex space-x-4 overflow-x-auto pb-2">
+  <div
+    className="
+      flex space-x-4 overflow-x-auto pb-2
+      justify-start lg:justify-center
+      scroll-smooth
+    "
+    style={{
+      scrollBehavior: "smooth",
+    }}
+  >
     {photos.slice(0, 5).map((photo) => (
       <div
         key={photo.id}
         className="group relative min-w-[200px] h-48 flex-shrink-0 cursor-pointer rounded-lg overflow-hidden"
-        onClick={() => router.push("/tooted")}
+        onClick={() => router.push('/tooted')}
       >
         <Image
           src={photo.image_url}
@@ -356,14 +367,11 @@ GALERII
         />
 
         {/* Overlay ja pealkiri hoveril */}
-        <div
-          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end"
-        >
+        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
           <p
             className="text-white text-sm font-medium p-3 w-full truncate"
             style={{
-              fontFamily: "var(--font-raleway)",
-              fontWeight: 600,
+              fontFamily: 'var(--font-raleway)', fontWeight: 600,
             }}
           >
             {photo.title}
@@ -373,6 +381,7 @@ GALERII
     ))}
   </div>
 </div>
+
 
 
   {/* Ülemine bänner pildiga */}
