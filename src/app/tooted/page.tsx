@@ -101,40 +101,51 @@ export default function TootedPage() {
         </Link>
       </div>
 
-      {/* Galerii */}
+  
+{/* Galerii */}
 <div className="max-w-6xl mx-auto px-6 mb-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
   {photos.map((photo, index) => (
     <div
       key={photo.id}
-      className="cursor-pointer group relative overflow-hidden rounded-lg shadow-lg"
+      className="group relative cursor-pointer overflow-hidden rounded-lg shadow-lg"
       onClick={() => openModal(index)}
     >
+      {/* Pilt */}
       <Image
         width={900}
-        height={600} 
+        height={600}
         src={photo.image_url}
         alt={photo.title}
-        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-        
+        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
       />
 
+      {/* Hover-overlay ja pealkiri */}
       {photo.title && (
-<div
-  className="absolute bottom-0 left-2 right-2 text-white font-medium truncate text-left"
-  style={{
-    fontFamily: "var(--font-raleway)",
-    fontWeight: 600,
-    textShadow: "3px 3px 6px rgba(0, 0, 0, 1.0)"
-  }}
->
-  {photo.title}
-</div>
-
-
+        <div
+          className="
+            absolute inset-0 
+            bg-black/50 
+            opacity-100 sm:opacity-0 sm:group-hover:opacity-100 
+            transition-opacity duration-300 
+            flex items-end
+          "
+        >
+          <p
+            className="text-white text-sm font-medium p-3 w-full truncate"
+            style={{
+              fontFamily: "var(--font-raleway)",
+              fontWeight: 600,
+            }}
+          >
+            {photo.title}
+          </p>
+        </div>
       )}
     </div>
   ))}
 </div>
+
+
 
 
       {/* Modaal */}

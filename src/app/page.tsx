@@ -330,22 +330,45 @@ useEffect(() => {
       zIndex: -1,   // nii et overlay jääb taha
     }}
   />
+<h2
+  className="text-black text-4xl drop-shadow-lg text-center pt-5"
+  style={{
+    fontFamily: "'Abril Fatface', serif",
+    fontSize: "clamp(0.4rem, 2vw, 5rem)",
+  }}
+>
+GALERII
+</h2>
 
 <div className="max-w-6xl mx-auto px-6 mb-5 pt-5">
   <div className="flex space-x-4 overflow-x-auto pb-2">
     {photos.slice(0, 5).map((photo) => (
       <div
         key={photo.id}
-        className="relative min-w-[200px] h-48 flex-shrink-0 cursor-pointer rounded-lg overflow-hidden"
+        className="group relative min-w-[200px] h-48 flex-shrink-0 cursor-pointer rounded-lg overflow-hidden"
         onClick={() => router.push("/tooted")}
       >
         <Image
           src={photo.image_url}
           alt={photo.title}
           fill
-          className="object-cover transition-transform duration-300 hover:scale-105"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
 
+        {/* Overlay ja pealkiri hoveril */}
+        <div
+          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end"
+        >
+          <p
+            className="text-white text-sm font-medium p-3 w-full truncate"
+            style={{
+              fontFamily: "var(--font-raleway)",
+              fontWeight: 600,
+            }}
+          >
+            {photo.title}
+          </p>
+        </div>
       </div>
     ))}
   </div>
