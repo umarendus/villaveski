@@ -283,7 +283,7 @@ async function removePhoto(id: number, imageUrl: string) {
     e.stopPropagation(); // Peatab klikisündmuse edasikandumise div-ile
     removePhoto(photo.id, photo.image_url);
   }}
-  className="absolute top-4 right-4 bg-black text-white text-xl rounded-full w-10 h-10 flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition"
+  className="absolute top-4 right-4 bg-black text-white text-xl rounded-full w-10 h-10 flex items-center justify-center opacity-100 transition hover:scale-110"
   title="Kustuta"
 >
   <svg
@@ -302,6 +302,7 @@ async function removePhoto(id: number, imageUrl: string) {
     />
   </svg>
 </button>
+
 
                 </div>
               ))}
