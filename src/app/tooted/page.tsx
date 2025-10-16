@@ -103,7 +103,7 @@ export default function TootedPage() {
 
   
 {/* Galerii */}
-<div className="max-w-6xl mx-auto px-6 mb-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+<div className="max-w-5xl mx-auto px-15 md:px-6 mb-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
   {photos.map((photo, index) => (
     <div
       key={photo.id}
@@ -113,10 +113,10 @@ export default function TootedPage() {
       {/* Pilt */}
       <Image
         width={900}
-        height={600}
+        height={800}
         src={photo.image_url}
         alt={photo.title}
-        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+        className="w-full h-60 md:h-50 object-cover transition-transform duration-300 group-hover:scale-105"
       />
 
       {/* Hover-overlay ja pealkiri */}

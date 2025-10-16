@@ -331,7 +331,7 @@ useEffect(() => {
     }}
   />
 <h2
-  className="w-full text-center text-black text-4xl drop-shadow-lg pt-5"
+  className="w-full text-center text-black text-4xl pt-5"
   style={{
     fontFamily: "'Abril Fatface', serif",
     fontSize: "clamp(1.6rem, 2.2vw, 3.5rem)", // tõstetud alumine piir, et ei muutuks liiga väikeseks
