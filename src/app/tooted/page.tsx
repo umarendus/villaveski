@@ -155,7 +155,7 @@ export default function TootedPage() {
     {/* Sulgemisnupp */}
     <button
       onClick={closeModal}
-      className="absolute top-5 right-5 text-white text-3xl font-bold"
+      className="absolute top-5 right-5 text-white text-3xl font-bold cursor-pointer"
     >
       ×
     </button>
@@ -163,7 +163,7 @@ export default function TootedPage() {
     {/* Eelmine nupp */}
     <button
       onClick={showPrev}
-      className="absolute left-5 text-white text-3xl font-bold"
+      className="absolute left-5 text-white text-3xl font-bold cursor-pointer"
     >
       ‹
     </button>
@@ -189,7 +189,7 @@ export default function TootedPage() {
     {/* Järgmine nupp */}
     <button
       onClick={showNext}
-      className="absolute right-5 text-white text-3xl font-bold"
+      className="absolute right-5 text-white text-3xl font-bold cursor-pointer"
     >
       ›
     </button>

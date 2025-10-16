@@ -245,7 +245,7 @@ async function removePhoto(id: number, imageUrl: string) {
 
               <button
                 type="submit"
-                className="mt-5 bg-gray-900 text-white font-medium py-2 px-4 rounded-4xl hover:bg-gray-800 transition w-full"
+                className="mt-5 bg-gray-900 text-white font-medium py-2 px-4 cursor-pointer rounded-4xl hover:bg-gray-800 transition w-full"
               >
                 Lae üles
               </button>
@@ -283,7 +283,7 @@ async function removePhoto(id: number, imageUrl: string) {
     e.stopPropagation(); // Peatab klikisündmuse edasikandumise div-ile
     removePhoto(photo.id, photo.image_url);
   }}
-  className="absolute top-4 right-4 bg-black text-white text-xl rounded-full w-10 h-10 flex items-center justify-center opacity-100 transition hover:scale-110"
+  className="absolute top-4 right-4 bg-black text-white text-xl cursor-pointer rounded-full w-10 h-10 flex items-center justify-center opacity-100 transition hover:scale-110"
   title="Kustuta"
 >
   <svg
@@ -333,7 +333,7 @@ async function removePhoto(id: number, imageUrl: string) {
 
               <button
                 onClick={handleLogin}
-                className="bg-gray-900 text-white py-2 rounded-md font-medium hover:bg-gray-800 transition mt-2"
+                className="bg-gray-900 cursor-pointer text-white py-2 rounded-md font-medium hover:bg-gray-800 transition mt-2"
               >
                 Logi sisse
               </button>
@@ -346,14 +346,14 @@ async function removePhoto(id: number, imageUrl: string) {
           <div className="fixed inset-0 bg-black/80 flex flex-col items-center justify-center z-50 p-4">
             <button
               onClick={closePhotoModal}
-              className="absolute top-5 right-5 text-white text-3xl font-bold"
+              className="absolute top-5 right-5 text-white text-3xl font-bold cursor-pointer"
             >
               ×
             </button>
 
             <button
               onClick={showPrevPhoto}
-              className="absolute left-5 text-white text-3xl font-bold"
+              className="absolute left-5 text-white text-3xl font-bold cursor-pointer"
             >
               ‹
             </button>
@@ -372,7 +372,7 @@ async function removePhoto(id: number, imageUrl: string) {
 
             <button
               onClick={showNextPhoto}
-              className="absolute right-5 text-white text-3xl font-bold"
+              className="absolute right-5 text-white text-3xl font-bold cursor-pointer"
             >
               ›
             </button>
