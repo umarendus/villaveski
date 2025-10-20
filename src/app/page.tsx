@@ -330,19 +330,9 @@ useEffect(() => {
       zIndex: -1,   // nii et overlay jääb taha
     }}
   />
-<h2
-  className="w-full text-center text-black text-4xl pt-5"
-  style={{
-    fontFamily: "'Abril Fatface', serif",
-    fontSize: "clamp(1.6rem, 2.2vw, 3.5rem)", // tõstetud alumine piir, et ei muutuks liiga väikeseks
-    display: "block", // kindlustab, et võtab kogu rea
-  }}
->
-  GALERII
-</h2>
 
 
-<div className="max-w-6xl mx-auto px-6 mb-5 pt-5">
+<div className="max-w-6xl mx-auto px-6 mb-5 pt-7">
   <div
     className="
       flex space-x-4 overflow-x-auto pb-2
@@ -356,7 +346,7 @@ useEffect(() => {
     {photos.slice(0, 5).map((photo) => (
       <div
         key={photo.id}
-        className="group relative min-w-[200px] h-48 flex-shrink-0 cursor-pointer rounded-lg overflow-hidden"
+        className="group relative min-w-[200px] h-48 flex-shrink-0 cursor-pointer  overflow-hidden"
         onClick={() => router.push('/tooted')}
       >
         <Image

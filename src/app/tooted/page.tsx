@@ -107,7 +107,7 @@ export default function TootedPage() {
   {photos.map((photo, index) => (
     <div
       key={photo.id}
-      className="group relative cursor-pointer overflow-hidden rounded-lg shadow-lg"
+      className="group relative cursor-pointer overflow-hidden  shadow-lg"
       onClick={() => openModal(index)}
     >
       {/* Pilt */}
@@ -124,7 +124,7 @@ export default function TootedPage() {
         <div
           className="
             absolute inset-0 
-            bg-black/50 
+            sm:bg-black/50 bg-transparent
             opacity-100 sm:opacity-0 sm:group-hover:opacity-100 
             transition-opacity duration-300 
             flex items-end
@@ -135,6 +135,7 @@ export default function TootedPage() {
             style={{
               fontFamily: "var(--font-raleway)",
               fontWeight: 600,
+              textShadow: "3px 3px 6px rgba(0, 0, 0, 1.0)"
             }}
           >
             {photo.title}

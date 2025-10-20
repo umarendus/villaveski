@@ -256,7 +256,7 @@ async function removePhoto(id: number, imageUrl: string) {
               {photos.map((photo, index) => (
                 <div
                   key={photo.id}
-                  className="cursor-pointer group relative overflow-hidden rounded-lg shadow-lg"
+                  className="cursor-pointer group relative overflow-hidden shadow-lg"
                   onClick={() => openPhotoModal(index)}
                 >
 <Image
@@ -264,7 +264,7 @@ async function removePhoto(id: number, imageUrl: string) {
   alt={photo.title}
   width={400}   // soovitud laius px
   height={200}  // soovitud kõrgus px
-  className="object-cover w-full h-44 transition-transform duration-300 group-hover:scale-105"
+  className="object-cover w-full md:h-44 h-84 transition-transform duration-300 group-hover:scale-105"
 />
 
                   {photo.title && (
