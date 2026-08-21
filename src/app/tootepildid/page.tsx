@@ -24,6 +24,20 @@ export default function PildidPage() {
   // Login modal
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  // Väljalogimise kinnitus
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  // Parooli muutmine sisseloginult
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [newPassword2, setNewPassword2] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  // Parooli taastamine e-posti teel
+  const [resetSent, setResetSent] = useState(false);
+
   // Photo modal
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -44,35 +58,76 @@ export default function PildidPage() {
   }
 
   useEffect(() => {
-    async function initSession() {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        setSession(data.session);
-        loadPhotos();
+    // Kuulame kohe auth muutusi – supabase-js loeb salvestatud sessiooni
+    // localStorage'ist ja saadab INITIAL_SESSION sündmuse
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+
+      if (session) {
+        setShowLoginModal(false);
+        // TOKEN_REFRESHED korral on pildid juba laetud, ei tee uut päringut
+        if (event !== "TOKEN_REFRESHED") loadPhotos();
       } else {
         setShowLoginModal(true);
       }
+    });
 
-      const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-        setSession(session);
-        if (session) {
-          setShowLoginModal(false);
-          loadPhotos();
-        }
-      });
-
-      return () => listener.subscription.unsubscribe();
-    }
-
-    initSession();
+    return () => listener.subscription.unsubscribe();
   }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (!email || !password) return alert("Sisesta e-post ja parool");
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) alert(error.message);
-    else setShowLoginModal(false);
+    if (error) {
+      alert(error.message);
+    } else {
+      // Parooli ise me ei hoia – brauseri paroolihaldur pakub selle salvestamist,
+      // sessioon jääb localStorage'i ja uueneb automaatselt
+      setPassword("");
+      setShowLoginModal(false);
+    }
+  }
+
+  async function handleForgotPassword() {
+    if (!email) return alert("Sisesta esmalt oma e-post, siis vajuta uuesti.");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/uus-parool`,
+    });
+    if (error) return alert(error.message);
+    // Ei paljasta kunagi, kas selline konto on olemas
+    setResetSent(true);
+  }
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    setPasswordError("");
+
+    if (newPassword.length < 8) return setPasswordError("Parool peab olema vähemalt 8 tähemärki.");
+    if (newPassword !== newPassword2) return setPasswordError("Paroolid ei kattu.");
+
+    setSavingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setSavingPassword(false);
+
+    if (error) return setPasswordError(error.message);
+
+    setNewPassword("");
+    setNewPassword2("");
+    setShowChangePassword(false);
+    alert("Parool on muudetud. Brauser võib pakkuda uue parooli salvestamist.");
+  }
+
+  async function confirmLogout() {
+    setLoggingOut(true);
+    // scope: "local" – logib välja ainult sellest seadmest, teised seadmed jäävad sisse
+    const { error } = await supabase.auth.signOut({ scope: "local" });
+    setLoggingOut(false);
+    if (error) return alert("Väljalogimine ebaõnnestus: " + error.message);
+    setShowLogoutConfirm(false);
+    setPhotos([]);
+    setSession(null);
+    setShowLoginModal(true);
   }
 
   async function loadPhotos() {
@@ -158,15 +213,21 @@ async function removePhoto(id: number, imageUrl: string) {
           
           <>
         
-    {/* Suurtel ekraanidel absolute nupp */}
-    <div className="hidden md:block">
+    {/* Suurtel ekraanidel absolute nupud */}
+    <div className="hidden md:flex absolute top-12 right-4 items-center gap-2">
       <button
-        onClick={async () => {
-          await supabase.auth.signOut();
-          setSession(null);
-          setShowLoginModal(true);
+        onClick={() => setShowChangePassword(true)}
+        className="text-gray-600 py-2 px-4 rounded-md cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
+        style={{
+          fontFamily: "var(--font-raleway)",
+          fontWeight: 500,
         }}
-        className="absolute top-12 right-4 text-red-900 py-2 px-4 rounded-md transition-transform duration-200 ease-in-out hover:scale-110"
+      >
+        Muuda parooli
+      </button>
+      <button
+        onClick={() => setShowLogoutConfirm(true)}
+        className="text-red-900 py-2 px-4 rounded-md cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
         style={{
           fontFamily: "var(--font-raleway)",
           fontWeight: 500,
@@ -176,15 +237,21 @@ async function removePhoto(id: number, imageUrl: string) {
       </button>
     </div>
 
-    {/* Väikestel ekraanidel nupp pealkirja all */}
-    <div className="md:hidden flex justify-center mb-4">
+    {/* Väikestel ekraanidel nupud pealkirja all */}
+    <div className="md:hidden flex justify-center gap-2 mb-4">
       <button
-        onClick={async () => {
-          await supabase.auth.signOut();
-          setSession(null);
-          setShowLoginModal(true);
+        onClick={() => setShowChangePassword(true)}
+        className="text-gray-600 py-2 px-4 rounded-md cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
+        style={{
+          fontFamily: "var(--font-raleway)",
+          fontWeight: 500,
         }}
-        className="text-red-900 py-2 px-4 rounded-md transition-transform duration-200 ease-in-out hover:scale-110"
+      >
+        Muuda parooli
+      </button>
+      <button
+        onClick={() => setShowLogoutConfirm(true)}
+        className="text-red-900 py-2 px-4 rounded-md cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
         style={{
           fontFamily: "var(--font-raleway)",
           fontWeight: 500,
@@ -310,14 +377,115 @@ async function removePhoto(id: number, imageUrl: string) {
           </>
         )}
 
+        {/* Parooli muutmise modaal */}
+        {showChangePassword && (
+          <div
+            className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4"
+            onClick={() => !savingPassword && setShowChangePassword(false)}
+          >
+            <form
+              onSubmit={handleChangePassword}
+              className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-80 flex flex-col gap-4"
+              style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-semibold text-center text-gray-900">Muuda parooli</h2>
+
+              <input
+                type="password"
+                name="new-password"
+                autoComplete="new-password"
+                placeholder="Uus parool"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="border border-gray-300 rounded-md p-2 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600"
+              />
+              <input
+                type="password"
+                name="confirm-password"
+                autoComplete="new-password"
+                placeholder="Korda parooli"
+                value={newPassword2}
+                onChange={(e) => setNewPassword2(e.target.value)}
+                className="border border-gray-300 rounded-md p-2 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600"
+              />
+
+              {passwordError && <p className="text-red-700 text-sm">{passwordError}</p>}
+
+              <div className="flex gap-3 mt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowChangePassword(false)}
+                  disabled={savingPassword}
+                  className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-md font-medium cursor-pointer hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  Tühista
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingPassword}
+                  className="flex-1 bg-gray-900 text-white py-2 rounded-md font-medium cursor-pointer hover:bg-gray-800 transition disabled:opacity-50"
+                >
+                  {savingPassword ? "Salvestan..." : "Salvesta"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Väljalogimise kinnitusmodaal */}
+        {showLogoutConfirm && (
+          <div
+            className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4"
+            onClick={() => !loggingOut && setShowLogoutConfirm(false)}
+          >
+            <div
+              className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-80 flex flex-col gap-4"
+              style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-semibold text-center text-gray-900">
+                Kas oled kindel?
+              </h2>
+              <p className="text-center text-gray-600 text-sm">
+                Pärast väljalogimist pead järgmisel korral uuesti e-posti ja parooli sisestama.
+              </p>
+
+              <div className="flex gap-3 mt-2">
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  disabled={loggingOut}
+                  className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-md font-medium cursor-pointer hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  Tühista
+                </button>
+                <button
+                  onClick={confirmLogout}
+                  disabled={loggingOut}
+                  className="flex-1 bg-red-900 text-white py-2 rounded-md font-medium cursor-pointer hover:bg-red-800 transition disabled:opacity-50"
+                >
+                  {loggingOut ? "Login välja..." : "Logi välja"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Login Modal */}
         {showLoginModal && (
           <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-            <div className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-80 flex flex-col gap-4">
+            <form
+              onSubmit={handleLogin}
+              method="post"
+              className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-80 flex flex-col gap-4"
+            >
               <h2 className="text-2xl font-semibold text-center text-gray-900">Logi sisse</h2>
 
               <input
                 type="email"
+                name="email"
+                id="login-email"
+                autoComplete="username"
                 placeholder="E-post"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -325,6 +493,9 @@ async function removePhoto(id: number, imageUrl: string) {
               />
               <input
                 type="password"
+                name="password"
+                id="login-password"
+                autoComplete="current-password"
                 placeholder="Parool"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -332,12 +503,26 @@ async function removePhoto(id: number, imageUrl: string) {
               />
 
               <button
-                onClick={handleLogin}
+                type="submit"
                 className="bg-gray-900 cursor-pointer text-white py-2 rounded-md font-medium hover:bg-gray-800 transition mt-2"
               >
                 Logi sisse
               </button>
-            </div>
+
+              {resetSent ? (
+                <p className="text-center text-green-700 text-sm">
+                  Kui selle e-postiga konto on olemas, saatsime sinna parooli taastamise lingi.
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-center text-sm text-gray-500 underline cursor-pointer hover:text-gray-700 transition"
+                >
+                  Unustasid parooli?
+                </button>
+              )}
+            </form>
           </div>
         )}
 
