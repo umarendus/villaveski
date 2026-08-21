@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../lib/supabaseClient";
+import type { EmailOtpType } from "@supabase/supabase-js";
 
 type Status = "checking" | "ready" | "invalid" | "done";
 
@@ -23,19 +24,39 @@ export default function UusParoolPage() {
   const hash = useRef<string>(typeof window === "undefined" ? "" : window.location.hash);
 
   useEffect(() => {
-    const params = new URLSearchParams(hash.current.replace(/^#/, ""));
-    if (params.get("type") === "invite" || params.get("type") === "signup") {
-      setIsInvite(true);
-    }
+    // Link võib jõuda kahel kujul:
+    //  a) ?token_hash=...&type=invite|recovery  - e-kirja mall ehitab lingi ise
+    //  b) #access_token=...&type=recovery       - Supabase /verify suunas siia
+    const query = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(hash.current.replace(/^#/, ""));
+
+    const linkType = query.get("type") ?? hashParams.get("type");
+    if (linkType === "invite" || linkType === "signup") setIsInvite(true);
 
     const listener = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") setStatus("ready");
     });
 
-    // getSession() ootab ära URL-i töötlemise, seega siit saame lõpliku vastuse
-    supabase.auth.getSession().then(({ data }) => {
+    async function verifyLink() {
+      const tokenHash = query.get("token_hash");
+
+      if (tokenHash && linkType) {
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: linkType as EmailOtpType,
+        });
+        setStatus(error ? "invalid" : "ready");
+        // Koristame tokeni URL-ist ära, et see ei jääks ajalukku
+        window.history.replaceState({}, "", window.location.pathname);
+        return;
+      }
+
+      // getSession() ootab ära hashi töötlemise, seega siit saame lõpliku vastuse
+      const { data } = await supabase.auth.getSession();
       setStatus(data.session ? "ready" : "invalid");
-    });
+    }
+
+    verifyLink();
 
     return () => listener.data.subscription.unsubscribe();
   }, []);
