@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Calendar, Check, Clock, Euro, MapPin, ShoppingBasket } from "lucide-react";
+import { Calendar, Check, Clock, Euro, Hourglass, Mail, MapPin, ShoppingBasket } from "lucide-react";
 import { supabase } from "@/app/lib/supabaseClient";
 import { formatDate, formatPrice, formatTime, hasStarted, splitLines, startOfTodayTallinnIso } from "@/app/lib/opitoad";
 import type { WorkshopPublic } from "../../../types/supabase";
 import RegistrationForm, { SheepPair } from "./RegistrationForm";
 import ShareWorkshop from "./ShareWorkshop";
+import SeatBar from "./SeatBar";
 
 const abril = { fontFamily: "'Abril Fatface', serif" };
 const raleway = (weight: number) => ({ fontFamily: "var(--font-raleway)", fontWeight: weight });
@@ -84,12 +85,15 @@ export default function WorkshopsSection({ focusId }: { focusId?: string }) {
   );
 }
 
-function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic; first: boolean }) {
+export function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic; first: boolean }) {
   const [w, setW] = useState(initial);
   const started = hasStarted(w.starts_at);
   const full = w.seats_left <= 0 || w.status === "closed" || started;
   const includes = splitLines(w.includes);
   const taken = w.capacity - w.seats_left;
+  const pending = w.pending_people ?? 0;
+  // Ootel on vähemalt sama palju inimesi kui vabu kohti: uus registreerija läheb järjekorda
+  const queue = !full && pending >= w.seats_left;
 
   return (
     <section id={`opituba-${w.id}`} className="relative py-14 md:py-20 scroll-mt-16">
@@ -189,7 +193,7 @@ function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic;
               </p>
             )}
 
-            {!started && <SeatsMeter capacity={w.capacity} taken={taken} seatsLeft={w.seats_left} />}
+            {!started && <SeatsMeter capacity={w.capacity} taken={taken} seatsLeft={w.seats_left} pending={pending} />}
             {!started && (
               <div className="mt-5">
                 <ShareWorkshop workshop={w} />
@@ -210,6 +214,11 @@ function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic;
                 See õpituba on juba alanud või toimunud. Kui oled huviline, paneme sind järgmise õpitoa jaoks kirja –
                 anname sulle esimesena teada!
               </p>
+            ) : queue ? (
+              <p className="mt-4 text-lg text-gray-800 leading-relaxed">
+                Täida vorm ja lisame sind registreerunute järjekorda. Villaveski kinnitab registreeringud saabumise
+                järjekorras – oled registreeritud alles pärast kinnituskirja. Maksmine toimub kohapeal.
+              </p>
             ) : full ? (
               <p className="mt-4 text-lg text-gray-800 leading-relaxed">
                 Selle õpitoa kohad on juba täis, kuid kui oled huviline, paneme sind tulevikuks kirja. Kohtade täitumisel
@@ -221,16 +230,51 @@ function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic;
               </p>
             )}
           </div>
+          {queue && <QueueNotice seatsLeft={w.seats_left} pending={pending} />}
           <RegistrationForm
             workshopId={w.id}
+            queue={queue}
             mode={full ? "waitlist" : "register"}
             maxParticipants={full ? 6 : w.seats_left}
             priceEur={Number(w.price_eur)}
             onRegistered={(left) => left !== null && setW((prev) => ({ ...prev, seats_left: left }))}
           />
+          <ContactLine />
         </div>
       </div>
     </section>
+  );
+}
+
+// Selgitus, kui ootel on rohkem inimesi kui vabu kohti
+function QueueNotice({ seatsLeft, pending }: { seatsLeft: number; pending: number }) {
+  return (
+    <div className="flex gap-4 bg-[#f7f4ef] border border-[#be9f7a]/50 rounded-2xl p-5 md:p-6 mb-6 text-left" style={raleway(500)}>
+      <span className="w-10 h-10 shrink-0 rounded-full bg-white border border-[#be9f7a]/50 flex items-center justify-center text-[#7a5f40]">
+        <Hourglass className="w-5 h-5" />
+      </span>
+      <div className="text-gray-800 leading-relaxed">
+        <p className="text-black font-semibold mb-1">Ootejärjekord</p>
+        <p>
+          Vabu kohti on {seatsLeft}, kuid kinnitust ootab juba {pending} {pending === 1 ? "inimene" : "inimest"}. Saad end
+          siiski kirja panna – lisame sind järjekorda. Kindel koht on sul alles siis, kui saad meilt kinnituskirja.
+        </p>
+        <p className="mt-2">
+          Kui kohad täituvad, jääd huviliste nimekirja ja koha vabanemisel võtame sinuga esimesena ühendust.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ContactLine() {
+  return (
+    <p className="mt-6 text-center text-gray-600 flex flex-wrap items-center justify-center gap-x-2 gap-y-1" style={raleway(500)}>
+      <Mail className="w-4 h-4" /> Küsimuste korral kirjuta meile:
+      <a href="mailto:saaremaalong@gmail.com" className="text-black underline underline-offset-4 hover:text-[#7a5f40]">
+        saaremaalong@gmail.com
+      </a>
+    </p>
   );
 }
 
@@ -246,30 +290,45 @@ function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string
   );
 }
 
-function SeatsMeter({ capacity, taken, seatsLeft }: { capacity: number; taken: number; seatsLeft: number }) {
+function SeatsMeter({
+  capacity,
+  taken,
+  seatsLeft,
+  pending,
+}: {
+  capacity: number;
+  taken: number;
+  seatsLeft: number;
+  pending: number;
+}) {
   return (
     <div className="border border-gray-200 rounded-2xl p-6" style={raleway(500)}>
-      <div className="flex items-end justify-between mb-4">
+      <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
         <div>
           <span className="text-5xl text-black leading-none" style={abril}>
             {seatsLeft}
           </span>
           <span className="ml-2 text-gray-600">/ {capacity} kohta vaba</span>
         </div>
-        {seatsLeft > 0 && seatsLeft <= 2 && (
-          <span className="text-sm uppercase tracking-widest text-red-800" style={raleway(700)}>
-            Viimased kohad!
+        {pending > 0 ? (
+          <span className="text-sm px-3 py-1 rounded-full bg-[#f7f4ef] border border-[#be9f7a]/50 text-[#7a5f40]">
+            {pending} ootab kinnitust
           </span>
+        ) : (
+          seatsLeft > 0 &&
+          seatsLeft <= 2 && (
+            <span className="text-sm uppercase tracking-widest text-red-800" style={raleway(700)}>
+              Viimased kohad!
+            </span>
+          )
         )}
       </div>
-      <div className="flex flex-wrap gap-2" aria-hidden="true">
-        {Array.from({ length: capacity }, (_, i) => (
-          <span
-            key={i}
-            className={`h-3 flex-1 min-w-[18px] rounded-full transition-colors ${i < taken ? "bg-black" : "bg-[#be9f7a]/35"}`}
-          />
-        ))}
-      </div>
+      <SeatBar capacity={capacity} confirmed={taken} pending={pending} />
+      {pending > 0 && (
+        <p className="text-xs text-gray-500 mt-3">
+          Broneeritud kohad muutuvad kinnitatuks, kui Villaveski on registreeringu üle vaadanud.
+        </p>
+      )}
     </div>
   );
 }

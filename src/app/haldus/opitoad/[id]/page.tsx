@@ -4,13 +4,16 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Download, Euro, MapPin, Pencil } from "lucide-react";
+import { ArrowLeft, Calendar, Download, Euro, Info, MapPin, Megaphone, Pencil, X } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import WorkshopEditor from "@/components/admin/opitoad/WorkshopEditor";
 import ShareWorkshop from "@/components/opitoad/ShareWorkshop";
+import SeatBar from "@/components/opitoad/SeatBar";
+import AnnounceModal from "@/components/admin/opitoad/AnnounceModal";
+import Portal from "@/components/ui/Portal";
 import RegistrationCard, { downloadCsv, registrationsToCsv, seatsTaken } from "@/components/admin/opitoad/RegistrationCard";
 import { supabase } from "../../../lib/supabaseClient";
-import { formatDate, formatPrice, formatTime } from "../../../lib/opitoad";
+import { formatDate, formatPrice, formatShortDate, formatTime } from "../../../lib/opitoad";
 import type { RegistrationStatus, Workshop, WorkshopRegistration } from "../../../../../types/supabase";
 
 const abril = { fontFamily: "'Abril Fatface', serif" };
@@ -33,6 +36,15 @@ function Detail() {
   const [regs, setRegs] = useState<WorkshopRegistration[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [announcing, setAnnouncing] = useState(false);
+  const [banner, setBanner] = useState("");
+
+  // RegistrationCard annab teada, kui kohad täitusid ja ootel registreeringud liikusid huvilistesse
+  useEffect(() => {
+    const onInfo = (e: Event) => setBanner((e as CustomEvent<string>).detail);
+    window.addEventListener("opitoad:info", onInfo);
+    return () => window.removeEventListener("opitoad:info", onInfo);
+  }, []);
 
   const load = useCallback(async () => {
     const [w, r] = await Promise.all([
@@ -66,6 +78,8 @@ function Detail() {
   const taken = seatsTaken(workshop, regs);
   const left = Math.max(workshop.capacity - taken, 0);
   const pendingCount = regs.filter((r) => r.status === "pending").length;
+  const pendingPeople = regs.filter((r) => r.status === "pending").reduce((s, r) => s + r.participants, 0);
+  const canAnnounce = workshop.status === "published" && new Date(workshop.starts_at) > new Date();
 
   function updateReg(regId: string, reg: WorkshopRegistration | null) {
     setRegs((prev) => {
@@ -87,20 +101,31 @@ function Detail() {
           {workshop.image_url && <Image src={workshop.image_url} alt="" fill className="object-cover" sizes="280px" />}
         </div>
         <div className="p-6 md:p-8">
-          <div className="flex items-start justify-between gap-4">
-            <h1 className="text-3xl md:text-4xl text-black" style={abril}>
-              {workshop.title}
-            </h1>
-            <div className="flex gap-2 shrink-0">
+          <h1 className="text-3xl md:text-4xl text-black" style={abril}>
+            {workshop.title}
+          </h1>
+          <div className="flex flex-wrap gap-2 mt-4">
+            {canAnnounce && (
+              <button
+                onClick={() => setAnnouncing(true)}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-black text-white text-sm cursor-pointer hover:bg-gray-800"
+              >
+                <Megaphone className="w-4 h-4" /> Teavita huvilisi
+              </button>
+            )}
             {workshop.status !== "draft" && <ShareWorkshop workshop={workshop} variant="admin" className="py-2" />}
             <button
               onClick={() => setEditing(true)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-300 text-sm cursor-pointer hover:bg-gray-50 shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-300 text-gray-700 text-sm cursor-pointer hover:bg-gray-50"
             >
               <Pencil className="w-4 h-4" /> Muuda
             </button>
-            </div>
           </div>
+          {workshop.announced_at && (
+            <p className="text-xs text-gray-500 mt-2">
+              Huvilisi teavitatud {formatShortDate(workshop.announced_at)} ({workshop.announced_count} kirja)
+            </p>
+          )}
           <div className="mt-3 space-y-1 text-gray-700 text-sm">
             <p className="flex items-center gap-2">
               <Calendar className="w-4 h-4" /> {formatDate(workshop.starts_at)}, kell {formatTime(workshop.starts_at)}
@@ -113,21 +138,35 @@ function Detail() {
             </p>
           </div>
 
-          <div className="mt-6 grid grid-cols-3 gap-3 text-center">
+          <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3 text-center">
             <Stat value={left} label="vaba kohta" accent />
             <Stat value={taken} label={`kinnitatud / ${workshop.capacity}`} />
-            <Stat value={pendingCount} label="ootab kinnitust" warn={pendingCount > 0} />
+            <Stat value={pendingPeople} label={`ootab kinnitust (${pendingCount} reg.)`} warn={pendingCount > 0} />
           </div>
-          <div className="flex gap-1 mt-4">
-            {Array.from({ length: workshop.capacity }, (_, i) => (
-              <span key={i} className={`h-2 flex-1 rounded-full ${i < taken ? "bg-black" : "bg-[#be9f7a]/30"}`} />
-            ))}
+          <div className="mt-4">
+            <SeatBar capacity={workshop.capacity} confirmed={taken} pending={pendingPeople} size="sm" />
           </div>
+          {pendingPeople > left && left > 0 && (
+            <p className="text-xs text-[#7a5f40] mt-2">
+              Ootel on rohkem inimesi kui vabu kohti – kinnita saabumise järjekorras. Viimase koha kinnitamisel liiguvad
+              ülejäänud automaatselt huviliste nimekirja ja saavad teate.
+            </p>
+          )}
           {workshop.reserved_offline > 0 && (
             <p className="text-xs text-gray-500 mt-2">Sh {workshop.reserved_offline} kohta broneeritud väljaspool lehte.</p>
           )}
         </div>
       </div>
+
+      {banner && (
+        <div className="mt-6 flex items-start gap-3 bg-green-50 border border-green-200 text-green-900 rounded-xl px-4 py-3 text-sm">
+          <Info className="w-5 h-5 shrink-0" />
+          <p className="flex-1">{banner}</p>
+          <button onClick={() => setBanner("")} className="cursor-pointer" aria-label="Sulge teade">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       <div className="flex justify-end mt-8">
         {regs.length > 0 && (
@@ -164,7 +203,7 @@ function Detail() {
             ) : (
               <div className="space-y-3">
                 {list.map((r) => (
-                  <RegistrationCard key={r.id} reg={r} onChanged={(reg) => updateReg(r.id, reg)} />
+                  <RegistrationCard key={r.id} reg={r} onChanged={(reg) => updateReg(r.id, reg)} onReload={load} />
                 ))}
               </div>
             )}
@@ -172,6 +211,17 @@ function Detail() {
         );
       })}
 
+      {announcing && (
+        <Portal>
+          <AnnounceModal
+            workshop={workshop}
+            onClose={() => setAnnouncing(false)}
+            onSent={(count) =>
+              setWorkshop((w) => (w ? { ...w, announced_at: new Date().toISOString(), announced_count: count } : w))
+            }
+          />
+        </Portal>
+      )}
       {editing && (
         <WorkshopEditor
           workshop={workshop}

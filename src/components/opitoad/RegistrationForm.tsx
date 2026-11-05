@@ -14,6 +14,7 @@ type Props = {
   mode: "register" | "waitlist";
   maxParticipants: number;
   priceEur?: number;
+  queue?: boolean; // ootel rohkem inimesi kui vabu kohti
   onRegistered?: (seatsLeft: number | null) => void;
 };
 
@@ -24,7 +25,7 @@ const inputClass =
 
 const labelClass = "block text-sm text-gray-700 mb-1.5 tracking-wide";
 
-export default function RegistrationForm({ workshopId, mode, maxParticipants, priceEur, onRegistered }: Props) {
+export default function RegistrationForm({ workshopId, mode, maxParticipants, priceEur, queue, onRegistered }: Props) {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -97,7 +98,7 @@ export default function RegistrationForm({ workshopId, mode, maxParticipants, pr
       <>
       <Portal>
         <AnimatePresence>
-          {showModal && <SentModal mode={done} email={sentTo} onClose={() => setShowModal(false)} />}
+          {showModal && <SentModal mode={done} email={sentTo} queue={queue} onClose={() => setShowModal(false)} />}
         </AnimatePresence>
       </Portal>
       <motion.div
@@ -322,7 +323,7 @@ export default function RegistrationForm({ workshopId, mode, maxParticipants, pr
           className="inline-block bg-black text-white rounded-full px-10 py-4 text-lg font-semibold hover:bg-gray-800 transition-colors duration-300 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
           style={{ fontFamily: "var(--font-raleway)", fontWeight: 700 }}
         >
-          {loading ? "Saadan..." : mode === "waitlist" ? "Pane mind kirja" : "Registreeru õpitoale"}
+          {loading ? "Saadan..." : mode === "waitlist" ? "Pane mind kirja" : queue ? "Registreeru järjekorda" : "Registreeru õpitoale"}
         </button>
         {mode === "register" && (
           <p className="mt-4 text-sm text-gray-500">Maksmine toimub kohapeal. Registreerimine on tasuta ja kohustustevaba.</p>
@@ -344,7 +345,17 @@ export function SheepPair({ size = "2rem" }: { size?: string }) {
 }
 
 // Pärast vormi saatmist: selgitus, et registreerimine kehtib alles Villaveski kinnituskirjaga
-function SentModal({ mode, email, onClose }: { mode: "pending" | "waitlist"; email: string; onClose: () => void }) {
+function SentModal({
+  mode,
+  email,
+  queue,
+  onClose,
+}: {
+  mode: "pending" | "waitlist";
+  email: string;
+  queue?: boolean;
+  onClose: () => void;
+}) {
   useBodyScrollLock();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -356,7 +367,14 @@ function SentModal({ mode, email, onClose }: { mode: "pending" | "waitlist"; ema
     mode === "pending"
       ? [
           { icon: <Check className="w-4 h-4" strokeWidth={3} />, title: "Registreerumise kiri on teele pandud", text: `Saatsime kinnituse kättesaamise kohta kirja aadressile ${email}.`, done: true },
-          { icon: <Mail className="w-4 h-4" />, title: "Villaveski vaatab registreeringu üle", text: "Tavaliselt vastame paari päeva jooksul.", done: false },
+          {
+            icon: <Mail className="w-4 h-4" />,
+            title: queue ? "Oled järjekorras" : "Villaveski vaatab registreeringu üle",
+            text: queue
+              ? "Registreerunuid on rohkem kui vabu kohti – kinnitame saabumise järjekorras. Kui kohad täituvad, jääd huviliste nimekirja ja saad sellest kirja."
+              : "Tavaliselt vastame paari päeva jooksul.",
+            done: false,
+          },
           { icon: <MailCheck className="w-4 h-4" />, title: "Kinnituskiri = oled registreeritud", text: "Alles kinnituskirja saamisel on sinu koht õpitoas kindel ja vabade kohtade arv lehel väheneb.", done: false },
         ]
       : [

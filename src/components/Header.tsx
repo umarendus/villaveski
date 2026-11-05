@@ -8,6 +8,15 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const sections = ["kodu", "meist", "teenused", "kontakt"];
 
+// Menüü: avalehe sektsioonid + eraldi leht Õpitoad (enne kontakti)
+const navItems: ({ type: "section"; id: string } | { type: "page"; href: string; label: string })[] = [
+  { type: "section", id: "kodu" },
+  { type: "section", id: "meist" },
+  { type: "section", id: "teenused" },
+  { type: "page", href: "/opitoad", label: "ÕPITOAD" },
+  { type: "section", id: "kontakt" },
+];
+
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [active, setActive] = useState("kodu");
@@ -168,20 +177,29 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center space-x-10">
-          {sections.map((id) => (
-            <button
-              key={id}
-              onClick={() => handleClick(id)}
-              className={`relative font-medium text-m tracking-wide cursor-pointer transition-colors duration-300 ${
-                isHome && active === id
-                  ? "text-gray-900 font-semibold"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              {id.toUpperCase()}
-           
-            </button>
-          ))}
+          {navItems.map((item) =>
+            item.type === "page" ? (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative font-medium text-m tracking-wide transition-colors duration-300 ${
+                  pathname.startsWith(item.href) ? "text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <button
+                key={item.id}
+                onClick={() => handleClick(item.id)}
+                className={`relative font-medium text-m tracking-wide cursor-pointer transition-colors duration-300 ${
+                  isHome && active === item.id ? "text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                {item.id.toUpperCase()}
+              </button>
+            )
+          )}
         </nav>
 
         {/* Right Logo - Desktop */}
@@ -237,14 +255,24 @@ export default function Header() {
               exit="exit"
               className={`flex flex-col items-center ${isLowHeight ? 'space-y-0' : 'space-y-6'} py-10 text-center`}
             >
-              {sections.map((id) => (
-                <motion.div key={id} variants={itemVariants}>
-                  <button
-                    onClick={() => handleClick(id, true)}
-                    className="block text-black text-2xl font-semibold tracking-wide cursor-pointer hover:text-gray-700 transition-colors"
-                  >
-                    {id.toUpperCase()}
-                  </button>
+              {navItems.map((item) => (
+                <motion.div key={item.type === "page" ? item.href : item.id} variants={itemVariants}>
+                  {item.type === "page" ? (
+                    <Link
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block text-black text-2xl font-semibold tracking-wide hover:text-gray-700 transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => handleClick(item.id, true)}
+                      className="block text-black text-2xl font-semibold tracking-wide cursor-pointer hover:text-gray-700 transition-colors"
+                    >
+                      {item.id.toUpperCase()}
+                    </button>
+                  )}
                 </motion.div>
               ))}
 

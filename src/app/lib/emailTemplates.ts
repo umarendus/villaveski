@@ -15,10 +15,13 @@ export type TemplateKey =
   | "registration_confirmed"
   | "waitlist_received"
   | "registration_removed"
+  | "moved_to_waitlist"
+  | "new_workshop_announcement"
   | "admin_new_registration"
   | "admin_new_waitlist"
   | "admin_general_waitlist"
-  | "admin_registration_removed";
+  | "admin_registration_removed"
+  | "admin_unsubscribed";
 
 export type TemplateTexts = {
   subject: string;
@@ -39,6 +42,7 @@ export type EmailData = {
   note?: string;
   removedBy?: string;
   participantNotified?: boolean;
+  unsubscribeUrl?: string; // huviliste kirjades "Loobu teavitustest" link (serveris allkirjastatud)
 };
 
 const SIGNATURE = "Villaste tervitustega\n**Egon ja Merike**\nSörve Villaveski";
@@ -115,6 +119,36 @@ export const TEMPLATE_DEFS: Record<
       outro: `Kui soovid siiski osaleda või registreeruda mõnele järgmisele õpitoale, vajuta ülaloleval nupul. Kui arvad, et tegemist on eksitusega, vasta lihtsalt sellele kirjale.\n\n${SIGNATURE}`,
     },
   },
+  moved_to_waitlist: {
+    label: "Kohad täis – huvilistesse",
+    recipient: "Osalejale",
+    when: "Kui kohad täituvad teiste kinnitustega või haldur tõstab ootel registreeringu huviliste nimekirja.",
+    required: ["{nimi}", "{opituba}"],
+    defaults: {
+      subject: "Kohad said täis – oled huviliste nimekirjas ({opituba})",
+      preheader: "Koha vabanemisel või uue õpitoa avamisel anname sulle esimesena teada.",
+      heading: "Kohad said kahjuks täis",
+      intro:
+        "Tere, {nimi}!\n\nAitäh, et registreerusid õpitoale **{opituba}** ({kuupaev}). Kahjuks said kõik kohad vahepeal kinnitatud registreerujatele, kes olid järjekorras eespool. Lisasime sind huviliste nimekirja.",
+      button_label: "Vaata õpitubasid",
+      outro: `Kui mõni koht vabaneb, võtame sinuga kohe ühendust. Samuti anname sulle esimesena teada, kui avame uue õpitoa.\n\n${SIGNATURE}`,
+    },
+  },
+  new_workshop_announcement: {
+    label: "Uus õpituba huvilistele",
+    recipient: "Osalejale",
+    when: "Kui haldur vajutab õpitoa juures „Teavita huvilisi“.",
+    required: ["{nimi}", "{opituba}", "{kuupaev}"],
+    defaults: {
+      subject: "Uus õpituba: {opituba} – {kuupaev}",
+      preheader: "Registreerimine on avatud – kohti on vaid {kohti_kokku}.",
+      heading: "Avasime registreerimise!",
+      intro:
+        "Tere, {nimi}!\n\nAndsid meile teada, et soovid meie õpitubadest osa võtta. Hea uudis – avasime registreerimise uuele õpitoale **{opituba}**, mis toimub **{kuupaev} kell {kellaaeg}**.",
+      button_label: "Registreeru",
+      outro: `Tegemist on populaarse õpitoaga ja kohti on vaid {kohti_kokku}, seega tasub end kiiresti kirja panna!\n\n${SIGNATURE}`,
+    },
+  },
   admin_new_registration: {
     label: "Uus registreering",
     recipient: "Haldurile",
@@ -172,9 +206,28 @@ export const TEMPLATE_DEFS: Record<
       outro: "",
     },
   },
+  admin_unsubscribed: {
+    label: "Osaleja loobus teavitustest",
+    recipient: "Haldurile",
+    when: "Kui aktiivse registreeringuga inimene loobub teavitustest ja tema andmed kustutatakse.",
+    required: ["{nimi}", "{opituba}"],
+    defaults: {
+      subject: "{nimi} loobus – registreering kustutatud ({opituba})",
+      preheader: "Koht vabanes: {vabu_kohti} / {kohti_kokku} vaba.",
+      heading: "Osaleja loobus teavitustest",
+      intro:
+        "**{nimi}** vajutas kirjas linki „Loobu teavitustest“. Tema andmed kustutati, sh registreering õpitoale **{opituba}** ({kuupaev}). Vabanenud koha saad pakkuda huviliste nimekirjast.",
+      button_label: "Ava õpitoa haldus",
+      outro: "",
+    },
+  },
 };
 
+// (admin_unsubscribed lisatakse allpool TEMPLATE_DEFS-i)
 export const TEMPLATE_KEYS = Object.keys(TEMPLATE_DEFS) as TemplateKey[];
+
+// Huviliste nimekirja kirjad: neis peab olema teavitustest loobumise link
+export const UNSUBSCRIBE_KEYS: TemplateKey[] = ["waitlist_received", "moved_to_waitlist", "new_workshop_announcement"];
 
 export const PLACEHOLDERS: { token: string; label: string; special?: boolean }[] = [
   { token: "{nimi}", label: "Registreerija nimi" },
@@ -383,6 +436,13 @@ ${button(googleCalendarUrl(w), "Google'i kalender", "secondary")}
 ${button(icsUrl(w.id), "iPhone, Outlook ja muud", "secondary")}`;
 }
 
+function unsubscribeLine(url: string) {
+  return `<p style="margin:28px 0 0;padding-top:18px;border-top:1px solid #e8e2d8;text-align:center;font-family:Raleway,Arial,sans-serif;font-size:12px;line-height:1.6;color:#8a8278;">
+Said selle kirja, sest panid end Sörve Villaveski õpitubade huviliste nimekirja.<br>
+<a href="${esc(url)}" style="color:#7a5f40;text-decoration:underline;">Loobu teavitustest ja kustuta minu andmed</a>
+</p>`;
+}
+
 function seatsBadge(seatsLeft: number, capacity: number | string) {
   return `<div style="text-align:center;margin:8px 0 24px;">
   <div style="font-family:'Abril Fatface',Georgia,serif;font-size:56px;line-height:1;color:#000;">${esc(seatsLeft)}</div>
@@ -449,6 +509,22 @@ export function renderEmail(key: TemplateKey, texts: TemplateTexts, d: EmailData
           : ""
       }${w ? detailsTable([...workshopRows(w, r.participants), ["Osalejaid", participantsHtml(r)]]) : ""}${button(`${SITE_URL}/opitoad#registreeru`, label)}${outro}`;
       break;
+    case "moved_to_waitlist":
+      image = w?.image_url ?? null;
+      body = `${intro}${button(`${SITE_URL}/opitoad`, label)}${outro}`;
+      break;
+    case "new_workshop_announcement":
+      image = w?.image_url ?? null;
+      body = `${intro}${w ? detailsTable(workshopRows(w)) : ""}${w ? includesList(w) : ""}${button(
+        w ? `${SITE_URL}/opitoad/${w.id}` : `${SITE_URL}/opitoad`,
+        label
+      )}${outro}`;
+      break;
+    case "admin_unsubscribed":
+      body = `${w ? seatsBadge(seatsLeft, w.capacity) : ""}${intro}${detailsTable(
+        adminRegistrationRows(d).filter(([k]) => k !== "Sõnum" && k !== "Materjalid juurde")
+      )}${button(haldus, label)}${outro}`;
+      break;
     case "admin_new_registration":
     case "admin_new_waitlist":
       body = `${w ? seatsBadge(seatsLeft, w.capacity) : ""}${intro}${detailsTable(adminRegistrationRows(d))}${button(haldus, label)}${mailtoButton(
@@ -474,6 +550,11 @@ export function renderEmail(key: TemplateKey, texts: TemplateTexts, d: EmailData
       break;
   }
 
+  if (UNSUBSCRIBE_KEYS.includes(key)) {
+    // Eelvaates (brauseris) allkirja pole – näidislink
+    body += unsubscribeLine(d.unsubscribeUrl ?? `${SITE_URL}/loobu`);
+  }
+
   return {
     subject: fillPlain(texts.subject, v),
     html: layout({ preheader: fillPlain(texts.preheader, v), heading: fillPlain(texts.heading, v), body, image }),
@@ -497,6 +578,8 @@ export function sampleEmailData(workshop?: Workshop | null): EmailData {
     reserved_offline: 2,
     image_url: "/opitoad/tapikangaspuu.webp",
     status: "published",
+    announced_at: null,
+    announced_count: 0,
     created_at: "",
     updated_at: "",
   };
