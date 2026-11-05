@@ -168,7 +168,20 @@ export default function EmailTemplatesManager({ workshops }: { workshops: Worksh
   return (
     <div className="grid lg:grid-cols-[260px_1fr] gap-6">
       {/* Mallide nimekiri */}
-      <aside className="space-y-4">
+      {/* Telefonis rippmenüü, lauaarvutis nimekiri */}
+      <div className="lg:hidden">
+        <label className="block text-sm text-gray-600 mb-1.5">Vali kiri</label>
+        <Select
+          value={active}
+          onChange={(v) => select(v as TemplateKey)}
+          ariaLabel="Vali muudetav e-kiri"
+          options={TEMPLATE_KEYS.map((k) => ({
+            value: k,
+            label: `${TEMPLATE_DEFS[k].recipient === "Haldurile" ? "Haldurile · " : ""}${TEMPLATE_DEFS[k].label}${saved[k] ? " (muudetud)" : ""}`,
+          }))}
+        />
+      </div>
+      <aside className="hidden lg:block space-y-4">
         {(["Osalejale", "Haldurile"] as const).map((group) => (
           <div key={group}>
             <p className="text-xs uppercase tracking-widest text-gray-500 mb-2 px-1">{group}</p>

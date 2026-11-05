@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/app/lib/supabaseClient";
 import { Session } from "@supabase/supabase-js";
 import Image from "next/image";
-import { AdminNav } from "@/components/admin/AdminShell";
+import { AccountButtons, AdminNav } from "@/components/admin/AdminShell";
 
 type Photo = {
   id: number;
@@ -201,69 +201,26 @@ async function removePhoto(id: number, imageUrl: string) {
 
   return (
     <>
-    <AdminNav />
-    <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col items-center py-12 px-4">
+    <AdminNav
+      right={
+        session && (
+          <AccountButtons onChangePassword={() => setShowChangePassword(true)} onLogout={() => setShowLogoutConfirm(true)} />
+        )
+      }
+    />
+    <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col items-center py-8 md:py-12 px-4">
       <div className="max-w-5xl w-full">
-        <h1
-          className="text-3xl font-semibold text-center md:mb-10 text-gray-900 tracking-tight"
-          style={{ fontFamily: "var(--font-raleway)", fontWeight: 700 }}
-        >
-          Pildihaldus toodete lehel
+        <h1 className="text-4xl md:text-5xl text-black" style={{ fontFamily: "'Abril Fatface', serif" }}>
+          Tootepildid
         </h1>
+        <p className="text-gray-600 mt-2 mb-8" style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}>
+          Pildid toodete lehel ja avalehel.
+        </p>
 
         {session && (
           
           <>
         
-    {/* Suurtel ekraanidel absolute nupud */}
-    <div className="hidden md:flex absolute top-20 right-4 items-center gap-2">
-      <button
-        onClick={() => setShowChangePassword(true)}
-        className="text-gray-600 py-2 px-4 rounded-md cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
-        style={{
-          fontFamily: "var(--font-raleway)",
-          fontWeight: 500,
-        }}
-      >
-        Muuda parooli
-      </button>
-      <button
-        onClick={() => setShowLogoutConfirm(true)}
-        className="text-red-900 py-2 px-4 rounded-md cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
-        style={{
-          fontFamily: "var(--font-raleway)",
-          fontWeight: 500,
-        }}
-      >
-        Logi välja
-      </button>
-    </div>
-
-    {/* Väikestel ekraanidel nupud pealkirja all */}
-    <div className="md:hidden flex justify-center gap-2 mb-4">
-      <button
-        onClick={() => setShowChangePassword(true)}
-        className="text-gray-600 py-2 px-4 rounded-md cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
-        style={{
-          fontFamily: "var(--font-raleway)",
-          fontWeight: 500,
-        }}
-      >
-        Muuda parooli
-      </button>
-      <button
-        onClick={() => setShowLogoutConfirm(true)}
-        className="text-red-900 py-2 px-4 rounded-md cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
-        style={{
-          fontFamily: "var(--font-raleway)",
-          fontWeight: 500,
-        }}
-      >
-        Logi välja
-      </button>
-    </div>
- 
-           
             {/* Upload form */}
             <form
               onSubmit={uploadPhoto}

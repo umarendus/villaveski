@@ -5,8 +5,37 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/app/lib/supabaseClient";
+import { KeyRound, LogOut } from "lucide-react";
 
 const raleway = { fontFamily: "var(--font-raleway)", fontWeight: 500 };
+
+// Parooli muutmine ja väljalogimine menüüs: lauaarvutis tekstiga, telefonis ikoonina
+export function AccountButtons({ onChangePassword, onLogout }: { onChangePassword: () => void; onLogout: () => void }) {
+  return (
+    <>
+      <button
+        onClick={onChangePassword}
+        className="flex items-center gap-1.5 text-gray-600 p-2 sm:px-3 rounded-full cursor-pointer hover:text-black hover:bg-gray-100 text-sm whitespace-nowrap"
+        style={raleway}
+        aria-label="Muuda parooli"
+        title="Muuda parooli"
+      >
+        <KeyRound className="w-4 h-4" />
+        <span className="hidden sm:inline">Muuda parooli</span>
+      </button>
+      <button
+        onClick={onLogout}
+        className="flex items-center gap-1.5 text-red-900 p-2 sm:px-3 rounded-full cursor-pointer hover:text-red-700 hover:bg-red-50 text-sm whitespace-nowrap"
+        style={raleway}
+        aria-label="Logi välja"
+        title="Logi välja"
+      >
+        <LogOut className="w-4 h-4" />
+        <span className="hidden sm:inline">Logi välja</span>
+      </button>
+    </>
+  );
+}
 
 // Halduslehtede ülemine menüü – sama sisselogimine kehtib kõigil halduslehtedel
 export function AdminNav({ right }: { right?: React.ReactNode }) {
@@ -17,13 +46,13 @@ export function AdminNav({ right }: { right?: React.ReactNode }) {
   ];
   return (
     <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-200" style={raleway}>
-      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-1 sm:gap-2">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0">
           <Link href="/haldus" className="flex items-center mr-2 sm:mr-4" title="Halduse avaleht">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/sheep-black-l.svg" alt="" className="h-7" />
+            <img src="/sheep-black-l.svg" alt="" className="h-6 sm:h-7" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/sheep-black-r.svg" alt="" className="h-7" />
+            <img src="/sheep-black-r.svg" alt="" className="h-6 sm:h-7" />
           </Link>
           {links.map((l) => {
             const active = pathname === l.href || pathname.startsWith(l.href + "/");
@@ -31,7 +60,7 @@ export function AdminNav({ right }: { right?: React.ReactNode }) {
               <Link
                 key={l.href}
                 href={l.href}
-                className={`px-3 sm:px-4 py-1.5 rounded-full text-sm sm:text-base transition ${
+                className={`px-3 sm:px-4 py-1.5 rounded-full text-sm sm:text-base whitespace-nowrap transition ${
                   active ? "bg-black text-white" : "text-gray-600 hover:text-black hover:bg-gray-100"
                 }`}
               >
@@ -40,7 +69,7 @@ export function AdminNav({ right }: { right?: React.ReactNode }) {
             );
           })}
         </div>
-        <div className="flex items-center gap-1">{right}</div>
+        <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">{right}</div>
       </div>
     </nav>
   );
@@ -119,24 +148,7 @@ export default function AdminShell({ children }: { children: (session: Session) 
     <div className="min-h-screen bg-gray-50 text-gray-800">
       <AdminNav
         right={
-          session && (
-            <>
-              <button
-                onClick={() => setShowChangePassword(true)}
-                className="hidden sm:block text-gray-600 py-2 px-3 rounded-md cursor-pointer hover:text-black text-sm"
-                style={raleway}
-              >
-                Muuda parooli
-              </button>
-              <button
-                onClick={logout}
-                className="text-red-900 py-2 px-3 rounded-md cursor-pointer hover:text-red-700 text-sm"
-                style={raleway}
-              >
-                Logi välja
-              </button>
-            </>
-          )
+          session && <AccountButtons onChangePassword={() => setShowChangePassword(true)} onLogout={logout} />
         }
       />
 
