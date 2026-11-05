@@ -12,14 +12,14 @@ const raleway = { fontFamily: "var(--font-raleway)", fontWeight: 500 };
 export function AdminNav({ right }: { right?: React.ReactNode }) {
   const pathname = usePathname();
   const links = [
-    { href: "/tootepildid", label: "Tootepildid" },
-    { href: "/opitoad/haldus", label: "Õpitoad" },
+    { href: "/haldus/tooted", label: "Tooted" },
+    { href: "/haldus/opitoad", label: "Õpitoad" },
   ];
   return (
     <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-200" style={raleway}>
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
         <div className="flex items-center gap-1 sm:gap-2">
-          <Link href="/" className="flex items-center mr-2 sm:mr-4" title="Avalehele">
+          <Link href="/haldus" className="flex items-center mr-2 sm:mr-4" title="Halduse avaleht">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/sheep-black-l.svg" alt="" className="h-7" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -160,7 +160,16 @@ export default function AdminShell({ children }: { children: (session: Session) 
             className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-80 flex flex-col gap-4"
             style={raleway}
           >
-            <h2 className="text-2xl font-semibold text-center text-gray-900">Logi sisse</h2>
+            <div className="flex justify-center" aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/sheep-black-l.svg" alt="" className="h-8" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/sheep-black-r.svg" alt="" className="h-8" />
+            </div>
+            <h2 className="text-2xl text-center text-black -mb-2" style={{ fontFamily: "'Abril Fatface', serif" }}>
+              Villaveski haldus
+            </h2>
+            <p className="text-center text-sm text-gray-500 mb-1">Logi sisse</p>
             <input
               type="email"
               name="email"

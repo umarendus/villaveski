@@ -55,7 +55,7 @@ function Detail() {
     return (
       <div className="max-w-5xl mx-auto px-4 py-20 text-center">
         <p className="text-gray-600 mb-6">Õpituba ei leitud – see võib olla kustutatud.</p>
-        <Link href="/opitoad/haldus" className="px-5 py-2.5 rounded-full bg-black text-white">
+        <Link href="/haldus/opitoad" className="px-5 py-2.5 rounded-full bg-black text-white">
           Tagasi haldusesse
         </Link>
       </div>
@@ -77,7 +77,7 @@ function Detail() {
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-8 md:py-12" style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}>
-      <Link href="/opitoad/haldus" className="inline-flex items-center gap-2 text-gray-600 hover:text-black mb-6">
+      <Link href="/haldus/opitoad" className="inline-flex items-center gap-2 text-gray-600 hover:text-black mb-6">
         <ArrowLeft className="w-4 h-4" /> Kõik õpitoad
       </Link>
 
@@ -176,7 +176,7 @@ function Detail() {
             setWorkshop(w);
             setEditing(false);
           }}
-          onDeleted={() => router.push("/opitoad/haldus")}
+          onDeleted={() => router.push("/haldus/opitoad")}
         />
       )}
     </main>

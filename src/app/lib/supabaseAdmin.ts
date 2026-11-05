@@ -13,7 +13,7 @@ export function getSupabaseAdmin() {
   });
 }
 
-// Kontrollib halduri sessiooni (sama sisselogimine mis /tootepildid lehel)
+// Kontrollib halduri sessiooni (sama sisselogimine mis /haldus lehtedel)
 export async function getAdminUser(request: Request) {
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   if (!token) return null;

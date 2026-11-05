@@ -403,7 +403,7 @@ export function renderEmail(key: TemplateKey, texts: TemplateTexts, d: EmailData
   const outro = fillRich(texts.outro, v);
   const label = fillPlain(texts.button_label, v);
   const seatsLeft = d.seatsLeft ?? 0;
-  const haldus = w ? `${SITE_URL}/opitoad/haldus/${w.id}` : `${SITE_URL}/opitoad/haldus`;
+  const haldus = w ? `${SITE_URL}/haldus/opitoad/${w.id}` : `${SITE_URL}/haldus/opitoad`;
 
   let body = "";
   let image: string | null = null;
@@ -440,7 +440,7 @@ export function renderEmail(key: TemplateKey, texts: TemplateTexts, d: EmailData
       )}${outro}`;
       break;
     case "admin_general_waitlist":
-      body = `${intro}${detailsTable(adminRegistrationRows(d))}${button(`${SITE_URL}/opitoad/haldus`, label)}${mailtoButton(
+      body = `${intro}${detailsTable(adminRegistrationRows(d))}${button(`${SITE_URL}/haldus/opitoad`, label)}${mailtoButton(
         r.email,
         "Kirjuta huvilisele",
         "Sörve Villaveski õpitoad"
