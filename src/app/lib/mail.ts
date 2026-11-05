@@ -21,6 +21,8 @@ function getTransporter() {
 }
 
 // Kaks võimalust: EmailJS (sama konto mis avalehe kontaktivormil) või mistahes SMTP teenus.
+// Kasutab olemasolevat EmailJS teenust ja avalikku võtit; privaatvõti on vajalik ainult siis,
+// kui EmailJS-is on "Use Private Key" sisse lülitatud.
 // EmailJS mall peab sisaldama: To = {{to_email}}, Subject = {{subject}}, Reply-To = {{reply_to}}, sisu = {{{html}}}
 const EMAILJS_TEMPLATE = process.env.EMAILJS_HTML_TEMPLATE_ID;
 const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY;
@@ -33,7 +35,7 @@ async function sendViaEmailJs(to: string, subject: string, html: string, replyTo
       service_id: process.env.EMAILJS_SERVICE_ID || process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
       template_id: EMAILJS_TEMPLATE,
       user_id: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
-      accessToken: EMAILJS_PRIVATE_KEY,
+      ...(EMAILJS_PRIVATE_KEY ? { accessToken: EMAILJS_PRIVATE_KEY } : {}),
       template_params: { to_email: to, subject, html, reply_to: replyTo },
     }),
   });
@@ -41,7 +43,7 @@ async function sendViaEmailJs(to: string, subject: string, html: string, replyTo
 }
 
 export async function sendMail(to: string, subject: string, html: string, replyTo?: string) {
-  if (EMAILJS_TEMPLATE && EMAILJS_PRIVATE_KEY) {
+  if (EMAILJS_TEMPLATE) {
     return sendViaEmailJs(to, subject, html, replyTo || ADMIN_EMAIL);
   }
   const from = process.env.MAIL_FROM || `Sörve Villaveski <${process.env.SMTP_USER}>`;
