@@ -2,7 +2,15 @@
 // halduri muudetud tekstid tulevad tabelist email_templates.
 import nodemailer from "nodemailer";
 import { getSupabaseAdmin } from "./supabaseAdmin";
-import { TEMPLATE_DEFS, renderEmail, type EmailData, type TemplateKey, type TemplateTexts } from "./emailTemplates";
+import {
+  TEMPLATE_DEFS,
+  UNSUBSCRIBE_KEYS,
+  renderEmail,
+  type EmailData,
+  type TemplateKey,
+  type TemplateTexts,
+} from "./emailTemplates";
+import { makeUnsubscribeUrl } from "./unsubscribe";
 
 export { SITE_URL } from "./emailTemplates";
 export const ADMIN_EMAIL = process.env.WORKSHOP_ADMIN_EMAIL || "saaremaalong@gmail.com";
@@ -71,5 +79,9 @@ export async function loadTemplateTexts(key: TemplateKey): Promise<TemplateTexts
 }
 
 export async function buildEmail(key: TemplateKey, data: EmailData) {
-  return renderEmail(key, await loadTemplateTexts(key), data);
+  const withUnsubscribe =
+    UNSUBSCRIBE_KEYS.includes(key) && !data.unsubscribeUrl
+      ? { ...data, unsubscribeUrl: makeUnsubscribeUrl(data.reg.email) }
+      : data;
+  return renderEmail(key, await loadTemplateTexts(key), withUnsubscribe);
 }
