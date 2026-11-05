@@ -82,11 +82,16 @@ function layout(opts: { preheader: string; heading: string; body: string; image?
 </html>`;
 }
 
-function button(href: string, label: string) {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:28px auto 8px;">
-<tr><td style="background:#000;border-radius:999px;">
-<a href="${esc(href)}" style="display:inline-block;padding:14px 34px;font-family:Raleway,Arial,sans-serif;font-weight:700;font-size:15px;color:#fff;text-decoration:none;border-radius:999px;">${esc(label)}</a>
+function button(href: string, label: string, variant: "primary" | "secondary" = "primary") {
+  const primary = variant === "primary";
+  return `<table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin:${primary ? "28px" : "12px"} auto 8px;">
+<tr><td style="background:${primary ? "#000" : "#fff"};border:2px solid #000;border-radius:999px;">
+<a href="${esc(href)}" style="display:inline-block;padding:12px 32px;font-family:Raleway,Arial,sans-serif;font-weight:700;font-size:15px;color:${primary ? "#fff" : "#000"};text-decoration:none;border-radius:999px;">${esc(label)}</a>
 </td></tr></table>`;
+}
+
+function mailtoButton(email: string, label: string, subject: string) {
+  return button(`mailto:${email}?subject=${encodeURIComponent(subject)}`, label, "secondary");
 }
 
 function detailsTable(rows: [string, string][]) {
@@ -106,7 +111,7 @@ function participantsHtml(r: WorkshopRegistration) {
   const extras = r.extra_participants ?? [];
   if (!extras.length) return esc(r.participants);
   const list = extras
-    .map((p) => `${esc(p.name)}${p.email ? ` · <a href="mailto:${esc(p.email)}" style="color:#000;">${esc(p.email)}</a>` : ""}${p.phone ? ` · ${esc(p.phone)}` : ""}`)
+    .map((p) => `${esc(p.name)}${p.email ? ` · ${esc(p.email)}` : ""}${p.phone ? ` · ${esc(p.phone)}` : ""}`)
     .join("<br>");
   return `${esc(r.participants)}<br><span style="color:#555;">${esc(r.name)}<br>${list}</span>`;
 }
@@ -143,6 +148,7 @@ export function registrationReceivedEmail(w: Workshop, r: WorkshopRegistration) 
       body: `<p>Tere, ${esc(r.name)}!</p>
 <p>Aitäh, et soovid meiega kaasa lüüa. Sinu registreering on kenasti kohale jõudnud ja koht on sulle esialgu hoitud. Vaatame selle üle ning saadame sulle peagi eraldi kinnituskirja.</p>
 ${detailsTable([...workshopRows(w), ["Osalejaid", participantsHtml(r)]])}
+${button(`${SITE_URL}/opitoad`, "Vaata õpitoa infot")}
 <p style="margin-top:20px;">Küsimuste korral vasta lihtsalt sellele kirjale.</p>
 <p>Villaste tervitustega<br><strong>Egon ja Merike</strong><br>Sörve Villaveski</p>`,
     }),
@@ -165,7 +171,7 @@ export function adminNewRegistrationEmail(w: Workshop, r: WorkshopRegistration, 
 </div>
 ${detailsTable([
   ["Nimi", `<strong>${esc(r.name)}</strong>`],
-  ["E-post", `<a href="mailto:${esc(r.email)}" style="color:#000;">${esc(r.email)}</a>`],
+  ["E-post", esc(r.email)],
   ["Telefon", esc(r.phone || "–")],
   ["Osalejaid", participantsHtml(r)],
   ["Materjalid juurde", r.wants_materials ? "Jah, soovib osta" : "Ei"],
@@ -177,7 +183,8 @@ ${
     ? `<p>Kohad on täis, seega lisasime ta huviliste nimekirja. Uue õpitoa loomisel saad talle kirjutada.</p>`
     : `<p>Registreering ootab sinu kinnitust. Pärast kinnitamist saadetakse osalejale automaatselt kinnituskiri.</p>`
 }
-${button(`${SITE_URL}/opitoad/haldus/${w.id}`, waitlist ? "Ava õpitoa haldus" : "Kinnita osalejad")}`,
+${button(`${SITE_URL}/opitoad/haldus/${w.id}`, waitlist ? "Ava õpitoa haldus" : "Kinnita osalejad")}
+${mailtoButton(r.email, "Kirjuta osalejale", w.title)}`,
     }),
   };
 }
@@ -192,12 +199,13 @@ export function adminGeneralWaitlistEmail(r: WorkshopRegistration) {
       body: `<p>Avatud õpituba hetkel pole, kuid keegi soovib järgmisest õpitoast teada saada.</p>
 ${detailsTable([
   ["Nimi", `<strong>${esc(r.name)}</strong>`],
-  ["E-post", `<a href="mailto:${esc(r.email)}" style="color:#000;">${esc(r.email)}</a>`],
+  ["E-post", esc(r.email)],
   ["Telefon", esc(r.phone || "–")],
   ["Osalejaid", esc(r.participants)],
   ["Sõnum", esc(r.message || "–").replace(/\n/g, "<br>")],
 ])}
-${button(`${SITE_URL}/opitoad/haldus`, "Ava õpitubade haldus")}`,
+${button(`${SITE_URL}/opitoad/haldus`, "Ava õpitubade haldus")}
+${mailtoButton(r.email, "Kirjuta huvilisele", "Sörve Villaveski õpitoad")}`,
     }),
   };
 }
@@ -217,6 +225,7 @@ ${detailsTable([...workshopRows(w), ["Osalejaid", participantsHtml(r)]])}
 ${includesList(w)}
 ${extras}
 <p>Riietu mugavalt ning võta kaasa hea tuju – kõik muu on meie poolt olemas. Tasumine toimub kohapeal.</p>
+${button(`${SITE_URL}/opitoad`, "Vaata õpitoa infot")}
 <p>Kui sinu plaanid muutuvad, anna palun meile teada, vastates sellele kirjale – nii saame koha pakkuda järgmisele huvilisele.</p>
 <p style="margin-top:24px;">Kohtumiseni!<br><strong>Egon ja Merike</strong><br>Sörve Villaveski</p>`,
     }),
@@ -238,7 +247,63 @@ export function waitlistReceivedEmail(w: Workshop | null, r: WorkshopRegistratio
       image: w?.image_url ?? null,
       body: `<p>Tere, ${esc(r.name)}!</p>
 <p>Aitäh huvi eest! ${reason} lisasime sind huviliste nimekirja. Kui avame uue õpitoa, anname sulle esimesena teada.</p>
+${button(`${SITE_URL}/opitoad`, "Vaata õpitubasid")}
 <p>Villaste tervitustega<br><strong>Egon ja Merike</strong><br>Sörve Villaveski</p>`,
+    }),
+  };
+}
+
+// 5) Osalejale: haldur eemaldas ta õpitoast (nt haigestumise tõttu)
+export function registrationRemovedEmail(w: Workshop, r: WorkshopRegistration, note: string) {
+  return {
+    subject: `Sind eemaldati õpitoast – ${w.title}`,
+    html: layout({
+      preheader: `Sinu registreering õpitoale ${w.title} on tühistatud.`,
+      heading: "Sinu registreering on tühistatud",
+      image: w.image_url,
+      body: `<p>Tere, ${esc(r.name)}!</p>
+<p>Anname teada, et sinu registreering õpitoale <strong>${esc(w.title)}</strong> on tühistatud ja sind on osalejate nimekirjast eemaldatud.</p>
+${note ? `<p style="background:#f7f4ef;border-left:3px solid ${ACCENT};padding:12px 16px;margin:20px 0;">${esc(note).replace(/\n/g, "<br>")}</p>` : ""}
+${detailsTable([...workshopRows(w), ["Osalejaid", participantsHtml(r)]])}
+<p>Kui soovid siiski osaleda või registreeruda mõnele järgmisele õpitoale, vajuta alloleval nupul.</p>
+${button(`${SITE_URL}/opitoad#registreeru`, "Registreeru uuesti")}
+<p style="margin-top:20px;">Kui arvad, et tegemist on eksitusega, vasta lihtsalt sellele kirjale.</p>
+<p>Villaste tervitustega<br><strong>Egon ja Merike</strong><br>Sörve Villaveski</p>`,
+    }),
+  };
+}
+
+// 5b) Haldurile: osaleja eemaldati
+export function adminRegistrationRemovedEmail(
+  w: Workshop,
+  r: WorkshopRegistration,
+  seatsLeft: number,
+  removedBy: string,
+  note: string,
+  participantNotified: boolean
+) {
+  return {
+    subject: `Osaleja eemaldatud: ${r.name} – ${w.title} (vabu kohti ${seatsLeft})`,
+    html: layout({
+      preheader: `${r.name} eemaldati õpitoast. Vabu kohti nüüd: ${seatsLeft} / ${w.capacity}`,
+      heading: "Osaleja eemaldati",
+      body: `<div style="text-align:center;margin:8px 0 24px;">
+  <div style="font-family:'Abril Fatface',Georgia,serif;font-size:56px;line-height:1;color:#000;">${esc(seatsLeft)}</div>
+  <div style="font-family:Raleway,Arial,sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:2px;color:${ACCENT};">vaba kohta ${esc(w.capacity)}-st</div>
+</div>
+${detailsTable([
+  ["Nimi", `<strong>${esc(r.name)}</strong>`],
+  ["E-post", esc(r.email)],
+  ["Telefon", esc(r.phone || "–")],
+  ["Osalejaid", participantsHtml(r)],
+  ["Õpituba", `${esc(w.title)} · ${esc(formatDate(w.starts_at))} kell ${esc(formatTime(w.starts_at))}`],
+  ["Eemaldaja", esc(removedBy)],
+  ["Sõnum osalejale", esc(note || "–").replace(/\n/g, "<br>")],
+  ["Osalejat teavitati", participantNotified ? "Jah, e-kirjaga" : "Ei"],
+])}
+<p>Vabanenud kohad on lehel taas registreerimiseks avatud. Huviliste nimekirjast saad kellegi õpitoale tõsta.</p>
+${button(`${SITE_URL}/opitoad/haldus/${w.id}`, "Ava õpitoa haldus")}
+${mailtoButton(r.email, "Kirjuta osalejale", w.title)}`,
     }),
   };
 }

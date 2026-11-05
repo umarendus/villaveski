@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { getAdminUser, getSupabaseAdmin } from "../../../../lib/supabaseAdmin";
-import { registrationConfirmedEmail, sendMail } from "../../../../lib/mail";
+import {
+  ADMIN_EMAIL,
+  adminRegistrationRemovedEmail,
+  registrationConfirmedEmail,
+  registrationRemovedEmail,
+  sendMail,
+} from "../../../../lib/mail";
 import type { RegistrationStatus } from "../../../../../../types/supabase";
 
 export const runtime = "nodejs";
@@ -25,6 +31,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     notify?: boolean;
     workshopId?: string | null;
     force?: boolean; // haldur kinnitab teadlikult üle kohtade piiri
+    note?: string; // eemaldamisel sõnum osalejale
   };
   if (!body.status || !STATUSES.includes(body.status)) {
     return NextResponse.json({ error: "Vigane staatus." }, { status: 400 });
@@ -87,6 +94,32 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       } catch (err) {
         console.error("Kinnituskirja saatmine ebaõnnestus", err);
         emailError = "Staatus muudeti, kuid kinnituskirja saatmine ebaõnnestus.";
+      }
+    }
+  }
+
+  // Osaleja eemaldamine: teavitus osalejale (kui soovitud) ja alati haldurile
+  const removed = body.status === "cancelled" && (current.status === "pending" || current.status === "confirmed");
+  if (removed && updated.workshop_id) {
+    const { data: workshop } = await supabase.from("workshops").select("*").eq("id", updated.workshop_id).single();
+    if (workshop) {
+      const note = String(body.note ?? "").trim().slice(0, 1000);
+      const notifyParticipant = body.notify !== false;
+      const { data: taken } = await supabase.rpc("workshop_seats_taken", { w_id: workshop.id });
+      const seatsLeft = Math.max(workshop.capacity - (taken ?? 0), 0);
+      const mails: Promise<void>[] = [];
+      if (notifyParticipant) {
+        const toUser = registrationRemovedEmail(workshop, updated, note);
+        mails.push(sendMail(updated.email, toUser.subject, toUser.html));
+      }
+      const toAdmin = adminRegistrationRemovedEmail(workshop, updated, seatsLeft, user.email ?? "haldur", note, notifyParticipant);
+      mails.push(sendMail(ADMIN_EMAIL, toAdmin.subject, toAdmin.html, updated.email));
+      const results = await Promise.allSettled(mails);
+      results.forEach((res) => res.status === "rejected" && console.error("Eemaldamise kiri ebaõnnestus", res.reason));
+      if (results.some((res) => res.status === "rejected")) {
+        emailError = "Osaleja eemaldati, kuid kõiki teavituskirju ei õnnestunud saata.";
+      } else {
+        emailSent = notifyParticipant;
       }
     }
   }

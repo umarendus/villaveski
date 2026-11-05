@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Mail, Phone, RotateCcw, ShoppingBasket, Trash2, Users, X } from "lucide-react";
+import { Check, Mail, Phone, RotateCcw, ShoppingBasket, Trash2, UserMinus, Users, X } from "lucide-react";
 import { supabase } from "@/app/lib/supabaseClient";
 import { STATUS_LABELS, formatShortDate } from "@/app/lib/opitoad";
 import type { RegistrationStatus, Workshop, WorkshopRegistration } from "../../../../types/supabase";
@@ -16,7 +16,7 @@ const STATUS_STYLES: Record<RegistrationStatus, string> = {
 export async function changeRegistrationStatus(
   id: string,
   status: RegistrationStatus,
-  opts: { notify?: boolean; workshopId?: string | null; force?: boolean } = {}
+  opts: { notify?: boolean; workshopId?: string | null; force?: boolean; note?: string } = {}
 ) {
   const { data } = await supabase.auth.getSession();
   const res = await fetch(`/api/opitoad/registreeringud/${id}`, {
@@ -44,20 +44,28 @@ export default function RegistrationCard({ reg, onChanged, moveTargets }: Props)
   const [busy, setBusy] = useState(false);
   const [notify, setNotify] = useState(true);
   const [note, setNote] = useState("");
+  const [removing, setRemoving] = useState(false);
 
-  async function run(status: RegistrationStatus, opts: { notify?: boolean; workshopId?: string | null } = {}) {
+  async function run(
+    status: RegistrationStatus,
+    opts: { notify?: boolean; workshopId?: string | null; note?: string } = {}
+  ) {
     setBusy(true);
     setNote("");
     try {
       const res = await changeRegistrationStatus(reg.id, status, opts);
       onChanged(res.registration);
       if (res.emailError) setNote(res.emailError);
+      return true;
     } catch (err) {
       setNote(err instanceof Error ? err.message : "Viga");
+      return false;
     } finally {
       setBusy(false);
     }
   }
+
+  const holdsSeat = reg.status === "pending" || reg.status === "confirmed";
 
   // Kohtade piisavust kontrollib server; puuduse korral küsitakse kinnitust
   function confirmReg() {
@@ -158,13 +166,21 @@ export default function RegistrationCard({ reg, onChanged, moveTargets }: Props)
           )}
 
           <div className="flex gap-1 justify-center md:justify-end">
-            {reg.status !== "cancelled" ? (
+            {holdsSeat ? (
               <button
-                onClick={() => confirm(`Tühistada ${reg.name} registreering?`) && run("cancelled")}
+                onClick={() => setRemoving(true)}
+                disabled={busy}
+                className="flex items-center gap-1 text-sm text-red-900 hover:text-red-700 px-2 py-1 cursor-pointer"
+              >
+                <UserMinus className="w-4 h-4" /> Eemalda
+              </button>
+            ) : reg.status === "waitlist" ? (
+              <button
+                onClick={() => run("cancelled", { notify: false })}
                 disabled={busy}
                 className="flex items-center gap-1 text-sm text-gray-500 hover:text-black px-2 py-1 cursor-pointer"
               >
-                <X className="w-4 h-4" /> Tühista
+                <X className="w-4 h-4" /> Eemalda nimekirjast
               </button>
             ) : (
               <button
@@ -194,6 +210,109 @@ export default function RegistrationCard({ reg, onChanged, moveTargets }: Props)
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
+        </div>
+      </div>
+      {removing && (
+        <RemoveModal
+          reg={reg}
+          busy={busy}
+          onCancel={() => setRemoving(false)}
+          onConfirm={async (notifyUser, message) => {
+            const ok = await run("cancelled", { notify: notifyUser, note: message });
+            if (ok) setRemoving(false);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// Osaleja eemaldamise kinnitus (nt haigestumise korral) – teavitab osalejat ja haldurit
+function RemoveModal({
+  reg,
+  busy,
+  onCancel,
+  onConfirm,
+}: {
+  reg: WorkshopRegistration;
+  busy: boolean;
+  onCancel: () => void;
+  onConfirm: (notify: boolean, note: string) => void;
+}) {
+  const [notifyUser, setNotifyUser] = useState(true);
+  const [message, setMessage] = useState("");
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+      onClick={() => !busy && onCancel()}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`remove-title-${reg.id}`}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 md:p-8"
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+      >
+        <div className="w-12 h-12 rounded-full bg-red-50 text-red-900 flex items-center justify-center mx-auto mb-4">
+          <UserMinus className="w-6 h-6" />
+        </div>
+        <h2
+          id={`remove-title-${reg.id}`}
+          className="text-2xl text-black text-center mb-2"
+          style={{ fontFamily: "'Abril Fatface', serif" }}
+        >
+          Eemalda osaleja?
+        </h2>
+        <p className="text-center text-gray-600 mb-6">
+          <strong className="text-black">{reg.name}</strong>
+          {reg.participants > 1 ? ` (${reg.participants} inimest)` : ""} eemaldatakse õpitoast ja koht vabaneb
+          teistele registreerijatele.
+        </p>
+
+        <label htmlFor={`remove-note-${reg.id}`} className="block text-sm text-gray-600 mb-1">
+          Sõnum osalejale (soovi korral)
+        </label>
+        <textarea
+          id={`remove-note-${reg.id}`}
+          rows={3}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="nt Saame aru, et jäid haigeks – kosu kiiresti! Ootame sind järgmisesse õpituppa."
+          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black resize-none"
+        />
+
+        <label className="flex items-start gap-3 mt-4 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={notifyUser}
+            onChange={(e) => setNotifyUser(e.target.checked)}
+            className="mt-1 w-4 h-4 accent-black cursor-pointer"
+          />
+          <span className="text-sm text-gray-700">
+            Saada osalejale teavituskiri koos nupuga „Registreeru uuesti&ldquo;
+          </span>
+        </label>
+        <p className="text-xs text-gray-500 mt-2 ml-7">Haldurile (saaremaalong@gmail.com) läheb teade alati.</p>
+
+        <div className="flex gap-3 mt-6">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={busy}
+            className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-full cursor-pointer hover:bg-gray-50 disabled:opacity-50"
+          >
+            Tühista
+          </button>
+          <button
+            type="button"
+            onClick={() => onConfirm(notifyUser, message.trim())}
+            disabled={busy}
+            className="flex-1 bg-red-900 text-white py-2.5 rounded-full cursor-pointer hover:bg-red-800 disabled:opacity-50"
+          >
+            {busy ? "Eemaldan..." : "Eemalda"}
+          </button>
         </div>
       </div>
     </div>
