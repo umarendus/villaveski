@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Mail, Phone, RotateCcw, ShoppingBasket, Trash2, UserMinus, Users, X } from "lucide-react";
 import { supabase } from "@/app/lib/supabaseClient";
 import { STATUS_LABELS, formatShortDate } from "@/app/lib/opitoad";
+import { useBodyScrollLock } from "@/components/ui/useBodyScrollLock";
 import Select from "@/components/ui/Select";
 import type { RegistrationStatus, Workshop, WorkshopRegistration } from "../../../../types/supabase";
 
@@ -238,6 +239,7 @@ function RemoveModal({
 }) {
   const [notifyUser, setNotifyUser] = useState(true);
   const [message, setMessage] = useState("");
+  useBodyScrollLock();
 
   return (
     <div
@@ -249,7 +251,7 @@ function RemoveModal({
         aria-modal="true"
         aria-labelledby={`remove-title-${reg.id}`}
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 md:p-8"
+        className="bg-white text-gray-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto p-6 md:p-8"
         style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
       >
         <div className="w-12 h-12 rounded-full bg-red-50 text-red-900 flex items-center justify-center mx-auto mb-4">

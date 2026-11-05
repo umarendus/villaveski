@@ -387,7 +387,7 @@ async function removePhoto(id: number, imageUrl: string) {
           >
             <form
               onSubmit={handleChangePassword}
-              className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-80 flex flex-col gap-4"
+              className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto flex flex-col gap-4"
               style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -442,7 +442,7 @@ async function removePhoto(id: number, imageUrl: string) {
             onClick={() => !loggingOut && setShowLogoutConfirm(false)}
           >
             <div
-              className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-80 flex flex-col gap-4"
+              className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto flex flex-col gap-4"
               style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -475,11 +475,11 @@ async function removePhoto(id: number, imageUrl: string) {
 
         {/* Login Modal */}
         {showLoginModal && (
-          <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4">
             <form
               onSubmit={handleLogin}
               method="post"
-              className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-80 flex flex-col gap-4"
+              className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto flex flex-col gap-4"
             >
               <h2 className="text-2xl font-semibold text-center text-gray-900">Logi sisse</h2>
 

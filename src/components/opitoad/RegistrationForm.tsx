@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Mail, MailCheck } from "lucide-react";
 import Turnstile, { turnstileEnabled } from "./Turnstile";
 import Select from "@/components/ui/Select";
+import { useBodyScrollLock } from "@/components/ui/useBodyScrollLock";
 
 type Props = {
   workshopId: string | null;
@@ -328,6 +329,7 @@ export function SheepPair({ size = "2rem" }: { size?: string }) {
 
 // Pärast vormi saatmist: selgitus, et registreerimine kehtib alles Villaveski kinnituskirjaga
 function SentModal({ mode, email, onClose }: { mode: "pending" | "waitlist"; email: string; onClose: () => void }) {
+  useBodyScrollLock();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -363,7 +365,7 @@ function SentModal({ mode, email, onClose }: { mode: "pending" | "waitlist"; ema
         exit={{ opacity: 0, y: 10 }}
         transition={{ duration: 0.25 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-7 md:p-9 text-left"
+        className="bg-white text-gray-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto p-7 md:p-9 text-left"
         style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
       >
         <SheepPair />

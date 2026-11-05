@@ -5,6 +5,8 @@ import localFont from "next/font/local";
 import { Abril_Fatface } from "next/font/google";
 
 export const metadata: Metadata = {
+  // Jagamise eelvaadete (og:image jne) täielikud aadressid
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.villaveski.ee"),
   title: "Sörve Villaveski",
   description: "Villaveski - süda ja hing iga lõnga sees.",
   manifest: "/manifest.json",
