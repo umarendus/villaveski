@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { Session } from "@supabase/supabase-js";
 import Image from "next/image";
+import { AdminNav } from "@/components/admin/AdminShell";
 
 type Photo = {
   id: number;
@@ -199,7 +200,8 @@ async function removePhoto(id: number, imageUrl: string) {
   }
 
   return (
-    
+    <>
+    <AdminNav />
     <div className="min-h-screen bg-gray-50 text-gray-800 flex flex-col items-center py-12 px-4">
       <div className="max-w-5xl w-full">
         <h1
@@ -214,7 +216,7 @@ async function removePhoto(id: number, imageUrl: string) {
           <>
         
     {/* Suurtel ekraanidel absolute nupud */}
-    <div className="hidden md:flex absolute top-12 right-4 items-center gap-2">
+    <div className="hidden md:flex absolute top-20 right-4 items-center gap-2">
       <button
         onClick={() => setShowChangePassword(true)}
         className="text-gray-600 py-2 px-4 rounded-md cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110"
@@ -565,5 +567,6 @@ async function removePhoto(id: number, imageUrl: string) {
         )}
       </div>
     </div>
+    </>
   );
 }
