@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Mail, MailCheck } from "lucide-react";
 import Turnstile, { turnstileEnabled } from "./Turnstile";
 import Select from "@/components/ui/Select";
+import { formatPrice } from "@/app/lib/opitoad";
 import { useBodyScrollLock } from "@/components/ui/useBodyScrollLock";
 import Portal from "@/components/ui/Portal";
 
@@ -12,6 +13,7 @@ type Props = {
   workshopId: string | null;
   mode: "register" | "waitlist";
   maxParticipants: number;
+  priceEur?: number;
   onRegistered?: (seatsLeft: number | null) => void;
 };
 
@@ -22,7 +24,7 @@ const inputClass =
 
 const labelClass = "block text-sm text-gray-700 mb-1.5 tracking-wide";
 
-export default function RegistrationForm({ workshopId, mode, maxParticipants, onRegistered }: Props) {
+export default function RegistrationForm({ workshopId, mode, maxParticipants, priceEur, onRegistered }: Props) {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -180,6 +182,17 @@ export default function RegistrationForm({ workshopId, mode, maxParticipants, on
             onChange={(v) => setParticipants(Number(v))}
             options={participantOptions.map((n) => ({ value: String(n), label: `${n} ${n === 1 ? "inimene" : "inimest"}` }))}
           />
+          {mode === "register" && priceEur !== undefined && priceEur > 0 && (
+            <p className="mt-2 text-sm text-gray-600">
+              Kokku:{" "}
+              <span className="text-black font-semibold">
+                {form.participants > 1
+                  ? `${form.participants} × ${formatPrice(priceEur)} = ${formatPrice(priceEur * form.participants)}`
+                  : formatPrice(priceEur)}
+              </span>{" "}
+              · maksmine kohapeal
+            </p>
+          )}
         </div>
       </div>
 

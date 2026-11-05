@@ -225,6 +225,7 @@ function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic;
             workshopId={w.id}
             mode={full ? "waitlist" : "register"}
             maxParticipants={full ? 6 : w.seats_left}
+            priceEur={Number(w.price_eur)}
             onRegistered={(left) => left !== null && setW((prev) => ({ ...prev, seats_left: left }))}
           />
         </div>
