@@ -84,7 +84,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="flex gap-1 border-b border-gray-200 mb-8 overflow-x-auto">
+      <div className="grid grid-cols-4 sm:flex sm:gap-1 border-b border-gray-200 mb-8">
         {(
           [
             ["opitoad", "Õpitoad", workshops.length],
@@ -96,12 +96,14 @@ function Dashboard() {
           <button
             key={key}
             onClick={() => setTab(key)}
-            className={`px-5 py-3 -mb-px border-b-2 cursor-pointer whitespace-nowrap transition ${
+            className={`px-1 sm:px-5 py-3 -mb-px border-b-2 cursor-pointer whitespace-nowrap text-sm sm:text-base transition ${
               tab === key ? "border-black text-black" : "border-transparent text-gray-500 hover:text-black"
             }`}
           >
             {label}
-            {count !== null && <span className="ml-2 text-xs bg-gray-200 rounded-full px-2 py-0.5">{count}</span>}
+            {count !== null && (
+              <span className="ml-1 sm:ml-2 text-[10px] sm:text-xs bg-gray-200 rounded-full px-1.5 sm:px-2 py-0.5">{count}</span>
+            )}
           </button>
         ))}
       </div>

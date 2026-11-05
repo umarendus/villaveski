@@ -326,6 +326,13 @@ function fillRich(text: string, values: Record<string, string>) {
     .join("\n");
 }
 
+// Kirja päisepilt: lai JPEG (vt /api/opitoad/kirjapilt). Eelvaate näidisandmetes otse algne pilt.
+function emailImage(w: Workshop | null) {
+  if (!w?.image_url) return null;
+  if (w.id === "naidis") return w.image_url;
+  return `${SITE_URL}/api/opitoad/kirjapilt/${w.id}?v=${encodeURIComponent(w.updated_at || "1")}`;
+}
+
 function layout(opts: { preheader: string; heading: string; body: string; image?: string | null }) {
   const image = opts.image ? (opts.image.startsWith("http") ? opts.image : `${SITE_URL}${opts.image}`) : null;
   return `<!doctype html>
@@ -486,11 +493,11 @@ export function renderEmail(key: TemplateKey, texts: TemplateTexts, d: EmailData
 
   switch (key) {
     case "registration_received":
-      image = w?.image_url ?? null;
+      image = emailImage(w);
       body = `${intro}${w ? detailsTable([...workshopRows(w, r.participants), ["Osalejaid", participantsHtml(r)]]) : ""}${button(`${SITE_URL}/opitoad`, label)}${outro}`;
       break;
     case "registration_confirmed":
-      image = w?.image_url ?? null;
+      image = emailImage(w);
       body = `${intro}${w ? detailsTable([...workshopRows(w, r.participants), ["Osalejaid", participantsHtml(r)]]) : ""}${
         w ? calendarButtons(w) : ""
       }${w ? includesList(w) : ""}${
@@ -498,11 +505,11 @@ export function renderEmail(key: TemplateKey, texts: TemplateTexts, d: EmailData
       }${button(`${SITE_URL}/opitoad`, label)}${outro}`;
       break;
     case "waitlist_received":
-      image = w?.image_url ?? null;
+      image = emailImage(w);
       body = `${intro}${button(`${SITE_URL}/opitoad`, label)}${outro}`;
       break;
     case "registration_removed":
-      image = w?.image_url ?? null;
+      image = emailImage(w);
       body = `${intro}${
         d.note
           ? `<p style="background:#f7f4ef;border-left:3px solid ${ACCENT};padding:12px 16px;margin:0 0 16px;">${esc(d.note).replace(/\n/g, "<br>")}</p>`
@@ -510,11 +517,11 @@ export function renderEmail(key: TemplateKey, texts: TemplateTexts, d: EmailData
       }${w ? detailsTable([...workshopRows(w, r.participants), ["Osalejaid", participantsHtml(r)]]) : ""}${button(`${SITE_URL}/opitoad#registreeru`, label)}${outro}`;
       break;
     case "moved_to_waitlist":
-      image = w?.image_url ?? null;
+      image = emailImage(w);
       body = `${intro}${button(`${SITE_URL}/opitoad`, label)}${outro}`;
       break;
     case "new_workshop_announcement":
-      image = w?.image_url ?? null;
+      image = emailImage(w);
       body = `${intro}${w ? detailsTable(workshopRows(w)) : ""}${w ? includesList(w) : ""}${button(
         w ? `${SITE_URL}/opitoad/${w.id}` : `${SITE_URL}/opitoad`,
         label
