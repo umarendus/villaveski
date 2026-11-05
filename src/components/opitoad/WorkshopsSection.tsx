@@ -27,6 +27,16 @@ export default function WorkshopsSection() {
       });
   }, []);
 
+  // Sisu laetakse andmebaasist pärast lehe avanemist, seega #registreeru ankrule (avalehe nupp,
+  // e-kirjade nupud) tuleb kerida alles siis, kui õpitoad on ekraanil
+  useEffect(() => {
+    if (workshops === null || !window.location.hash) return;
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    // Väike viivitus: Next.js-i ruuter ja piltide paigutus võivad muidu kerimise üle kirjutada
+    const timer = setTimeout(() => document.getElementById(id)?.scrollIntoView({ block: "start" }), 250);
+    return () => clearTimeout(timer);
+  }, [workshops]);
+
   if (workshops === null) {
     return (
       <div className="max-w-6xl mx-auto px-6 py-16">
@@ -45,7 +55,7 @@ export default function WorkshopsSection() {
 
   if (workshops.length === 0) {
     return (
-      <section id="registreeru" className="bg-[#f7f4ef] py-16 md:py-24 px-6">
+      <section id="registreeru" className="bg-[#f7f4ef] py-16 md:py-24 px-6 scroll-mt-16">
         <div className="max-w-3xl mx-auto text-center">
           <SheepPair />
           <h2 className="text-black mt-4 mb-4" style={{ ...abril, fontSize: "clamp(1.7rem, 3.5vw, 3rem)" }}>
@@ -77,7 +87,7 @@ function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic;
   const taken = w.capacity - w.seats_left;
 
   return (
-    <section id={first ? "registreeru" : undefined} className="py-14 md:py-20">
+    <section id={first ? "registreeru" : undefined} className="py-14 md:py-20 scroll-mt-16">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
           {/* Pilt */}

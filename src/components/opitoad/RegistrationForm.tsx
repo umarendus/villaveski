@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Turnstile, { turnstileEnabled } from "./Turnstile";
+import Select from "@/components/ui/Select";
 
 type Props = {
   workshopId: string | null;
@@ -159,18 +160,12 @@ export default function RegistrationForm({ workshopId, mode, maxParticipants, on
           <label htmlFor="reg-participants" className={labelClass}>
             Osalejate arv
           </label>
-          <select
+          <Select
             id="reg-participants"
-            value={form.participants}
-            onChange={(e) => setParticipants(Number(e.target.value))}
-            className={`${inputClass} cursor-pointer`}
-          >
-            {participantOptions.map((n) => (
-              <option key={n} value={n}>
-                {n} {n === 1 ? "inimene" : "inimest"}
-              </option>
-            ))}
-          </select>
+            value={String(form.participants)}
+            onChange={(v) => setParticipants(Number(v))}
+            options={participantOptions.map((n) => ({ value: String(n), label: `${n} ${n === 1 ? "inimene" : "inimest"}` }))}
+          />
         </div>
       </div>
 

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, Check, Mail, Monitor, RotateCcw, Save, Send, Smartphone } from "lucide-react";
 import { supabase } from "@/app/lib/supabaseClient";
+import Select from "@/components/ui/Select";
 import {
   TEMPLATE_DEFS,
   TEMPLATE_KEYS,
@@ -320,19 +321,14 @@ export default function EmailTemplatesManager({ workshops }: { workshops: Worksh
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <h3 className="text-lg text-black">Eelvaade</h3>
             <div className="flex items-center gap-2">
-              <select
+              <Select
+                variant="pill"
                 value={previewWorkshopId}
-                onChange={(e) => setPreviewWorkshopId(e.target.value)}
-                className="border border-gray-300 rounded-full px-3 py-1.5 text-sm bg-white cursor-pointer max-w-[200px]"
-                title="Millise õpitoa andmetega eelvaadet näidata"
-              >
-                <option value="">Näidisõpituba</option>
-                {workshops.map((w) => (
-                  <option key={w.id} value={w.id}>
-                    {w.title}
-                  </option>
-                ))}
-              </select>
+                onChange={setPreviewWorkshopId}
+                ariaLabel="Millise õpitoa andmetega eelvaadet näidata"
+                className="max-w-[220px]"
+                options={[{ value: "", label: "Näidisõpituba" }, ...workshops.map((w) => ({ value: w.id, label: w.title }))]}
+              />
               <div className="flex border border-gray-300 rounded-full overflow-hidden">
                 <button
                   onClick={() => setDevice("desktop")}

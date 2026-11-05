@@ -34,7 +34,7 @@ export default function HomeWorkshopTeaser() {
   const open = w.status === "published" && w.seats_left > 0;
 
   return (
-    <section id="opitoad-teade" className="bg-black text-white">
+    <section id="opitoad-teade" className="bg-black text-white scroll-mt-16">
       <div className="max-w-6xl mx-auto grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
         <div className="relative h-64 md:h-auto min-h-[280px]">
           {w.image_url && (

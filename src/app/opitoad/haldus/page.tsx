@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Calendar, ChevronRight, Download, ExternalLink, ImagePlus, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
+import Select from "@/components/ui/Select";
 import WorkshopEditor, { removeWorkshopPhoto, uploadWorkshopPhoto } from "@/components/admin/opitoad/WorkshopEditor";
 import EmailTemplatesManager from "@/components/admin/opitoad/EmailTemplatesManager";
 import RegistrationCard, { downloadCsv, registrationsToCsv, seatsTaken } from "@/components/admin/opitoad/RegistrationCard";
@@ -406,18 +407,17 @@ function GalleryManager({ workshops }: { workshops: Workshop[] }) {
             placeholder="Pildiallkiri (soovi korral)"
             className="border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-black"
           />
-          <select
+          <Select
+            variant="pill"
             value={workshopId}
-            onChange={(e) => setWorkshopId(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2.5 bg-white cursor-pointer"
-          >
-            <option value="">Ei seo õpitoaga</option>
-            {workshops.map((w) => (
-              <option key={w.id} value={w.id}>
-                {w.title} · {formatDate(w.starts_at)}
-              </option>
-            ))}
-          </select>
+            onChange={setWorkshopId}
+            ariaLabel="Seo õpitoaga"
+            className="self-center"
+            options={[
+              { value: "", label: "Ei seo õpitoaga" },
+              ...workshops.map((w) => ({ value: w.id, label: `${w.title} · ${formatDate(w.starts_at)}` })),
+            ]}
+          />
           <button
             type="submit"
             disabled={uploading}

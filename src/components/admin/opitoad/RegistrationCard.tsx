@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check, Mail, Phone, RotateCcw, ShoppingBasket, Trash2, UserMinus, Users, X } from "lucide-react";
 import { supabase } from "@/app/lib/supabaseClient";
 import { STATUS_LABELS, formatShortDate } from "@/app/lib/opitoad";
+import Select from "@/components/ui/Select";
 import type { RegistrationStatus, Workshop, WorkshopRegistration } from "../../../../types/supabase";
 
 const STATUS_STYLES: Record<RegistrationStatus, string> = {
@@ -150,19 +151,15 @@ export default function RegistrationCard({ reg, onChanged, moveTargets }: Props)
           )}
 
           {moveTargets && moveTargets.length > 0 && reg.status === "waitlist" && (
-            <select
+            <Select
+              variant="pill"
               disabled={busy}
               value=""
-              onChange={(e) => e.target.value && run("pending", { workshopId: e.target.value })}
-              className="border border-gray-300 rounded-full px-3 py-2 text-sm cursor-pointer bg-white"
-            >
-              <option value="">Tõsta õpitoale…</option>
-              {moveTargets.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.title} · {formatShortDate(w.starts_at)}
-                </option>
-              ))}
-            </select>
+              placeholder="Tõsta õpitoale…"
+              ariaLabel="Tõsta õpitoale"
+              onChange={(v) => v && run("pending", { workshopId: v })}
+              options={moveTargets.map((w) => ({ value: w.id, label: `${w.title} · ${formatShortDate(w.starts_at)}` }))}
+            />
           )}
 
           <div className="flex gap-1 justify-center md:justify-end">
