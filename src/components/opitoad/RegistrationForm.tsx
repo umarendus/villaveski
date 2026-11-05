@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { Check, Mail, MailCheck } from "lucide-react";
 import Turnstile, { turnstileEnabled } from "./Turnstile";
 import Select from "@/components/ui/Select";
 
@@ -37,6 +38,8 @@ export default function RegistrationForm({ workshopId, mode, maxParticipants, on
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState<null | "pending" | "waitlist">(null);
+  const [showModal, setShowModal] = useState(false);
+  const [sentTo, setSentTo] = useState("");
 
   useEffect(() => setStartedAt(Date.now()), []);
 
@@ -74,7 +77,9 @@ export default function RegistrationForm({ workshopId, mode, maxParticipants, on
         setResetKey((k) => k + 1);
         return;
       }
+      setSentTo(form.email.trim());
       setDone(data.status === "waitlist" ? "waitlist" : "pending");
+      setShowModal(true);
       onRegistered?.(data.seatsLeft ?? null);
     } catch {
       setError("Ühendus ebaõnnestus. Kontrolli internetiühendust ja proovi uuesti.");
@@ -85,6 +90,10 @@ export default function RegistrationForm({ workshopId, mode, maxParticipants, on
 
   if (done) {
     return (
+      <>
+      <AnimatePresence>
+        {showModal && <SentModal mode={done} email={sentTo} onClose={() => setShowModal(false)} />}
+      </AnimatePresence>
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -97,9 +106,10 @@ export default function RegistrationForm({ workshopId, mode, maxParticipants, on
         <p className="text-gray-700 text-lg leading-relaxed max-w-lg mx-auto">
           {done === "waitlist"
             ? "Lisasime sind huviliste nimekirja. Kui avame uue õpitoa, anname sulle esimesena teada."
-            : "Koht on sulle esialgu hoitud. Saatsime sulle e-kirja ning kui oleme registreeringu üle vaadanud, saad eraldi kinnituskirja."}
+            : "Saatsime sulle e-kirja. Villaveski vaatab registreeringu üle ja oled õpitoasse registreeritud alles siis, kui saad meilt kinnituskirja."}
         </p>
       </motion.div>
+      </>
     );
   }
 
@@ -313,5 +323,92 @@ export function SheepPair({ size = "2rem" }: { size?: string }) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/sheep-black-r.svg" alt="" style={{ height: size }} />
     </div>
+  );
+}
+
+// Pärast vormi saatmist: selgitus, et registreerimine kehtib alles Villaveski kinnituskirjaga
+function SentModal({ mode, email, onClose }: { mode: "pending" | "waitlist"; email: string; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const steps =
+    mode === "pending"
+      ? [
+          { icon: <Check className="w-4 h-4" strokeWidth={3} />, title: "Registreerumise kiri on teele pandud", text: `Saatsime kinnituse kättesaamise kohta kirja aadressile ${email}.`, done: true },
+          { icon: <Mail className="w-4 h-4" />, title: "Villaveski vaatab registreeringu üle", text: "Tavaliselt vastame paari päeva jooksul.", done: false },
+          { icon: <MailCheck className="w-4 h-4" />, title: "Kinnituskiri = oled registreeritud", text: "Alles kinnituskirja saamisel on sinu koht õpitoas kindel ja vabade kohtade arv lehel väheneb.", done: false },
+        ]
+      : [
+          { icon: <Check className="w-4 h-4" strokeWidth={3} />, title: "Oled huviliste nimekirjas", text: `Saatsime kinnituse aadressile ${email}.`, done: true },
+          { icon: <MailCheck className="w-4 h-4" />, title: "Anname märku", text: "Kui avame uue õpitoa või vabaneb koht, kirjutame sulle esimesena.", done: false },
+        ];
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[70] bg-black/50 flex items-center justify-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sent-modal-title"
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 10 }}
+        transition={{ duration: 0.25 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-7 md:p-9 text-left"
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+      >
+        <SheepPair />
+        <h2
+          id="sent-modal-title"
+          className="text-2xl md:text-3xl text-black text-center mt-4 mb-6"
+          style={{ fontFamily: "'Abril Fatface', serif" }}
+        >
+          {mode === "pending" ? "Aitäh! Kiri on teel" : "Oled kirjas!"}
+        </h2>
+
+        <ol className="space-y-5">
+          {steps.map((s, i) => (
+            <li key={i} className="flex gap-4">
+              <span
+                className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center ${
+                  s.done ? "bg-black text-white" : "bg-[#f7f4ef] text-[#8a6f4f] border border-[#be9f7a]/50"
+                }`}
+              >
+                {s.icon}
+              </span>
+              <span>
+                <span className="block text-black font-semibold">{s.title}</span>
+                <span className="block text-gray-600 text-sm leading-relaxed mt-0.5">{s.text}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+
+        {mode === "pending" && (
+          <p className="mt-6 text-sm text-[#7a5f40] bg-[#f7f4ef] rounded-xl px-4 py-3">
+            Kui kirja ei tule, vaata ka rämpsposti kausta.
+          </p>
+        )}
+
+        <button
+          type="button"
+          onClick={onClose}
+          autoFocus
+          className="mt-7 w-full bg-black text-white rounded-full py-3.5 text-lg cursor-pointer hover:bg-gray-800 transition-colors"
+          style={{ fontFamily: "var(--font-raleway)", fontWeight: 700 }}
+        >
+          Selge
+        </button>
+      </motion.div>
+    </motion.div>
   );
 }

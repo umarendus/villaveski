@@ -83,7 +83,7 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
       .from("workshop_registrations")
       .select("participants")
       .eq("workshop_id", workshop.id)
-      .in("status", ["pending", "confirmed"])
+      .eq("status", "confirmed")
       .then(({ data }) =>
         setHeldByRegistrations({
           people: (data ?? []).reduce((sum, r) => sum + r.participants, 0),
@@ -114,7 +114,7 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
     const held = offline + (heldByRegistrations?.people ?? 0);
     if (held > capacity) {
       return setError(
-        `Kohti (${capacity}) on vähem kui juba hõivatud (${held}). Suurenda kohtade arvu või eemalda enne osalejaid.`
+        `Kohti (${capacity}) on vähem kui juba kinnitatud (${held}). Suurenda kohtade arvu või eemalda enne osalejaid.`
       );
     }
 

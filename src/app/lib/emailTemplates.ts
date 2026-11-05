@@ -60,10 +60,10 @@ export const TEMPLATE_DEFS: Record<
     required: ["{nimi}", "{opituba}"],
     defaults: {
       subject: "Täname registreerumast – {opituba}",
-      preheader: "Saime sinu registreeringu kätte. Anname kinnituse peagi.",
+      preheader: "Saime sinu registreeringu kätte. Registreeritud oled pärast meie kinnituskirja.",
       heading: "Saime sinu registreeringu kätte!",
       intro:
-        "Tere, {nimi}!\n\nAitäh, et soovid meiega kaasa lüüa. Sinu registreering on kenasti kohale jõudnud ja koht on sulle esialgu hoitud. Vaatame selle üle ning saadame sulle peagi eraldi kinnituskirja.",
+        "Tere, {nimi}!\n\nAitäh, et soovid meiega kaasa lüüa! Sinu registreering on kenasti kohale jõudnud. Vaatame selle üle ja saadame sulle peagi eraldi kinnituskirja.\n\n**NB! Oled õpitoasse registreeritud alles siis, kui saad meilt kinnituskirja.**",
       button_label: "Vaata õpitoa infot",
       outro: `Küsimuste korral vasta lihtsalt sellele kirjale.\n\n${SIGNATURE}`,
     },

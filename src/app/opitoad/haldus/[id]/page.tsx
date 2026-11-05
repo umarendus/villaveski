@@ -111,7 +111,7 @@ function Detail() {
 
           <div className="mt-6 grid grid-cols-3 gap-3 text-center">
             <Stat value={left} label="vaba kohta" accent />
-            <Stat value={taken} label={`hõivatud / ${workshop.capacity}`} />
+            <Stat value={taken} label={`kinnitatud / ${workshop.capacity}`} />
             <Stat value={pendingCount} label="ootab kinnitust" warn={pendingCount > 0} />
           </div>
           <div className="flex gap-1 mt-4">

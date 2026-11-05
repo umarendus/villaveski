@@ -201,7 +201,7 @@ function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic;
               </p>
             ) : (
               <p className="mt-4 text-lg text-gray-800 leading-relaxed">
-                Täida vorm ja hoiame sulle koha. Saadame kinnituse e-postiga. Maksmine toimub kohapeal.
+                Täida vorm ja Villaveski kinnitab registreeringu e-kirjaga. Oled registreeritud alles pärast kinnituskirja. Maksmine toimub kohapeal.
               </p>
             )}
           </div>

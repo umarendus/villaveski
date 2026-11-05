@@ -355,7 +355,8 @@ export function seatsTaken(w: Workshop, regs: WorkshopRegistration[]) {
   return (
     w.reserved_offline +
     regs
-      .filter((r) => r.workshop_id === w.id && (r.status === "pending" || r.status === "confirmed"))
+      // Kohta hõivab ainult kinnitatud registreering (sama loogika mis SQL workshop_seats_taken)
+      .filter((r) => r.workshop_id === w.id && r.status === "confirmed")
       .reduce((sum, r) => sum + r.participants, 0)
   );
 }
