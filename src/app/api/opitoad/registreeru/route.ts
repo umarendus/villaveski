@@ -153,7 +153,16 @@ export async function POST(request: Request) {
 
     if (reg) {
       const mails: Promise<void>[] = [];
-      const data = { workshop: workshop ?? null, reg, seatsLeft: result.seats_left };
+      const waitlistReason = !workshop
+        ? undefined
+        : workshop.status === "closed"
+          ? ("closed" as const)
+          : new Date(workshop.starts_at) < new Date()
+            ? ("started" as const)
+            : result.seats_left > 0
+              ? ("group_too_big" as const)
+              : ("full" as const);
+      const data = { workshop: workshop ?? null, reg, seatsLeft: result.seats_left, waitlistReason };
       const waitlist = result.reg_status === "waitlist";
       const [toUser, toAdmin] = await Promise.all([
         buildEmail(waitlist ? "waitlist_received" : "registration_received", data),

@@ -141,6 +141,14 @@ export type Database = {
         };
         Returns: { registration_id: string; reg_status: RegistrationStatus; seats_left: number }[];
       };
+      admin_change_registration: {
+        Args: { p_id: string; p_status: string; p_move?: boolean; p_workshop_id?: string | null; p_force?: boolean };
+        Returns: WorkshopRegistration;
+      };
+      admin_delete_workshop: {
+        Args: { p_workshop_id: string };
+        Returns: number;
+      };
       is_workshop_admin: {
         Args: Record<string, never>;
         Returns: boolean;

@@ -31,49 +31,47 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Vigane staatus." }, { status: 400 });
   }
 
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!UUID_RE.test(id) || (body.workshopId && !UUID_RE.test(body.workshopId))) {
+    return NextResponse.json({ error: "Vigane päring." }, { status: 400 });
+  }
+
   const supabase = getSupabaseAdmin();
-  const { data: current } = await supabase.from("workshop_registrations").select("*").eq("id", id).single();
+  const { data: current } = await supabase.from("workshop_registrations").select("*").eq("id", id).maybeSingle();
   if (!current) return NextResponse.json({ error: "Registreeringut ei leitud." }, { status: 404 });
 
-  // Kas registreering hakkab kohta hõivama (huvilistest/tühistatutest või teisele õpitoale)?
-  const targetWorkshopId = body.workshopId !== undefined ? body.workshopId : current.workshop_id;
-  const holdsSeat = (s: RegistrationStatus) => s === "pending" || s === "confirmed";
-  const startsHolding =
-    holdsSeat(body.status) && (!holdsSeat(current.status) || targetWorkshopId !== current.workshop_id);
-  if (holdsSeat(body.status) && !targetWorkshopId) {
-    return NextResponse.json({ error: "Vali enne õpituba, kuhu registreering kuulub." }, { status: 400 });
-  }
-  if (startsHolding && targetWorkshopId && !body.force) {
-    const { data: taken } = await supabase.rpc("workshop_seats_taken", { w_id: targetWorkshopId });
-    const { data: w } = await supabase.from("workshops").select("capacity").eq("id", targetWorkshopId).single();
-    const left = (w?.capacity ?? 0) - (taken ?? 0);
-    if (left < current.participants) {
+  // Kohtade kontroll ja muudatus ühes tehingus õpitoa rea lukuga (vt admin_change_registration)
+  const { data: updated, error } = await supabase.rpc("admin_change_registration", {
+    p_id: id,
+    p_status: body.status,
+    p_move: body.workshopId !== undefined,
+    p_workshop_id: body.workshopId ?? null,
+    p_force: Boolean(body.force),
+  });
+  if (error || !updated) {
+    const msg = error?.message ?? "";
+    const seats = msg.match(/no_seats:(\d+)/);
+    if (seats) {
       return NextResponse.json(
-        { error: `Vabu kohti on ${Math.max(left, 0)}, registreeringus ${current.participants} inimest.`, code: "no_seats" },
+        { error: `Vabu kohti on ${seats[1]}, registreeringus ${current.participants} inimest.`, code: "no_seats" },
         { status: 409 }
       );
     }
-  }
-
-  const update: { status: RegistrationStatus; confirmed_at?: string | null; workshop_id?: string | null } = {
-    status: body.status,
-  };
-  if (body.status === "confirmed" && current.status !== "confirmed") update.confirmed_at = new Date().toISOString();
-  if (body.status !== "confirmed") update.confirmed_at = null;
-  // Huvilise saab tõsta teise õpitoa nimekirja
-  if (body.workshopId !== undefined) update.workshop_id = body.workshopId;
-
-  const { data: updated, error } = await supabase
-    .from("workshop_registrations")
-    .update(update)
-    .eq("id", id)
-    .select("*")
-    .single();
-  if (error || !updated) {
     if (error?.code === "23505") {
       return NextResponse.json({ error: "Selle e-postiga on sellele õpitoale juba aktiivne registreering." }, { status: 409 });
     }
-    return NextResponse.json({ error: error?.message || "Salvestamine ebaõnnestus." }, { status: 500 });
+    if (msg.includes("no_workshop")) {
+      return NextResponse.json({ error: "Vali enne õpituba, kuhu registreering kuulub." }, { status: 400 });
+    }
+    if (msg.includes("workshop_unavailable")) {
+      return NextResponse.json(
+        { error: "Sellele õpitoale ei saa osalejaid lisada – see on mustand või juba alanud." },
+        { status: 400 }
+      );
+    }
+    if (msg.includes("workshop_not_found")) return NextResponse.json({ error: "Õpituba ei leitud." }, { status: 404 });
+    console.error("admin_change_registration", error);
+    return NextResponse.json({ error: "Salvestamine ebaõnnestus." }, { status: 500 });
   }
 
   let emailSent = false;

@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { ImagePlus, Trash2, X } from "lucide-react";
+import { AlertTriangle, ImagePlus, Trash2, X } from "lucide-react";
 import { supabase } from "@/app/lib/supabaseClient";
 import { WORKSHOP_PHOTO_BUCKET, fromLocalInput, toLocalInput } from "@/app/lib/opitoad";
 import type { Workshop, WorkshopStatus } from "../../../../types/supabase";
@@ -72,7 +72,31 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [heldByRegistrations, setHeldByRegistrations] = useState<{ people: number; count: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Ootel ja kinnitatud registreeringud: kohtade arvu kontroll ja kustutamise hoiatus
+  useEffect(() => {
+    if (!workshop) return;
+    supabase
+      .from("workshop_registrations")
+      .select("participants")
+      .eq("workshop_id", workshop.id)
+      .in("status", ["pending", "confirmed"])
+      .then(({ data }) =>
+        setHeldByRegistrations({
+          people: (data ?? []).reduce((sum, r) => sum + r.participants, 0),
+          count: data?.length ?? 0,
+        })
+      );
+  }, [workshop]);
+
+  // Eelvaate URL luuakse faili kohta üks kord ja vabastatakse hiljem
+  const filePreview = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
+  useEffect(() => () => {
+    if (filePreview) URL.revokeObjectURL(filePreview);
+  }, [filePreview]);
 
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -83,7 +107,16 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
     setError("");
     if (!form.title.trim()) return setError("Pealkiri on kohustuslik.");
     if (!form.starts_at) return setError("Vali kuupäev ja kellaaeg.");
-    if (form.capacity < 1) return setError("Kohtade arv peab olema vähemalt 1.");
+    const capacity = Math.floor(Number(form.capacity) || 0);
+    const offline = Math.max(0, Math.floor(Number(form.reserved_offline) || 0));
+    if (capacity < 1) return setError("Kohtade arv peab olema vähemalt 1.");
+    if (offline > capacity) return setError("Muul viisil broneeritud kohti ei saa olla rohkem kui kohti kokku.");
+    const held = offline + (heldByRegistrations?.people ?? 0);
+    if (held > capacity) {
+      return setError(
+        `Kohti (${capacity}) on vähem kui juba hõivatud (${held}). Suurenda kohtade arvu või eemalda enne osalejaid.`
+      );
+    }
 
     setSaving(true);
     try {
@@ -118,28 +151,21 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
     }
   }
 
+  // Ootel/kinnitatud registreeringud liiguvad huviliste nimekirja ja õpituba kustutatakse ühes tehingus
   async function remove() {
     if (!workshop) return;
-    if (!confirm(`Kustutada õpituba "${workshop.title}"? Registreeringud jäävad alles huviliste nimekirja.`)) return;
     setSaving(true);
-    // Ootel ja kinnitatud registreeringud liiguvad huviliste nimekirja, et nad halduses nähtavaks jääksid
-    const { error: moveError } = await supabase
-      .from("workshop_registrations")
-      .update({ status: "waitlist", confirmed_at: null })
-      .eq("workshop_id", workshop.id)
-      .in("status", ["pending", "confirmed"]);
-    if (moveError) {
-      setSaving(false);
-      return setError(moveError.message);
-    }
-    const { error } = await supabase.from("workshops").delete().eq("id", workshop.id);
+    const { error } = await supabase.rpc("admin_delete_workshop", { p_workshop_id: workshop.id });
     setSaving(false);
-    if (error) return setError(error.message);
+    if (error) {
+      setConfirmDelete(false);
+      return setError(error.message.includes("forbidden") ? "Sul pole õigust õpitubasid kustutada." : error.message);
+    }
     if (workshop.image_url) await removeWorkshopPhoto(workshop.image_url);
     onDeleted?.();
   }
 
-  const preview = file ? URL.createObjectURL(file) : form.image_url;
+  const preview = filePreview ?? form.image_url;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-start md:items-center justify-center p-0 md:p-6 overflow-y-auto" onClick={() => !saving && onClose()}>
@@ -274,7 +300,7 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
 
         <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-200 sticky bottom-0 bg-white md:rounded-b-2xl">
           {workshop ? (
-            <button type="button" onClick={remove} disabled={saving} className="flex items-center gap-2 text-red-800 hover:text-red-600 cursor-pointer text-sm">
+            <button type="button" onClick={() => setConfirmDelete(true)} disabled={saving} className="flex items-center gap-2 text-red-800 hover:text-red-600 cursor-pointer text-sm">
               <Trash2 className="w-4 h-4" /> Kustuta
             </button>
           ) : (
@@ -290,6 +316,62 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
           </div>
         </div>
       </form>
+
+      {confirmDelete && workshop && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!saving) setConfirmDelete(false);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 md:p-8"
+            style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+          >
+            <div className="w-12 h-12 rounded-full bg-red-50 text-red-900 flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <h2 className="text-2xl text-black text-center mb-2" style={{ fontFamily: "'Abril Fatface', serif" }}>
+              Kustuta õpituba?
+            </h2>
+            <p className="text-center text-gray-600 mb-4">
+              <strong className="text-black">{workshop.title}</strong> kustutatakse jäädavalt ja kaob avalikult lehelt.
+            </p>
+            {heldByRegistrations && heldByRegistrations.count > 0 && (
+              <div className="flex gap-3 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-4 text-sm mb-2">
+                <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                <p>
+                  Õpitoal on {heldByRegistrations.count} ootel või kinnitatud registreeringut (
+                  {heldByRegistrations.people} inimest). Need liiguvad huviliste nimekirja <strong>ilma teavituseta</strong>.
+                  Kui soovid osalejaid e-kirjaga teavitada, eemalda nad enne õpitoa lehel nupuga „Eemalda“.
+                </p>
+              </div>
+            )}
+            <div className="flex gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                disabled={saving}
+                className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-full cursor-pointer hover:bg-gray-50 disabled:opacity-50"
+              >
+                Tühista
+              </button>
+              <button
+                type="button"
+                onClick={remove}
+                disabled={saving}
+                className="flex-1 bg-red-900 text-white py-2.5 rounded-full cursor-pointer hover:bg-red-800 disabled:opacity-50"
+              >
+                {saving ? "Kustutan..." : "Kustuta"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

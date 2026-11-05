@@ -26,7 +26,7 @@ async function auth(request: Request) {
 
 function parse(body: Body) {
   const key = body.key as TemplateKey;
-  if (!key || !(key in TEMPLATE_DEFS)) return { error: "Tundmatu mall." } as const;
+  if (!key || !Object.hasOwn(TEMPLATE_DEFS, key)) return { error: "Tundmatu mall." } as const;
   const texts = Object.fromEntries(
     TEXT_FIELDS.map((f) => [f, String(body.texts?.[f] ?? "").replace(/\r\n/g, "\n")])
   ) as TemplateTexts;
@@ -55,7 +55,7 @@ export async function DELETE(request: Request) {
   const user = await auth(request);
   if (!user) return NextResponse.json({ error: "Logi uuesti sisse." }, { status: 401 });
   const key = new URL(request.url).searchParams.get("key") as TemplateKey | null;
-  if (!key || !(key in TEMPLATE_DEFS)) return NextResponse.json({ error: "Tundmatu mall." }, { status: 400 });
+  if (!key || !Object.hasOwn(TEMPLATE_DEFS, key)) return NextResponse.json({ error: "Tundmatu mall." }, { status: 400 });
   const { error } = await getSupabaseAdmin().from("email_templates").delete().eq("key", key);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true, texts: TEMPLATE_DEFS[key].defaults });

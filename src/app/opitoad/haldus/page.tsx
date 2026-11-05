@@ -303,7 +303,9 @@ function Waitlist({
               </p>
               <RegistrationCard
                 reg={r}
-                moveTargets={upcoming.filter((w) => w.id !== r.workshop_id)}
+                moveTargets={upcoming.filter(
+                  (w) => w.id !== r.workshop_id && w.status !== "draft" && new Date(w.starts_at).getTime() > Date.now()
+                )}
                 onChanged={(reg) => onChanged(r.id, reg)}
               />
             </div>

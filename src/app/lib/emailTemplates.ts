@@ -28,10 +28,13 @@ export type TemplateTexts = {
   outro: string;
 };
 
+export type WaitlistReason = "full" | "closed" | "started" | "group_too_big";
+
 export type EmailData = {
   workshop: Workshop | null;
   reg: WorkshopRegistration;
   seatsLeft?: number;
+  waitlistReason?: WaitlistReason;
   note?: string;
   removedBy?: string;
   participantNotified?: boolean;
@@ -75,7 +78,7 @@ export const TEMPLATE_DEFS: Record<
       preheader: "Ootame sind {kuupaev} kell {kellaaeg}.",
       heading: "Sinu koht on kinnitatud!",
       intro:
-        "Tere, {nimi}!\n\nSuur rõõm teatada – sinu koht õpitoas on **kinnitatud**. Ootame sind väga Lepiku tallu, kus villa lõhn, soe tee ja hea seltskond juba ootavad.",
+        "Tere, {nimi}!\n\nSuur rõõm teatada – sinu koht õpitoas on **kinnitatud**. Ootame sind **{kuupaev} kell {kellaaeg}** Lepiku tallu, kus villa lõhn, soe tee ja hea seltskond juba ootavad.",
       button_label: "Vaata õpitoa infot",
       outro: `Riietu mugavalt ning võta kaasa hea tuju – kõik muu on meie poolt olemas. Tasumine toimub kohapeal.\n\nKui sinu plaanid muutuvad, anna palun meile teada, vastates sellele kirjale – nii saame koha pakkuda järgmisele huvilisele.\n\nKohtumiseni!\n**Egon ja Merike**\nSörve Villaveski`,
     },
@@ -134,7 +137,7 @@ export const TEMPLATE_DEFS: Record<
       subject: "Uus huviline (kohad täis) – {opituba}",
       preheader: "{nimi} soovib tulla, kuid kohad on täis.",
       heading: "Uus huviline järjekorras",
-      intro: "Kohad on täis, seega lisasime ta huviliste nimekirja. Uue õpitoa loomisel saad ta sinna tõsta.",
+      intro: "**{nimi}** soovis tulla, kuid kohad on täis, seega lisasime ta huviliste nimekirja. Uue õpitoa loomisel saad ta sinna tõsta.",
       button_label: "Ava õpitoa haldus",
       outro: "",
     },
@@ -199,10 +202,12 @@ export const TEXT_FIELDS: (keyof TemplateTexts)[] = ["subject", "preheader", "he
 export function validateTemplate(key: TemplateKey, texts: TemplateTexts) {
   const errors: string[] = [];
   const all = TEXT_FIELDS.map((f) => texts[f] ?? "").join("\n");
-  const missing = TEMPLATE_DEFS[key].required.filter((t) => !all.includes(t));
+  // Eelvaate rida postkastis ei pruugi näha olla – kohustuslikud muutujad peavad olema nähtavas tekstis
+  const visible = TEXT_FIELDS.filter((f) => f !== "preheader").map((f) => texts[f] ?? "").join("\n");
+  const missing = TEMPLATE_DEFS[key].required.filter((t) => !visible.includes(t));
   if (missing.length) errors.push(`Puuduvad kohustuslikud muutujad: ${missing.join(", ")}`);
   const allowed = new Set(availablePlaceholders(key).map((p) => p.token));
-  const unknown = [...new Set(all.match(/\{[^{}\s]*\}/g) ?? [])].filter((t) => !allowed.has(t));
+  const unknown = [...new Set(all.match(/\{[^{}\n]*\}/g) ?? [])].filter((t) => !allowed.has(t));
   if (unknown.length) errors.push(`Tundmatud muutujad: ${unknown.join(", ")}`);
   if (!texts.subject.trim()) errors.push("Teema ei tohi olla tühi.");
   if (!texts.heading.trim()) errors.push("Pealkiri ei tohi olla tühi.");
@@ -225,11 +230,15 @@ function esc(value: string | number | null | undefined) {
 function placeholderValues(d: EmailData): Record<string, string> {
   const w = d.workshop;
   const seatsLeft = d.seatsLeft ?? 0;
+  const name = w ? `Õpitoa ${w.title} (${formatDate(w.starts_at)})` : "";
   const pohjus = !w
     ? "Hetkel ei ole meil avatud õpitubasid."
-    : seatsLeft > 0
-      ? `Õpitoa ${w.title} (${formatDate(w.starts_at)}) registreerimine on kahjuks suletud.`
-      : `Õpitoa ${w.title} (${formatDate(w.starts_at)}) kohad on kahjuks juba täis.`;
+    : {
+        full: `${name} kohad on kahjuks juba täis.`,
+        closed: `${name} registreerimine on kahjuks suletud.`,
+        started: `${name} on kahjuks juba alanud.`,
+        group_too_big: `${name} vabu kohti on jäänud vähem (${seatsLeft}), kui soovisid registreerida (${d.reg.participants}).`,
+      }[d.waitlistReason ?? (seatsLeft > 0 ? "closed" : "full")];
   return {
     nimi: d.reg.name,
     email: d.reg.email,

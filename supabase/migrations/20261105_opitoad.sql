@@ -1,5 +1,5 @@
 -- Õpitubade registreerimine: tabelid, turvareeglid, pildipank ja esimene õpituba.
--- Käivita Supabase'i SQL Editoris (Project -> SQL Editor -> New query) ühe korraga.
+-- Käivita koos järgmiste migratsioonidega: supabase db push (või SQL Editoris järjest).
 
 -- ---------------------------------------------------------------------------
 -- Õpitoad
@@ -153,6 +153,29 @@ grant select, insert, update, delete on public.workshops, public.workshop_regist
 grant all on public.workshops, public.workshop_registrations, public.workshop_gallery to service_role;
 
 -- ---------------------------------------------------------------------------
+-- Haldurid: muuta ja isikuandmeid näha saavad ainult siin loetletud e-postid
+-- ---------------------------------------------------------------------------
+create table if not exists public.workshop_admins (
+  email text primary key check (email = lower(email))
+);
+alter table public.workshop_admins enable row level security;
+revoke all on public.workshop_admins from anon, authenticated;
+
+create or replace function public.is_workshop_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.workshop_admins a
+    where a.email = lower(coalesce(auth.jwt() ->> 'email', ''))
+  );
+$$;
+grant execute on function public.is_workshop_admin() to anon, authenticated;
+
+-- ---------------------------------------------------------------------------
 -- Turvareeglid (RLS): avalikkus näeb õpitube ja galeriid, sisseloginud haldur kõike
 -- ---------------------------------------------------------------------------
 alter table public.workshops enable row level security;
@@ -161,15 +184,15 @@ alter table public.workshop_gallery enable row level security;
 
 drop policy if exists "workshops public read" on public.workshops;
 create policy "workshops public read" on public.workshops
-  for select to anon using (status <> 'draft');
+  for select to anon, authenticated using (status <> 'draft' or public.is_workshop_admin());
 
 drop policy if exists "workshops admin all" on public.workshops;
 create policy "workshops admin all" on public.workshops
-  for all to authenticated using (true) with check (true);
+  for all to authenticated using (public.is_workshop_admin()) with check (public.is_workshop_admin());
 
 drop policy if exists "registrations admin all" on public.workshop_registrations;
 create policy "registrations admin all" on public.workshop_registrations
-  for all to authenticated using (true) with check (true);
+  for all to authenticated using (public.is_workshop_admin()) with check (public.is_workshop_admin());
 
 drop policy if exists "gallery public read" on public.workshop_gallery;
 create policy "gallery public read" on public.workshop_gallery
@@ -177,7 +200,7 @@ create policy "gallery public read" on public.workshop_gallery
 
 drop policy if exists "gallery admin write" on public.workshop_gallery;
 create policy "gallery admin write" on public.workshop_gallery
-  for all to authenticated using (true) with check (true);
+  for all to authenticated using (public.is_workshop_admin()) with check (public.is_workshop_admin());
 
 -- ---------------------------------------------------------------------------
 -- Pildipank õpitubade piltidele
@@ -192,11 +215,11 @@ create policy "workshop photos public read" on storage.objects
 
 drop policy if exists "workshop photos admin insert" on storage.objects;
 create policy "workshop photos admin insert" on storage.objects
-  for insert to authenticated with check (bucket_id = 'workshop-photos');
+  for insert to authenticated with check (bucket_id = 'workshop-photos' and public.is_workshop_admin());
 
 drop policy if exists "workshop photos admin delete" on storage.objects;
 create policy "workshop photos admin delete" on storage.objects
-  for delete to authenticated using (bucket_id = 'workshop-photos');
+  for delete to authenticated using (bucket_id = 'workshop-photos' and public.is_workshop_admin());
 
 -- ---------------------------------------------------------------------------
 -- Esimene õpituba: 7 kohta, 2 juba broneeritud -> vabu 5
