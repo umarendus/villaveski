@@ -326,11 +326,9 @@ function fillRich(text: string, values: Record<string, string>) {
     .join("\n");
 }
 
-// Kirja päisepilt: lai JPEG (vt /api/opitoad/kirjapilt). Eelvaate näidisandmetes otse algne pilt.
+// Kirja päisepilt: eelistatult lai JPEG (email_image_url), muidu algne foto
 function emailImage(w: Workshop | null) {
-  if (!w?.image_url) return null;
-  if (w.id === "naidis") return w.image_url;
-  return `${SITE_URL}/api/opitoad/kirjapilt/${w.id}?v=${encodeURIComponent(w.updated_at || "1")}`;
+  return w?.email_image_url || w?.image_url || null;
 }
 
 function layout(opts: { preheader: string; heading: string; body: string; image?: string | null }) {
@@ -584,6 +582,7 @@ export function sampleEmailData(workshop?: Workshop | null): EmailData {
     capacity: 7,
     reserved_offline: 2,
     image_url: "/opitoad/tapikangaspuu.webp",
+    email_image_url: "/opitoad/tapikangaspuu-kiri.jpg",
     status: "published",
     announced_at: null,
     announced_count: 0,
