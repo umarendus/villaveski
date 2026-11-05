@@ -129,7 +129,7 @@ export default function UusParoolPage() {
               </form>
             )}
 
-            <Link href="/tootepildid" className="text-center text-sm text-gray-500 underline mt-2">
+            <Link href="/haldus" className="text-center text-sm text-gray-500 underline mt-2">
               Tagasi sisselogimisse
             </Link>
           </>
@@ -186,7 +186,7 @@ export default function UusParoolPage() {
               Oled sisse logitud. Brauser võib nüüd pakkuda uue parooli salvestamist – võta pakkumine vastu.
             </p>
             <Link
-              href="/tootepildid"
+              href="/haldus"
               className="bg-gray-900 text-white py-2 rounded-md font-medium text-center hover:bg-gray-800 transition mt-2"
             >
               Pildihaldusse

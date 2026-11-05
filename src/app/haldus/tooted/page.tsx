@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "@/app/lib/supabaseClient";
 import { Session } from "@supabase/supabase-js";
 import Image from "next/image";
 import { AdminNav } from "@/components/admin/AdminShell";

@@ -246,7 +246,7 @@ function WorkshopCard({
 
         <div className="flex gap-2 mt-5 pt-4 border-t border-gray-100">
           <Link
-            href={`/opitoad/haldus/${w.id}`}
+            href={`/haldus/opitoad/${w.id}`}
             className="flex-1 flex items-center justify-center gap-1 bg-black text-white rounded-full py-2.5 text-sm hover:bg-gray-800"
           >
             {pending > 0 ? "Kinnita osalejad" : "Osalejad"} <ChevronRight className="w-4 h-4" />
