@@ -7,6 +7,7 @@ import { Calendar, ChevronRight, Download, ExternalLink, ImagePlus, MapPin, Penc
 import AdminShell from "@/components/admin/AdminShell";
 import Select from "@/components/ui/Select";
 import WorkshopEditor, { removeWorkshopPhoto, uploadWorkshopPhoto } from "@/components/admin/opitoad/WorkshopEditor";
+import ShareWorkshop from "@/components/opitoad/ShareWorkshop";
 import EmailTemplatesManager from "@/components/admin/opitoad/EmailTemplatesManager";
 import RegistrationCard, { downloadCsv, registrationsToCsv, seatsTaken } from "@/components/admin/opitoad/RegistrationCard";
 import { supabase } from "../../lib/supabaseClient";
@@ -253,10 +254,11 @@ function WorkshopCard({
           </Link>
           <button
             onClick={onEdit}
-            className="flex items-center gap-1 px-4 rounded-full border border-gray-300 text-sm cursor-pointer hover:bg-gray-50"
+            className="flex items-center gap-1 px-4 rounded-full border border-gray-300 text-gray-700 text-sm cursor-pointer hover:bg-gray-50"
           >
             <Pencil className="w-4 h-4" /> Muuda
           </button>
+          {w.status !== "draft" && !compact && <ShareWorkshop workshop={w} variant="admin" />}
         </div>
       </div>
     </div>

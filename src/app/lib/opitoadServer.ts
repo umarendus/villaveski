@@ -1,34 +1,41 @@
 // Serveris: eelseisev õpituba jagamise eelvaate (Facebook, Messenger jne) jaoks.
 // Kasutab avalikku vaadet, seega piisab avalikust võtmest.
 import type { WorkshopPublic } from "../../../types/supabase";
-import { formatDate, formatPrice, formatTime, splitLines } from "./opitoad";
+import { formatDate, formatPrice, formatTime, hasStarted, splitLines } from "./opitoad";
 
-export async function getNextWorkshop(): Promise<WorkshopPublic | null> {
+async function queryWorkshops(params: Record<string, string>): Promise<WorkshopPublic[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return null;
+  if (!url || !key) return [];
   try {
-    const params = new URLSearchParams({
-      select: "*",
-      starts_at: `gte.${new Date().toISOString()}`,
-      order: "starts_at.asc",
-      limit: "5",
-    });
-    const res = await fetch(`${url}/rest/v1/workshops_public?${params}`, {
+    const res = await fetch(`${url}/rest/v1/workshops_public?${new URLSearchParams({ select: "*", ...params })}`, {
       headers: { apikey: key, Authorization: `Bearer ${key}` },
       next: { revalidate: 300 },
     });
-    if (!res.ok) return null;
-    const list = (await res.json()) as WorkshopPublic[];
-    // Eelistame õpituba, kuhu saab veel registreeruda
-    return list.find((w) => w.status === "published" && w.seats_left > 0) ?? list[0] ?? null;
+    return res.ok ? ((await res.json()) as WorkshopPublic[]) : [];
   } catch {
-    return null;
+    return [];
   }
 }
 
+export async function getNextWorkshop(): Promise<WorkshopPublic | null> {
+  const list = await queryWorkshops({
+    starts_at: `gte.${new Date().toISOString()}`,
+    order: "starts_at.asc",
+    limit: "5",
+  });
+  // Eelistame õpituba, kuhu saab veel registreeruda
+  return list.find(isOpen) ?? list[0] ?? null;
+}
+
+export async function getWorkshopById(id: string): Promise<WorkshopPublic | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  const list = await queryWorkshops({ id: `eq.${id}`, limit: "1" });
+  return list[0] ?? null;
+}
+
 export function isOpen(w: WorkshopPublic) {
-  return w.status === "published" && w.seats_left > 0;
+  return w.status === "published" && w.seats_left > 0 && !hasStarted(w.starts_at);
 }
 
 export function shareTitle(w: WorkshopPublic | null) {
@@ -41,7 +48,11 @@ export function shareDescription(w: WorkshopPublic | null) {
     return "Tapikangaspuu ja villatöö õpitoad Lepiku talus Saaremaal. Pane end huviliste nimekirja – anname märku, kui avame uue õpitoa.";
   }
   const includes = splitLines(w.includes).join(", ");
-  const seats = isOpen(w) ? `Vabu kohti ${w.seats_left}/${w.capacity} – registreeru!` : "Kohad on täis – pane end huviliste nimekirja.";
+  const seats = isOpen(w)
+    ? `Vabu kohti ${w.seats_left}/${w.capacity} – registreeru!`
+    : hasStarted(w.starts_at)
+      ? "Õpituba on toimunud – pane end järgmise õpitoa huviliseks."
+      : "Kohad on täis – pane end huviliste nimekirja.";
   return [
     `${formatDate(w.starts_at)} kell ${formatTime(w.starts_at)}, ${w.location}.`,
     `Hind ${formatPrice(w.price_eur)} (${w.payment_note.toLowerCase()})${includes ? `, hinna sees: ${includes.toLowerCase()}` : ""}.`,

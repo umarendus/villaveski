@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   // Jagamise pildi font ja foto peavad serverisse kaasa minema
   outputFileTracingIncludes: {
     "/opitoad/opengraph-image": ["./src/assets/**"],
+    "/opitoad/[id]/opengraph-image": ["./src/assets/**"],
   },
   // Haldus koondati aadressile /haldus; vanad lingid (ka juba saadetud e-kirjades) suunatakse edasi
   async redirects() {

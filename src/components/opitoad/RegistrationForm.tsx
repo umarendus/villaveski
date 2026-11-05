@@ -6,6 +6,7 @@ import { Check, Mail, MailCheck } from "lucide-react";
 import Turnstile, { turnstileEnabled } from "./Turnstile";
 import Select from "@/components/ui/Select";
 import { useBodyScrollLock } from "@/components/ui/useBodyScrollLock";
+import Portal from "@/components/ui/Portal";
 
 type Props = {
   workshopId: string | null;
@@ -92,9 +93,11 @@ export default function RegistrationForm({ workshopId, mode, maxParticipants, on
   if (done) {
     return (
       <>
-      <AnimatePresence>
-        {showModal && <SentModal mode={done} email={sentTo} onClose={() => setShowModal(false)} />}
-      </AnimatePresence>
+      <Portal>
+        <AnimatePresence>
+          {showModal && <SentModal mode={done} email={sentTo} onClose={() => setShowModal(false)} />}
+        </AnimatePresence>
+      </Portal>
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
