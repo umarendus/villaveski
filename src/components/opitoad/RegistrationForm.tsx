@@ -5,11 +5,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Mail, MailCheck } from "lucide-react";
 import Turnstile, { turnstileEnabled } from "./Turnstile";
 import Select from "@/components/ui/Select";
+import { formatPrice } from "@/app/lib/opitoad";
+import { useBodyScrollLock } from "@/components/ui/useBodyScrollLock";
+import Portal from "@/components/ui/Portal";
 
 type Props = {
   workshopId: string | null;
   mode: "register" | "waitlist";
   maxParticipants: number;
+  priceEur?: number;
   onRegistered?: (seatsLeft: number | null) => void;
 };
 
@@ -20,7 +24,7 @@ const inputClass =
 
 const labelClass = "block text-sm text-gray-700 mb-1.5 tracking-wide";
 
-export default function RegistrationForm({ workshopId, mode, maxParticipants, onRegistered }: Props) {
+export default function RegistrationForm({ workshopId, mode, maxParticipants, priceEur, onRegistered }: Props) {
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -91,9 +95,11 @@ export default function RegistrationForm({ workshopId, mode, maxParticipants, on
   if (done) {
     return (
       <>
-      <AnimatePresence>
-        {showModal && <SentModal mode={done} email={sentTo} onClose={() => setShowModal(false)} />}
-      </AnimatePresence>
+      <Portal>
+        <AnimatePresence>
+          {showModal && <SentModal mode={done} email={sentTo} onClose={() => setShowModal(false)} />}
+        </AnimatePresence>
+      </Portal>
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -176,6 +182,17 @@ export default function RegistrationForm({ workshopId, mode, maxParticipants, on
             onChange={(v) => setParticipants(Number(v))}
             options={participantOptions.map((n) => ({ value: String(n), label: `${n} ${n === 1 ? "inimene" : "inimest"}` }))}
           />
+          {mode === "register" && priceEur !== undefined && priceEur > 0 && (
+            <p className="mt-2 text-sm text-gray-600">
+              Kokku:{" "}
+              <span className="text-black font-semibold">
+                {form.participants > 1
+                  ? `${form.participants} × ${formatPrice(priceEur)} = ${formatPrice(priceEur * form.participants)}`
+                  : formatPrice(priceEur)}
+              </span>{" "}
+              · maksmine kohapeal
+            </p>
+          )}
         </div>
       </div>
 
@@ -328,6 +345,7 @@ export function SheepPair({ size = "2rem" }: { size?: string }) {
 
 // Pärast vormi saatmist: selgitus, et registreerimine kehtib alles Villaveski kinnituskirjaga
 function SentModal({ mode, email, onClose }: { mode: "pending" | "waitlist"; email: string; onClose: () => void }) {
+  useBodyScrollLock();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -363,7 +381,7 @@ function SentModal({ mode, email, onClose }: { mode: "pending" | "waitlist"; ema
         exit={{ opacity: 0, y: 10 }}
         transition={{ duration: 0.25 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-7 md:p-9 text-left"
+        className="bg-white text-gray-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto p-7 md:p-9 text-left"
         style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
       >
         <SheepPair />

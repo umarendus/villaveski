@@ -5,6 +5,7 @@ import Image from "next/image";
 import { AlertTriangle, ImagePlus, Trash2, X } from "lucide-react";
 import { supabase } from "@/app/lib/supabaseClient";
 import { WORKSHOP_PHOTO_BUCKET, fromLocalInput, toLocalInput } from "@/app/lib/opitoad";
+import { useBodyScrollLock } from "@/components/ui/useBodyScrollLock";
 import type { Workshop, WorkshopStatus } from "../../../../types/supabase";
 
 type Props = {
@@ -75,6 +76,7 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [heldByRegistrations, setHeldByRegistrations] = useState<{ people: number; count: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  useBodyScrollLock();
 
   // Ootel ja kinnitatud registreeringud: kohtade arvu kontroll ja kustutamise hoiatus
   useEffect(() => {
@@ -168,15 +170,21 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
   const preview = filePreview ?? form.image_url;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-start md:items-center justify-center p-0 md:p-6 overflow-y-auto" onClick={() => !saving && onClose()}>
+    <div
+      className="fixed inset-0 z-50 bg-black/40 flex items-stretch md:items-center justify-center md:p-6"
+      onClick={() => !saving && onClose()}
+    >
       <form
         onSubmit={save}
         onClick={(e) => e.stopPropagation()}
-        className="bg-white w-full max-w-3xl md:rounded-2xl shadow-2xl min-h-screen md:min-h-0"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="workshop-editor-title"
+        className="bg-white text-gray-800 w-full max-w-3xl flex flex-col h-[100dvh] md:h-auto md:max-h-[calc(100dvh-3rem)] md:rounded-2xl shadow-2xl overflow-hidden"
         style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-white md:rounded-t-2xl z-10">
-          <h2 className="text-2xl text-black" style={{ fontFamily: "'Abril Fatface', serif" }}>
+        <div className="shrink-0 flex items-center justify-between px-5 md:px-6 py-4 border-b border-gray-200 bg-white">
+          <h2 id="workshop-editor-title" className="text-2xl text-black" style={{ fontFamily: "'Abril Fatface', serif" }}>
             {workshop ? "Muuda õpituba" : "Uus õpituba"}
           </h2>
           <button type="button" onClick={onClose} className="p-2 cursor-pointer text-gray-500 hover:text-black" aria-label="Sulge">
@@ -184,7 +192,7 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
           </button>
         </div>
 
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-5 content-start">
           {/* Pilt */}
           <div className="md:col-span-2">
             <span className={labelClass}>Pilt</span>
@@ -298,7 +306,7 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
           {error && <p className="md:col-span-2 text-red-800 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm">{error}</p>}
         </div>
 
-        <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-200 sticky bottom-0 bg-white md:rounded-b-2xl">
+        <div className="shrink-0 flex items-center justify-between gap-3 px-5 md:px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-gray-200 bg-white">
           {workshop ? (
             <button type="button" onClick={() => setConfirmDelete(true)} disabled={saving} className="flex items-center gap-2 text-red-800 hover:text-red-600 cursor-pointer text-sm">
               <Trash2 className="w-4 h-4" /> Kustuta
@@ -306,8 +314,8 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
           ) : (
             <span />
           )}
-          <div className="flex gap-3">
-            <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-full border border-gray-300 cursor-pointer hover:bg-gray-50">
+          <div className="flex gap-2 sm:gap-3">
+            <button type="button" onClick={onClose} className="px-4 sm:px-5 py-2.5 rounded-full border border-gray-300 text-gray-700 cursor-pointer hover:bg-gray-50">
               Tühista
             </button>
             <button type="submit" disabled={saving} className="px-6 py-2.5 rounded-full bg-black text-white cursor-pointer hover:bg-gray-800 disabled:opacity-50">
@@ -329,7 +337,7 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
             role="dialog"
             aria-modal="true"
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 md:p-8"
+            className="bg-white text-gray-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto p-6 md:p-8"
             style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
           >
             <div className="w-12 h-12 rounded-full bg-red-50 text-red-900 flex items-center justify-center mx-auto mb-4">

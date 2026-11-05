@@ -5,21 +5,24 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Calendar, Check, Clock, Euro, MapPin, ShoppingBasket } from "lucide-react";
 import { supabase } from "@/app/lib/supabaseClient";
-import { formatDate, formatPrice, formatTime, splitLines } from "@/app/lib/opitoad";
+import { formatDate, formatPrice, formatTime, hasStarted, splitLines, startOfTodayTallinnIso } from "@/app/lib/opitoad";
 import type { WorkshopPublic } from "../../../types/supabase";
 import RegistrationForm, { SheepPair } from "./RegistrationForm";
+import ShareWorkshop from "./ShareWorkshop";
 
 const abril = { fontFamily: "'Abril Fatface', serif" };
 const raleway = (weight: number) => ({ fontFamily: "var(--font-raleway)", fontWeight: weight });
 
-export default function WorkshopsSection() {
+// focusId: jagatud lingilt (/opitoad/<id>) avades keritakse selle õpitoa juurde
+export default function WorkshopsSection({ focusId }: { focusId?: string }) {
   const [workshops, setWorkshops] = useState<WorkshopPublic[] | null>(null);
 
   useEffect(() => {
     supabase
       .from("workshops_public")
       .select("*")
-      .gte("starts_at", new Date().toISOString())
+      // Õpituba on nähtav kuni toimumispäeva lõpuni, järgmisest päevast kaob
+      .gte("starts_at", startOfTodayTallinnIso())
       .order("starts_at", { ascending: true })
       .then(({ data, error }) => {
         if (error) console.error(error);
@@ -30,12 +33,13 @@ export default function WorkshopsSection() {
   // Sisu laetakse andmebaasist pärast lehe avanemist, seega #registreeru ankrule (avalehe nupp,
   // e-kirjade nupud) tuleb kerida alles siis, kui õpitoad on ekraanil
   useEffect(() => {
-    if (workshops === null || !window.location.hash) return;
-    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (workshops === null) return;
+    const id = focusId ? `opituba-${focusId}` : decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
     // Väike viivitus: Next.js-i ruuter ja piltide paigutus võivad muidu kerimise üle kirjutada
     const timer = setTimeout(() => document.getElementById(id)?.scrollIntoView({ block: "start" }), 250);
     return () => clearTimeout(timer);
-  }, [workshops]);
+  }, [workshops, focusId]);
 
   if (workshops === null) {
     return (
@@ -82,12 +86,14 @@ export default function WorkshopsSection() {
 
 function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic; first: boolean }) {
   const [w, setW] = useState(initial);
-  const full = w.seats_left <= 0 || w.status === "closed";
+  const started = hasStarted(w.starts_at);
+  const full = w.seats_left <= 0 || w.status === "closed" || started;
   const includes = splitLines(w.includes);
   const taken = w.capacity - w.seats_left;
 
   return (
-    <section id={first ? "registreeru" : undefined} className="py-14 md:py-20 scroll-mt-16">
+    <section id={`opituba-${w.id}`} className="relative py-14 md:py-20 scroll-mt-16">
+      {first && <div id="registreeru" className="absolute top-0 scroll-mt-16" aria-hidden="true" />}
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
           {/* Pilt */}
@@ -124,7 +130,7 @@ function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic;
             </div>
             {full && (
               <div className="absolute bottom-0 inset-x-0 bg-black/80 text-white text-center py-3 tracking-widest uppercase text-sm" style={raleway(700)}>
-                Kohad on täis
+                {started ? "Õpituba on toimunud" : "Kohad on täis"}
               </div>
             )}
           </motion.div>
@@ -132,7 +138,7 @@ function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic;
           {/* Info */}
           <div className="text-black">
             <p className="uppercase tracking-[0.25em] text-sm text-[#8a6f4f] mb-3" style={raleway(700)}>
-              {full ? "Õpituba on täis" : "Registreerimine on avatud"}
+              {started ? "Registreerimine on lõppenud" : full ? "Õpituba on täis" : "Registreerimine on avatud"}
             </p>
             <h2 className="leading-tight mb-6" style={{ ...abril, fontSize: "clamp(2rem, 4vw, 3.4rem)" }}>
               {w.title}
@@ -183,7 +189,12 @@ function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic;
               </p>
             )}
 
-            <SeatsMeter capacity={w.capacity} taken={taken} seatsLeft={w.seats_left} />
+            {!started && <SeatsMeter capacity={w.capacity} taken={taken} seatsLeft={w.seats_left} />}
+            {!started && (
+              <div className="mt-5">
+                <ShareWorkshop workshop={w} />
+              </div>
+            )}
           </div>
         </div>
 
@@ -192,9 +203,14 @@ function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic;
           <div className="text-center mb-8">
             <SheepPair />
             <h3 className="mt-3 text-black" style={{ ...abril, fontSize: "clamp(1.6rem, 3vw, 2.6rem)" }}>
-              {full ? "KAHJUKS ON KOHAD TÄIS" : "REGISTREERU"}
+              {started ? "REGISTREERIMINE ON LÕPPENUD" : full ? "KAHJUKS ON KOHAD TÄIS" : "REGISTREERU"}
             </h3>
-            {full ? (
+            {started ? (
+              <p className="mt-4 text-lg text-gray-800 leading-relaxed">
+                See õpituba on juba alanud või toimunud. Kui oled huviline, paneme sind järgmise õpitoa jaoks kirja –
+                anname sulle esimesena teada!
+              </p>
+            ) : full ? (
               <p className="mt-4 text-lg text-gray-800 leading-relaxed">
                 Selle õpitoa kohad on juba täis, kuid kui oled huviline, paneme sind tulevikuks kirja. Kohtade täitumisel
                 teeme uue õpitoa – anname sulle esimesena teada!
@@ -209,6 +225,7 @@ function WorkshopBlock({ workshop: initial, first }: { workshop: WorkshopPublic;
             workshopId={w.id}
             mode={full ? "waitlist" : "register"}
             maxParticipants={full ? 6 : w.seats_left}
+            priceEur={Number(w.price_eur)}
             onRegistered={(left) => left !== null && setW((prev) => ({ ...prev, seats_left: left }))}
           />
         </div>

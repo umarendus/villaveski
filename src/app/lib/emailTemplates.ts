@@ -4,6 +4,7 @@
 // nuppude lingid on fikseeritud, et kiri ei saaks katki minna.
 import type { Workshop, WorkshopRegistration } from "../../../types/supabase";
 import { formatDate, formatPrice, formatTime, splitLines } from "./opitoad";
+import { googleCalendarUrl, icsUrl } from "./calendar";
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.villaveski.ee").replace(/\/$/, "");
 
@@ -183,7 +184,8 @@ export const PLACEHOLDERS: { token: string; label: string; special?: boolean }[]
   { token: "{kuupaev}", label: "Kuupäev" },
   { token: "{kellaaeg}", label: "Kellaaeg" },
   { token: "{koht}", label: "Toimumiskoht" },
-  { token: "{hind}", label: "Hind" },
+  { token: "{hind}", label: "Hind (ühe osaleja)" },
+  { token: "{summa}", label: "Summa kokku (hind × osalejad)" },
   { token: "{vabu_kohti}", label: "Vabu kohti" },
   { token: "{kohti_kokku}", label: "Kohti kokku" },
   { token: "{pohjus}", label: "Huviliste nimekirja põhjus", special: true },
@@ -248,6 +250,7 @@ function placeholderValues(d: EmailData): Record<string, string> {
     kellaaeg: w ? formatTime(w.starts_at) : "",
     koht: w?.location ?? "",
     hind: w ? formatPrice(w.price_eur) : "",
+    summa: w ? priceText(w.price_eur, d.reg.participants) : "",
     vabu_kohti: String(seatsLeft),
     kohti_kokku: String(w?.capacity ?? ""),
     pohjus,
@@ -350,13 +353,19 @@ function participantsHtml(r: WorkshopRegistration) {
   return `${esc(r.participants)}<br><span style="color:#555;">${esc(r.name)}<br>${list}</span>`;
 }
 
-function workshopRows(w: Workshop): [string, string][] {
+// "30 €" või mitme osaleja korral "2 × 30 € = 60 €"
+export function priceText(priceEur: number, participants = 1) {
+  if (participants <= 1) return formatPrice(priceEur);
+  return `${participants} × ${formatPrice(priceEur)} = ${formatPrice(priceEur * participants)}`;
+}
+
+function workshopRows(w: Workshop, participants = 1): [string, string][] {
   return [
     ["Õpituba", `<strong>${esc(w.title)}</strong>`],
     ["Kuupäev", esc(formatDate(w.starts_at))],
     ["Kellaaeg", esc(formatTime(w.starts_at)) + (w.duration_text ? ` · ${esc(w.duration_text)}` : "")],
     ["Koht", esc(w.location)],
-    ["Hind", `${esc(formatPrice(w.price_eur))} · ${esc(w.payment_note)}`],
+    [participants > 1 ? "Hind kokku" : "Hind", `${esc(priceText(w.price_eur, participants))} · ${esc(w.payment_note)}`],
   ];
 }
 
@@ -365,6 +374,13 @@ function includesList(w: Workshop) {
   if (!items.length) return "";
   return `<p style="margin:16px 0 6px;"><strong>Hinna sees:</strong></p>
 <ul style="margin:0 0 16px;padding-left:20px;">${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>`;
+}
+
+// Kinnituskirjas: õpitoa lisamine kalendrisse
+function calendarButtons(w: Workshop) {
+  return `<p style="margin:8px 0 0;text-align:center;font-family:Raleway,Arial,sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:2px;color:${ACCENT};">Lisa kalendrisse</p>
+${button(googleCalendarUrl(w), "Google'i kalender", "secondary")}
+${button(icsUrl(w.id), "iPhone, Outlook ja muud", "secondary")}`;
 }
 
 function seatsBadge(seatsLeft: number, capacity: number | string) {
@@ -384,10 +400,10 @@ function adminRegistrationRows(d: EmailData): [string, string][] {
     ["Materjalid juurde", r.wants_materials ? "Jah, soovib osta" : "Ei"],
     ["Sõnum", esc(r.message || "–").replace(/\n/g, "<br>")],
     ...(w
-      ? ([["Õpituba", `${esc(w.title)} · ${esc(formatDate(w.starts_at))} kell ${esc(formatTime(w.starts_at))}`]] as [
-          string,
-          string,
-        ][])
+      ? ([
+          ["Õpituba", `${esc(w.title)} · ${esc(formatDate(w.starts_at))} kell ${esc(formatTime(w.starts_at))}`],
+          ["Summa", `${esc(priceText(w.price_eur, r.participants))} · ${esc(w.payment_note)}`],
+        ] as [string, string][])
       : []),
   ];
 }
@@ -411,11 +427,13 @@ export function renderEmail(key: TemplateKey, texts: TemplateTexts, d: EmailData
   switch (key) {
     case "registration_received":
       image = w?.image_url ?? null;
-      body = `${intro}${w ? detailsTable([...workshopRows(w), ["Osalejaid", participantsHtml(r)]]) : ""}${button(`${SITE_URL}/opitoad`, label)}${outro}`;
+      body = `${intro}${w ? detailsTable([...workshopRows(w, r.participants), ["Osalejaid", participantsHtml(r)]]) : ""}${button(`${SITE_URL}/opitoad`, label)}${outro}`;
       break;
     case "registration_confirmed":
       image = w?.image_url ?? null;
-      body = `${intro}${w ? detailsTable([...workshopRows(w), ["Osalejaid", participantsHtml(r)]]) : ""}${w ? includesList(w) : ""}${
+      body = `${intro}${w ? detailsTable([...workshopRows(w, r.participants), ["Osalejaid", participantsHtml(r)]]) : ""}${
+        w ? calendarButtons(w) : ""
+      }${w ? includesList(w) : ""}${
         w?.extras ? `<p style="margin:0 0 16px;">${esc(w.extras)}</p>` : ""
       }${button(`${SITE_URL}/opitoad`, label)}${outro}`;
       break;
@@ -429,7 +447,7 @@ export function renderEmail(key: TemplateKey, texts: TemplateTexts, d: EmailData
         d.note
           ? `<p style="background:#f7f4ef;border-left:3px solid ${ACCENT};padding:12px 16px;margin:0 0 16px;">${esc(d.note).replace(/\n/g, "<br>")}</p>`
           : ""
-      }${w ? detailsTable([...workshopRows(w), ["Osalejaid", participantsHtml(r)]]) : ""}${button(`${SITE_URL}/opitoad#registreeru`, label)}${outro}`;
+      }${w ? detailsTable([...workshopRows(w, r.participants), ["Osalejaid", participantsHtml(r)]]) : ""}${button(`${SITE_URL}/opitoad#registreeru`, label)}${outro}`;
       break;
     case "admin_new_registration":
     case "admin_new_waitlist":

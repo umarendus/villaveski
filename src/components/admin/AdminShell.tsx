@@ -157,7 +157,7 @@ export default function AdminShell({ children }: { children: (session: Session) 
           <form
             onSubmit={handleLogin}
             method="post"
-            className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-80 flex flex-col gap-4"
+            className="bg-white border border-gray-200 p-7 sm:p-8 rounded-xl shadow-lg w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto flex flex-col gap-4"
             style={raleway}
           >
             <div className="flex justify-center" aria-hidden="true">
@@ -219,7 +219,7 @@ export default function AdminShell({ children }: { children: (session: Session) 
         >
           <form
             onSubmit={handleChangePassword}
-            className="bg-white border border-gray-200 p-8 rounded-xl shadow-lg w-80 flex flex-col gap-4"
+            className="bg-white border border-gray-200 p-7 sm:p-8 rounded-xl shadow-lg w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto flex flex-col gap-4"
             style={raleway}
             onClick={(e) => e.stopPropagation()}
           >

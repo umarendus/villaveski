@@ -83,3 +83,14 @@ export const STATUS_LABELS = {
 } as const;
 
 export const WORKSHOP_PHOTO_BUCKET = "workshop-photos";
+
+// Tänase päeva algus Tallinna ajas (ISO). Õpituba on lehel nähtav kuni toimumispäeva lõpuni,
+// järgmisest päevast kaob.
+export function startOfTodayTallinnIso() {
+  const today = new Intl.DateTimeFormat("sv-SE", { timeZone: TZ }).format(new Date());
+  return fromLocalInput(`${today}T00:00`);
+}
+
+export function hasStarted(iso: string) {
+  return new Date(iso).getTime() <= Date.now();
+}

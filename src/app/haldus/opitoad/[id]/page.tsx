@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, Download, Euro, MapPin, Pencil } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import WorkshopEditor from "@/components/admin/opitoad/WorkshopEditor";
+import ShareWorkshop from "@/components/opitoad/ShareWorkshop";
 import RegistrationCard, { downloadCsv, registrationsToCsv, seatsTaken } from "@/components/admin/opitoad/RegistrationCard";
 import { supabase } from "../../../lib/supabaseClient";
 import { formatDate, formatPrice, formatTime } from "../../../lib/opitoad";
@@ -90,12 +91,15 @@ function Detail() {
             <h1 className="text-3xl md:text-4xl text-black" style={abril}>
               {workshop.title}
             </h1>
+            <div className="flex gap-2 shrink-0">
+            {workshop.status !== "draft" && <ShareWorkshop workshop={workshop} variant="admin" className="py-2" />}
             <button
               onClick={() => setEditing(true)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-300 text-sm cursor-pointer hover:bg-gray-50 shrink-0"
             >
               <Pencil className="w-4 h-4" /> Muuda
             </button>
+            </div>
           </div>
           <div className="mt-3 space-y-1 text-gray-700 text-sm">
             <p className="flex items-center gap-2">
