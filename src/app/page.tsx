@@ -10,6 +10,7 @@ import { useState, useEffect, useRef } from "react";
 import emailjs from "@emailjs/browser";
 import { useRouter } from "next/navigation";
 import { supabase } from "./lib/supabaseClient";
+import HomeWorkshopTeaser from "@/components/opitoad/HomeWorkshopTeaser";
 
 
 const steps = [
@@ -316,6 +317,8 @@ useEffect(() => {
 
 
     
+<HomeWorkshopTeaser />
+
 <section id="meist" className="w-full min-h-screen relative">
   {/* Läbipaistev overlay taustapildi jaoks */}
   
