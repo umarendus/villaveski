@@ -16,7 +16,7 @@ const STATUS_STYLES: Record<RegistrationStatus, string> = {
 export async function changeRegistrationStatus(
   id: string,
   status: RegistrationStatus,
-  opts: { notify?: boolean; workshopId?: string | null } = {}
+  opts: { notify?: boolean; workshopId?: string | null; force?: boolean } = {}
 ) {
   const { data } = await supabase.auth.getSession();
   const res = await fetch(`/api/opitoad/registreeringud/${id}`, {
@@ -25,19 +25,22 @@ export async function changeRegistrationStatus(
     body: JSON.stringify({ status, ...opts }),
   });
   const json = await res.json();
+  if (res.status === 409 && json.code === "no_seats" && !opts.force) {
+    if (!confirm(`${json.error}\nKas lisad siiski üle kohtade piiri?`)) throw new Error("Tühistatud – vabu kohti pole.");
+    return changeRegistrationStatus(id, status, { ...opts, force: true });
+  }
   if (!res.ok) throw new Error(json.error || "Muutmine ebaõnnestus");
   return json as { registration: WorkshopRegistration; emailSent: boolean; emailError: string | null };
 }
 
 type Props = {
   reg: WorkshopRegistration;
-  seatsLeft: number;
   onChanged: (reg: WorkshopRegistration | null) => void;
   // huviliste nimekirjas: võimalus tõsta registreering mõnele õpitoale
   moveTargets?: Workshop[];
 };
 
-export default function RegistrationCard({ reg, seatsLeft, onChanged, moveTargets }: Props) {
+export default function RegistrationCard({ reg, onChanged, moveTargets }: Props) {
   const [busy, setBusy] = useState(false);
   const [notify, setNotify] = useState(true);
   const [note, setNote] = useState("");
@@ -56,11 +59,8 @@ export default function RegistrationCard({ reg, seatsLeft, onChanged, moveTarget
     }
   }
 
-  async function confirmReg() {
-    // Ootel registreering hoiab kohta juba kinni; huviliste nimekirjast kinnitamine vajab vaba kohta
-    if (reg.status === "waitlist" && reg.participants > seatsLeft) {
-      if (!confirm("Vabu kohti ei ole piisavalt. Kas kinnitad siiski (üle piiri)?")) return;
-    }
+  // Kohtade piisavust kontrollib server; puuduse korral küsitakse kinnitust
+  function confirmReg() {
     run("confirmed", { notify });
   }
 
@@ -216,9 +216,14 @@ export function registrationsToCsv(regs: WorkshopRegistration[], workshops: Work
     new Date(r.created_at).toLocaleString("et-EE"),
   ]);
   const csv = [header, ...rows]
-    .map((row) => row.map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(";"))
+    .map((row) => row.map((v) => `"${csvSafe(String(v ?? "")).replace(/"/g, '""')}"`).join(";"))
     .join("\n");
   return "﻿" + csv;
+}
+
+// Excel ei tohi avalike väljade sisu valemina käivitada (=, +, -, @ algus)
+function csvSafe(value: string) {
+  return /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
 }
 
 export function downloadCsv(name: string, csv: string) {

@@ -299,7 +299,6 @@ function Waitlist({
               </p>
               <RegistrationCard
                 reg={r}
-                seatsLeft={0}
                 moveTargets={upcoming.filter((w) => w.id !== r.workshop_id)}
                 onChanged={(reg) => onChanged(r.id, reg)}
               />

@@ -160,7 +160,7 @@ function Detail() {
             ) : (
               <div className="space-y-3">
                 {list.map((r) => (
-                  <RegistrationCard key={r.id} reg={r} seatsLeft={left} onChanged={(reg) => updateReg(r.id, reg)} />
+                  <RegistrationCard key={r.id} reg={r} onChanged={(reg) => updateReg(r.id, reg)} />
                 ))}
               </div>
             )}

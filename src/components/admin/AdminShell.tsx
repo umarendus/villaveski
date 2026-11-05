@@ -50,6 +50,7 @@ export function AdminNav({ right }: { right?: React.ReactNode }) {
 export default function AdminShell({ children }: { children: (session: Session) => React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -61,9 +62,15 @@ export default function AdminShell({ children }: { children: (session: Session) 
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, s) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s);
       setReady(true);
+      if (!s) return setIsAdmin(null);
+      if (event === "TOKEN_REFRESHED") return;
+      // Supabase'i päringut ei tehta otse kuulaja sees (võib lukustuda), vaid järgmisel tsüklil
+      setTimeout(() => {
+        supabase.rpc("is_workshop_admin").then(({ data }) => setIsAdmin(data === true));
+      }, 0);
     });
     return () => listener.subscription.unsubscribe();
   }, []);
@@ -133,7 +140,17 @@ export default function AdminShell({ children }: { children: (session: Session) 
         }
       />
 
-      {ready && session && children(session)}
+      {ready && session && isAdmin && children(session)}
+
+      {ready && session && isAdmin === false && (
+        <div className="max-w-md mx-auto mt-24 px-6 text-center" style={raleway}>
+          <h2 className="text-2xl text-black mb-3">Ligipääs puudub</h2>
+          <p className="text-gray-600">
+            Kontol {session.user.email} pole õpitubade halduse õigust. Vajadusel lisa e-post Supabase&apos;i tabelisse
+            workshop_admins.
+          </p>
+        </div>
+      )}
 
       {ready && !session && (
         <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4">

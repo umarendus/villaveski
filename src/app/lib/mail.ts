@@ -224,7 +224,12 @@ ${extras}
 }
 
 // 4) Huvilisele, kui kohad on täis (või üldine huviliste nimekiri)
-export function waitlistReceivedEmail(w: Workshop | null, r: WorkshopRegistration) {
+export function waitlistReceivedEmail(w: Workshop | null, r: WorkshopRegistration, seatsLeft = 0) {
+  const reason = !w
+    ? "Hetkel ei ole meil avatud õpitubasid, kuid"
+    : seatsLeft > 0
+      ? `Õpitoa <strong>${esc(w.title)}</strong> (${esc(formatDate(w.starts_at))}) registreerimine on kahjuks suletud, kuid`
+      : `Õpitoa <strong>${esc(w.title)}</strong> (${esc(formatDate(w.starts_at))}) kohad on kahjuks juba täis, kuid`;
   return {
     subject: "Oled meie huviliste nimekirjas – Sörve Villaveski",
     html: layout({
@@ -232,11 +237,7 @@ export function waitlistReceivedEmail(w: Workshop | null, r: WorkshopRegistratio
       heading: "Paneme sind kirja!",
       image: w?.image_url ?? null,
       body: `<p>Tere, ${esc(r.name)}!</p>
-<p>Aitäh huvi eest! ${
-        w
-          ? `Õpitoa <strong>${esc(w.title)}</strong> (${esc(formatDate(w.starts_at))}) kohad on kahjuks juba täis, kuid`
-          : "Hetkel ei ole meil avatud õpitubasid, kuid"
-      } lisasime sind huviliste nimekirja. Kui avame uue õpitoa, anname sulle esimesena teada.</p>
+<p>Aitäh huvi eest! ${reason} lisasime sind huviliste nimekirja. Kui avame uue õpitoa, anname sulle esimesena teada.</p>
 <p>Villaste tervitustega<br><strong>Egon ja Merike</strong><br>Sörve Villaveski</p>`,
     }),
   };

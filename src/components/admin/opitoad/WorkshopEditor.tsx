@@ -90,14 +90,13 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
       let imageUrl = form.image_url;
       if (file) {
         imageUrl = await uploadWorkshopPhoto(file);
-        if (workshop?.image_url && workshop.image_url !== imageUrl) await removeWorkshopPhoto(workshop.image_url);
       }
       const payload = {
         ...form,
         title: form.title.trim(),
         starts_at: fromLocalInput(form.starts_at),
         price_eur: Number(form.price_eur) || 0,
-        capacity: Math.floor(Number(form.capacity)),
+        capacity: Math.floor(Number(form.capacity) || 0),
         reserved_offline: Math.max(0, Math.floor(Number(form.reserved_offline) || 0)),
         image_url: imageUrl,
         updated_at: new Date().toISOString(),
@@ -106,7 +105,11 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
         ? supabase.from("workshops").update(payload).eq("id", workshop.id).select("*").single()
         : supabase.from("workshops").insert(payload).select("*").single();
       const { data, error } = await query;
-      if (error || !data) throw error || new Error("Salvestamine ebaõnnestus");
+      if (error || !data) {
+        if (file && imageUrl !== form.image_url) await removeWorkshopPhoto(imageUrl);
+        throw error || new Error("Salvestamine ebaõnnestus");
+      }
+      if (file && workshop?.image_url && workshop.image_url !== imageUrl) await removeWorkshopPhoto(workshop.image_url);
       onSaved(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Salvestamine ebaõnnestus");
@@ -119,6 +122,16 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
     if (!workshop) return;
     if (!confirm(`Kustutada õpituba "${workshop.title}"? Registreeringud jäävad alles huviliste nimekirja.`)) return;
     setSaving(true);
+    // Ootel ja kinnitatud registreeringud liiguvad huviliste nimekirja, et nad halduses nähtavaks jääksid
+    const { error: moveError } = await supabase
+      .from("workshop_registrations")
+      .update({ status: "waitlist", confirmed_at: null })
+      .eq("workshop_id", workshop.id)
+      .in("status", ["pending", "confirmed"]);
+    if (moveError) {
+      setSaving(false);
+      return setError(moveError.message);
+    }
     const { error } = await supabase.from("workshops").delete().eq("id", workshop.id);
     setSaving(false);
     if (error) return setError(error.message);

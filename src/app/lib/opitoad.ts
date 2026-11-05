@@ -43,12 +43,29 @@ export function toLocalInput(iso: string) {
 }
 
 // "YYYY-MM-DDTHH:mm" Tallinna ajas -> ISO (arvestab suve-/talveaega)
+const partsFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: TZ,
+  hourCycle: "h23",
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+});
+
+// Tallinna aja nihe UTC suhtes antud hetkel (ei sõltu brauseri ajavööndist)
+function tallinnOffsetMs(at: Date) {
+  const p = Object.fromEntries(partsFormatter.formatToParts(at).map((x) => [x.type, Number(x.value)]));
+  const asUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+  return asUtc - Math.floor(at.getTime() / 1000) * 1000;
+}
+
 export function fromLocalInput(value: string) {
-  const asUtc = new Date(`${value}:00Z`);
-  const tallinn = new Date(asUtc.toLocaleString("en-US", { timeZone: TZ }));
-  const utc = new Date(asUtc.toLocaleString("en-US", { timeZone: "UTC" }));
-  const offsetMs = tallinn.getTime() - utc.getTime();
-  return new Date(asUtc.getTime() - offsetMs).toISOString();
+  const asUtc = new Date(`${value}:00Z`).getTime();
+  // Esimene hinnang, siis nihe tegeliku hetke järgi (suve-/talveaja vahetuse ümber)
+  const guess = asUtc - tallinnOffsetMs(new Date(asUtc));
+  return new Date(asUtc - tallinnOffsetMs(new Date(guess))).toISOString();
 }
 
 export function splitLines(text: string) {

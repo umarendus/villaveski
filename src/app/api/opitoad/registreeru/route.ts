@@ -39,12 +39,17 @@ async function verifyTurnstile(token: string | undefined, ip: string) {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) return true; // Turnstile pole seadistatud – jäävad meepott, ajakontroll ja IP-piirang
   if (!token) return false;
-  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    body: new URLSearchParams({ secret, response: token, remoteip: ip }),
-  });
-  const data = (await res.json()) as { success?: boolean };
-  return data.success === true;
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body: new URLSearchParams({ secret, response: token, remoteip: ip }),
+    });
+    const data = (await res.json()) as { success?: boolean };
+    return data.success === true;
+  } catch (err) {
+    console.error("Turnstile kontroll ebaõnnestus", err);
+    return false;
+  }
 }
 
 export async function POST(request: Request) {
@@ -158,7 +163,7 @@ export async function POST(request: Request) {
       if (workshop) {
         const toUser =
           result.reg_status === "waitlist"
-            ? waitlistReceivedEmail(workshop, reg)
+            ? waitlistReceivedEmail(workshop, reg, result.seats_left)
             : registrationReceivedEmail(workshop, reg);
         const toAdmin = adminNewRegistrationEmail(workshop, reg, result.seats_left);
         mails.push(sendMail(reg.email, toUser.subject, toUser.html));

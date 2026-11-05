@@ -17,7 +17,14 @@ export function getSupabaseAdmin() {
 export async function getAdminUser(request: Request) {
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   if (!token) return null;
-  const { data, error } = await getSupabaseAdmin().auth.getUser(token);
-  if (error || !data.user) return null;
-  return data.user;
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data.user?.email) return null;
+  // Ainult workshop_admins tabelis olevad e-postid on haldurid
+  const { data: admin } = await supabase
+    .from("workshop_admins")
+    .select("email")
+    .eq("email", data.user.email.toLowerCase())
+    .maybeSingle();
+  return admin ? data.user : null;
 }

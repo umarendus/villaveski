@@ -24,6 +24,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     status?: RegistrationStatus;
     notify?: boolean;
     workshopId?: string | null;
+    force?: boolean; // haldur kinnitab teadlikult üle kohtade piiri
   };
   if (!body.status || !STATUSES.includes(body.status)) {
     return NextResponse.json({ error: "Vigane staatus." }, { status: 400 });
@@ -32,6 +33,26 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const supabase = getSupabaseAdmin();
   const { data: current } = await supabase.from("workshop_registrations").select("*").eq("id", id).single();
   if (!current) return NextResponse.json({ error: "Registreeringut ei leitud." }, { status: 404 });
+
+  // Kas registreering hakkab kohta hõivama (huvilistest/tühistatutest või teisele õpitoale)?
+  const targetWorkshopId = body.workshopId !== undefined ? body.workshopId : current.workshop_id;
+  const holdsSeat = (s: RegistrationStatus) => s === "pending" || s === "confirmed";
+  const startsHolding =
+    holdsSeat(body.status) && (!holdsSeat(current.status) || targetWorkshopId !== current.workshop_id);
+  if (holdsSeat(body.status) && !targetWorkshopId) {
+    return NextResponse.json({ error: "Vali enne õpituba, kuhu registreering kuulub." }, { status: 400 });
+  }
+  if (startsHolding && targetWorkshopId && !body.force) {
+    const { data: taken } = await supabase.rpc("workshop_seats_taken", { w_id: targetWorkshopId });
+    const { data: w } = await supabase.from("workshops").select("capacity").eq("id", targetWorkshopId).single();
+    const left = (w?.capacity ?? 0) - (taken ?? 0);
+    if (left < current.participants) {
+      return NextResponse.json(
+        { error: `Vabu kohti on ${Math.max(left, 0)}, registreeringus ${current.participants} inimest.`, code: "no_seats" },
+        { status: 409 }
+      );
+    }
+  }
 
   const update: { status: RegistrationStatus; confirmed_at?: string | null; workshop_id?: string | null } = {
     status: body.status,

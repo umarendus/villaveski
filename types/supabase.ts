@@ -95,6 +95,12 @@ export type Database = {
         Update: Partial<WorkshopGalleryItem>;
         Relationships: [];
       };
+      workshop_admins: {
+        Row: { email: string };
+        Insert: { email: string };
+        Update: { email?: string };
+        Relationships: [];
+      };
     };
     Views: {
       workshops_public: {
@@ -116,6 +122,10 @@ export type Database = {
           p_extra_participants?: ExtraParticipant[];
         };
         Returns: { registration_id: string; reg_status: RegistrationStatus; seats_left: number }[];
+      };
+      is_workshop_admin: {
+        Args: Record<string, never>;
+        Returns: boolean;
       };
       workshop_seats_taken: {
         Args: { w_id: string };
