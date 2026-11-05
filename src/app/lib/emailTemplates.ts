@@ -4,6 +4,7 @@
 // nuppude lingid on fikseeritud, et kiri ei saaks katki minna.
 import type { Workshop, WorkshopRegistration } from "../../../types/supabase";
 import { formatDate, formatPrice, formatTime, splitLines } from "./opitoad";
+import { googleCalendarUrl, icsUrl } from "./calendar";
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.villaveski.ee").replace(/\/$/, "");
 
@@ -367,6 +368,13 @@ function includesList(w: Workshop) {
 <ul style="margin:0 0 16px;padding-left:20px;">${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>`;
 }
 
+// Kinnituskirjas: õpitoa lisamine kalendrisse
+function calendarButtons(w: Workshop) {
+  return `<p style="margin:8px 0 0;text-align:center;font-family:Raleway,Arial,sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:2px;color:${ACCENT};">Lisa kalendrisse</p>
+${button(googleCalendarUrl(w), "Google'i kalender", "secondary")}
+${button(icsUrl(w.id), "iPhone, Outlook ja muud", "secondary")}`;
+}
+
 function seatsBadge(seatsLeft: number, capacity: number | string) {
   return `<div style="text-align:center;margin:8px 0 24px;">
   <div style="font-family:'Abril Fatface',Georgia,serif;font-size:56px;line-height:1;color:#000;">${esc(seatsLeft)}</div>
@@ -415,7 +423,9 @@ export function renderEmail(key: TemplateKey, texts: TemplateTexts, d: EmailData
       break;
     case "registration_confirmed":
       image = w?.image_url ?? null;
-      body = `${intro}${w ? detailsTable([...workshopRows(w), ["Osalejaid", participantsHtml(r)]]) : ""}${w ? includesList(w) : ""}${
+      body = `${intro}${w ? detailsTable([...workshopRows(w), ["Osalejaid", participantsHtml(r)]]) : ""}${
+        w ? calendarButtons(w) : ""
+      }${w ? includesList(w) : ""}${
         w?.extras ? `<p style="margin:0 0 16px;">${esc(w.extras)}</p>` : ""
       }${button(`${SITE_URL}/opitoad`, label)}${outro}`;
       break;
