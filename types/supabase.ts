@@ -51,6 +51,18 @@ export type WorkshopGalleryItem = {
   created_at: string;
 };
 
+export type EmailTemplateRow = {
+  key: string;
+  subject: string;
+  preheader: string;
+  heading: string;
+  intro: string;
+  button_label: string;
+  outro: string;
+  updated_at: string;
+  updated_by: string | null;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -93,6 +105,12 @@ export type Database = {
         Row: WorkshopGalleryItem;
         Insert: Partial<Omit<WorkshopGalleryItem, "image_url">> & Pick<WorkshopGalleryItem, "image_url">;
         Update: Partial<WorkshopGalleryItem>;
+        Relationships: [];
+      };
+      email_templates: {
+        Row: EmailTemplateRow;
+        Insert: Omit<EmailTemplateRow, "updated_at" | "updated_by"> & Partial<Pick<EmailTemplateRow, "updated_at" | "updated_by">>;
+        Update: Partial<EmailTemplateRow>;
         Relationships: [];
       };
       workshop_admins: {

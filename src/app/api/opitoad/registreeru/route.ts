@@ -1,14 +1,7 @@
 import { NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { getSupabaseAdmin } from "../../../lib/supabaseAdmin";
-import {
-  ADMIN_EMAIL,
-  adminGeneralWaitlistEmail,
-  adminNewRegistrationEmail,
-  registrationReceivedEmail,
-  sendMail,
-  waitlistReceivedEmail,
-} from "../../../lib/mail";
+import { ADMIN_EMAIL, buildEmail, sendMail } from "../../../lib/mail";
 
 export const runtime = "nodejs";
 
@@ -160,20 +153,14 @@ export async function POST(request: Request) {
 
     if (reg) {
       const mails: Promise<void>[] = [];
-      if (workshop) {
-        const toUser =
-          result.reg_status === "waitlist"
-            ? waitlistReceivedEmail(workshop, reg, result.seats_left)
-            : registrationReceivedEmail(workshop, reg);
-        const toAdmin = adminNewRegistrationEmail(workshop, reg, result.seats_left);
-        mails.push(sendMail(reg.email, toUser.subject, toUser.html));
-        mails.push(sendMail(ADMIN_EMAIL, toAdmin.subject, toAdmin.html, reg.email));
-      } else {
-        const toUser = waitlistReceivedEmail(null, reg);
-        const toAdmin = adminGeneralWaitlistEmail(reg);
-        mails.push(sendMail(reg.email, toUser.subject, toUser.html));
-        mails.push(sendMail(ADMIN_EMAIL, toAdmin.subject, toAdmin.html, reg.email));
-      }
+      const data = { workshop: workshop ?? null, reg, seatsLeft: result.seats_left };
+      const waitlist = result.reg_status === "waitlist";
+      const [toUser, toAdmin] = await Promise.all([
+        buildEmail(waitlist ? "waitlist_received" : "registration_received", data),
+        buildEmail(!workshop ? "admin_general_waitlist" : waitlist ? "admin_new_waitlist" : "admin_new_registration", data),
+      ]);
+      mails.push(sendMail(reg.email, toUser.subject, toUser.html));
+      mails.push(sendMail(ADMIN_EMAIL, toAdmin.subject, toAdmin.html, reg.email));
       const results = await Promise.allSettled(mails);
       results.forEach((r) => r.status === "rejected" && console.error("E-kirja saatmine ebaõnnestus", r.reason));
     }

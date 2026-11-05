@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminUser, getSupabaseAdmin } from "../../../../lib/supabaseAdmin";
-import {
-  ADMIN_EMAIL,
-  adminRegistrationRemovedEmail,
-  registrationConfirmedEmail,
-  registrationRemovedEmail,
-  sendMail,
-} from "../../../../lib/mail";
+import { ADMIN_EMAIL, buildEmail, sendMail } from "../../../../lib/mail";
 import type { RegistrationStatus } from "../../../../../../types/supabase";
 
 export const runtime = "nodejs";
@@ -88,7 +82,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { data: workshop } = await supabase.from("workshops").select("*").eq("id", updated.workshop_id).single();
     if (workshop) {
       try {
-        const mail = registrationConfirmedEmail(workshop, updated);
+        const mail = await buildEmail("registration_confirmed", { workshop, reg: updated });
         await sendMail(updated.email, mail.subject, mail.html);
         emailSent = true;
       } catch (err) {
@@ -108,11 +102,19 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       const { data: taken } = await supabase.rpc("workshop_seats_taken", { w_id: workshop.id });
       const seatsLeft = Math.max(workshop.capacity - (taken ?? 0), 0);
       const mails: Promise<void>[] = [];
+      const data = {
+        workshop,
+        reg: updated,
+        seatsLeft,
+        note,
+        removedBy: user.email ?? "haldur",
+        participantNotified: notifyParticipant,
+      };
       if (notifyParticipant) {
-        const toUser = registrationRemovedEmail(workshop, updated, note);
+        const toUser = await buildEmail("registration_removed", data);
         mails.push(sendMail(updated.email, toUser.subject, toUser.html));
       }
-      const toAdmin = adminRegistrationRemovedEmail(workshop, updated, seatsLeft, user.email ?? "haldur", note, notifyParticipant);
+      const toAdmin = await buildEmail("admin_registration_removed", data);
       mails.push(sendMail(ADMIN_EMAIL, toAdmin.subject, toAdmin.html, updated.email));
       const results = await Promise.allSettled(mails);
       results.forEach((res) => res.status === "rejected" && console.error("Eemaldamise kiri ebaõnnestus", res.reason));

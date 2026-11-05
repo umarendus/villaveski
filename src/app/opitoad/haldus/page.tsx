@@ -6,12 +6,13 @@ import Link from "next/link";
 import { Calendar, ChevronRight, Download, ExternalLink, ImagePlus, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import WorkshopEditor, { removeWorkshopPhoto, uploadWorkshopPhoto } from "@/components/admin/opitoad/WorkshopEditor";
+import EmailTemplatesManager from "@/components/admin/opitoad/EmailTemplatesManager";
 import RegistrationCard, { downloadCsv, registrationsToCsv, seatsTaken } from "@/components/admin/opitoad/RegistrationCard";
 import { supabase } from "../../lib/supabaseClient";
 import { formatDate, formatTime } from "../../lib/opitoad";
 import type { Workshop, WorkshopGalleryItem, WorkshopRegistration } from "../../../../types/supabase";
 
-type Tab = "opitoad" | "huvilised" | "galerii";
+type Tab = "opitoad" | "huvilised" | "galerii" | "kirjad";
 
 const abril = { fontFamily: "'Abril Fatface', serif" };
 
@@ -49,7 +50,7 @@ function Dashboard() {
   const waitlist = regs.filter((r) => r.status === "waitlist");
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8 md:py-12" style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}>
+    <main className={`${tab === "kirjad" ? "max-w-[1500px]" : "max-w-6xl"} mx-auto px-4 py-8 md:py-12`} style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div>
           <h1 className="text-4xl md:text-5xl text-black" style={abril}>
@@ -86,6 +87,7 @@ function Dashboard() {
             ["opitoad", "Õpitoad", workshops.length],
             ["huvilised", "Huvilised", waitlist.length],
             ["galerii", "Galerii", null],
+            ["kirjad", "E-kirjad", null],
           ] as [Tab, string, number | null][]
         ).map(([key, label, count]) => (
           <button
@@ -147,8 +149,10 @@ function Dashboard() {
             setRegs((prev) => (reg ? prev.map((r) => (r.id === id ? reg : r)) : prev.filter((r) => r.id !== id)))
           }
         />
-      ) : (
+      ) : tab === "galerii" ? (
         <GalleryManager workshops={workshops} />
+      ) : (
+        <EmailTemplatesManager workshops={workshops} />
       )}
 
       {editing && (
