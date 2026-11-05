@@ -43,3 +43,6 @@ next-env.d.ts
 
 # logs
 server.log
+
+# supabase cli
+supabase/.temp
