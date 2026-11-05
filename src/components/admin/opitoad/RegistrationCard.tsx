@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Mail, Phone, RotateCcw, ShoppingBasket, Trash2, UserMinus, Users, X } from "lucide-react";
+import { Check, ListPlus, Mail, Phone, RotateCcw, ShoppingBasket, Trash2, UserMinus, Users, X } from "lucide-react";
+import Portal from "@/components/ui/Portal";
 import { supabase } from "@/app/lib/supabaseClient";
 import { STATUS_LABELS, formatShortDate } from "@/app/lib/opitoad";
 import { useBodyScrollLock } from "@/components/ui/useBodyScrollLock";
@@ -32,7 +33,12 @@ export async function changeRegistrationStatus(
     return changeRegistrationStatus(id, status, { ...opts, force: true });
   }
   if (!res.ok) throw new Error(json.error || "Muutmine ebaõnnestus");
-  return json as { registration: WorkshopRegistration; emailSent: boolean; emailError: string | null };
+  return json as {
+    registration: WorkshopRegistration;
+    emailSent: boolean;
+    emailError: string | null;
+    movedToWaitlist?: number;
+  };
 }
 
 type Props = {
@@ -40,13 +46,17 @@ type Props = {
   onChanged: (reg: WorkshopRegistration | null) => void;
   // huviliste nimekirjas: võimalus tõsta registreering mõnele õpitoale
   moveTargets?: Workshop[];
+  // kui muudatus mõjutas ka teisi registreeringuid (nt kohad täitusid), laeb nimekirja uuesti
+  onReload?: () => void;
 };
 
-export default function RegistrationCard({ reg, onChanged, moveTargets }: Props) {
+export default function RegistrationCard({ reg, onChanged, moveTargets, onReload }: Props) {
   const [busy, setBusy] = useState(false);
   const [notify, setNotify] = useState(true);
   const [note, setNote] = useState("");
+  const [info, setInfo] = useState("");
   const [removing, setRemoving] = useState(false);
+  const [toWaitlist, setToWaitlist] = useState(false);
 
   async function run(
     status: RegistrationStatus,
@@ -54,10 +64,16 @@ export default function RegistrationCard({ reg, onChanged, moveTargets }: Props)
   ) {
     setBusy(true);
     setNote("");
+    setInfo("");
     try {
       const res = await changeRegistrationStatus(reg.id, status, opts);
       onChanged(res.registration);
       if (res.emailError) setNote(res.emailError);
+      if (res.movedToWaitlist) {
+        // Kohad täitusid: ülejäänud ootel registreeringud liikusid huviliste nimekirja
+        alertMoved(res.movedToWaitlist);
+        onReload?.();
+      }
       return true;
     } catch (err) {
       setNote(err instanceof Error ? err.message : "Viga");
@@ -68,6 +84,14 @@ export default function RegistrationCard({ reg, onChanged, moveTargets }: Props)
   }
 
   const holdsSeat = reg.status === "pending" || reg.status === "confirmed";
+
+  function alertMoved(n: number) {
+    window.dispatchEvent(
+      new CustomEvent("opitoad:info", {
+        detail: `Kohad on nüüd täis – ${n} ootel ${n === 1 ? "registreering tõsteti" : "registreeringut tõsteti"} huviliste nimekirja ja neid teavitati e-kirjaga.`,
+      })
+    );
+  }
 
   // Kohtade piisavust kontrollib server; puuduse korral küsitakse kinnitust
   function confirmReg() {
@@ -132,6 +156,7 @@ export default function RegistrationCard({ reg, onChanged, moveTargets }: Props)
             <p className="mt-3 text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2 whitespace-pre-line">{reg.message}</p>
           )}
           {note && <p className="mt-2 text-sm text-red-800">{note}</p>}
+          {info && <p className="mt-2 text-sm text-green-800">{info}</p>}
         </div>
 
         <div className="flex flex-col items-stretch md:items-end gap-2 md:min-w-[200px]">
@@ -163,7 +188,17 @@ export default function RegistrationCard({ reg, onChanged, moveTargets }: Props)
             />
           )}
 
-          <div className="flex gap-1 justify-center md:justify-end">
+          <div className="flex flex-wrap gap-1 justify-center md:justify-end">
+            {reg.status === "pending" && reg.workshop_id && (
+              <button
+                onClick={() => setToWaitlist(true)}
+                disabled={busy}
+                className="flex items-center gap-1 text-sm text-[#7a5f40] hover:text-black px-2 py-1 cursor-pointer"
+                title="Kohti pole – tõsta huviliste nimekirja"
+              >
+                <ListPlus className="w-4 h-4" /> Huvilistesse
+              </button>
+            )}
             {holdsSeat ? (
               <button
                 onClick={() => setRemoving(true)}
@@ -210,7 +245,21 @@ export default function RegistrationCard({ reg, onChanged, moveTargets }: Props)
           </div>
         </div>
       </div>
+      {toWaitlist && (
+        <Portal>
+          <WaitlistModal
+            reg={reg}
+            busy={busy}
+            onCancel={() => setToWaitlist(false)}
+            onConfirm={async (notifyUser) => {
+              const ok = await run("waitlist", { notify: notifyUser });
+              if (ok) setToWaitlist(false);
+            }}
+          />
+        </Portal>
+      )}
       {removing && (
+        <Portal>
         <RemoveModal
           reg={reg}
           busy={busy}
@@ -220,7 +269,79 @@ export default function RegistrationCard({ reg, onChanged, moveTargets }: Props)
             if (ok) setRemoving(false);
           }}
         />
+        </Portal>
       )}
+    </div>
+  );
+}
+
+// Ootel registreeringu tõstmine huviliste nimekirja (kohti pole), soovi korral kirjaga
+function WaitlistModal({
+  reg,
+  busy,
+  onCancel,
+  onConfirm,
+}: {
+  reg: WorkshopRegistration;
+  busy: boolean;
+  onCancel: () => void;
+  onConfirm: (notify: boolean) => void;
+}) {
+  const [notifyUser, setNotifyUser] = useState(true);
+  useBodyScrollLock();
+
+  return (
+    <div className="fixed inset-0 z-[80] bg-black/40 flex items-center justify-center p-4" onClick={() => !busy && onCancel()}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`waitlist-title-${reg.id}`}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white text-gray-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto p-6 md:p-8"
+        style={{ fontFamily: "var(--font-raleway)", fontWeight: 500 }}
+      >
+        <div className="w-12 h-12 rounded-full bg-[#f7f4ef] text-[#7a5f40] flex items-center justify-center mx-auto mb-4">
+          <ListPlus className="w-6 h-6" />
+        </div>
+        <h2
+          id={`waitlist-title-${reg.id}`}
+          className="text-2xl text-black text-center mb-2"
+          style={{ fontFamily: "'Abril Fatface', serif" }}
+        >
+          Tõsta huviliste nimekirja?
+        </h2>
+        <p className="text-center text-gray-600 mb-6">
+          <strong className="text-black">{reg.name}</strong> registreering jääb kinnitamata ja liigub huviliste nimekirja.
+          Kui mõni koht vabaneb, saad ta õpitoa lehel „Järjekorras“ alt kinnitada.
+        </p>
+        <label className="flex items-start gap-3 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={notifyUser}
+            onChange={(e) => setNotifyUser(e.target.checked)}
+            className="mt-1 w-4 h-4 accent-black cursor-pointer"
+          />
+          <span className="text-sm text-gray-700">Saada kiri „Kohad said täis – oled huviliste nimekirjas“</span>
+        </label>
+        <div className="flex gap-3 mt-6">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={busy}
+            className="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-full cursor-pointer hover:bg-gray-50 disabled:opacity-50"
+          >
+            Tühista
+          </button>
+          <button
+            type="button"
+            onClick={() => onConfirm(notifyUser)}
+            disabled={busy}
+            className="flex-1 bg-black text-white py-2.5 rounded-full cursor-pointer hover:bg-gray-800 disabled:opacity-50"
+          >
+            {busy ? "Tõstan..." : "Tõsta huvilistesse"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -243,7 +364,7 @@ function RemoveModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[80] bg-black/40 flex items-center justify-center p-4"
       onClick={() => !busy && onCancel()}
     >
       <div

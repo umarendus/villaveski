@@ -17,12 +17,18 @@ export type Workshop = {
   reserved_offline: number;
   image_url: string | null;
   status: WorkshopStatus;
+  announced_at: string | null;
+  announced_count: number;
   created_at: string;
   updated_at: string;
 };
 
-export type WorkshopPublic = Omit<Workshop, "reserved_offline" | "created_at" | "updated_at"> & {
+export type WorkshopPublic = Omit<
+  Workshop,
+  "reserved_offline" | "created_at" | "updated_at" | "announced_at" | "announced_count"
+> & {
   seats_left: number;
+  pending_people: number; // broneeritud, kuid kinnitamata kohad
 };
 
 export type ExtraParticipant = { name: string; email: string; phone: string };

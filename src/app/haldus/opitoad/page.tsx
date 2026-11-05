@@ -8,6 +8,7 @@ import AdminShell from "@/components/admin/AdminShell";
 import Select from "@/components/ui/Select";
 import WorkshopEditor, { removeWorkshopPhoto, uploadWorkshopPhoto } from "@/components/admin/opitoad/WorkshopEditor";
 import ShareWorkshop from "@/components/opitoad/ShareWorkshop";
+import SeatBar from "@/components/opitoad/SeatBar";
 import EmailTemplatesManager from "@/components/admin/opitoad/EmailTemplatesManager";
 import RegistrationCard, { downloadCsv, registrationsToCsv, seatsTaken } from "@/components/admin/opitoad/RegistrationCard";
 import { supabase } from "../../lib/supabaseClient";
@@ -190,8 +191,8 @@ function WorkshopCard({
   const left = Math.max(w.capacity - taken, 0);
   const mine = regs.filter((r) => r.workshop_id === w.id);
   const pending = mine.filter((r) => r.status === "pending").length;
-  const confirmed = mine.filter((r) => r.status === "confirmed").reduce((s, r) => s + r.participants, 0);
   const waiting = mine.filter((r) => r.status === "waitlist").length;
+  const pendingPeople = mine.filter((r) => r.status === "pending").reduce((s, r) => s + r.participants, 0);
 
   return (
     <div className={`bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm flex flex-col ${compact ? "opacity-80" : ""}`}>
@@ -226,7 +227,7 @@ function WorkshopCard({
         )}
 
         <div className="mt-5">
-          <div className="flex items-baseline justify-between mb-2">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 mb-2">
             <span>
               <span className="text-3xl text-black" style={abril}>
                 {left}
@@ -234,15 +235,11 @@ function WorkshopCard({
               <span className="text-gray-500 ml-1.5">/ {w.capacity} vaba</span>
             </span>
             <span className="text-xs text-gray-500">
-              {confirmed} kinnitatud{w.reserved_offline ? ` · ${w.reserved_offline} muul viisil` : ""}
-              {waiting ? ` · ${waiting} järjekorras` : ""}
+              {w.reserved_offline ? `sh ${w.reserved_offline} muul viisil` : ""}
+              {waiting ? `${w.reserved_offline ? " · " : ""}${waiting} huvilist` : ""}
             </span>
           </div>
-          <div className="flex gap-1">
-            {Array.from({ length: w.capacity }, (_, i) => (
-              <span key={i} className={`h-2 flex-1 rounded-full ${i < taken ? "bg-black" : "bg-[#be9f7a]/30"}`} />
-            ))}
-          </div>
+          <SeatBar capacity={w.capacity} confirmed={taken} pending={pendingPeople} size="sm" />
         </div>
 
         <div className="flex gap-2 mt-5 pt-4 border-t border-gray-100">

@@ -124,5 +124,46 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
   }
 
-  return NextResponse.json({ registration: updated, emailSent, emailError });
+  // Ootel registreering tõsteti käsitsi huviliste nimekirja ("Huvilistesse")
+  if (body.status === "waitlist" && current.status === "pending" && body.notify !== false && updated.workshop_id) {
+    const { data: workshop } = await supabase.from("workshops").select("*").eq("id", updated.workshop_id).single();
+    if (workshop) {
+      try {
+        const mail = await buildEmail("moved_to_waitlist", { workshop, reg: updated });
+        await sendMail(updated.email, mail.subject, mail.html);
+        emailSent = true;
+      } catch (err) {
+        console.error("Huviliste kirja saatmine ebaõnnestus", err);
+        emailError = "Tõsteti huviliste nimekirja, kuid kirja saatmine ebaõnnestus.";
+      }
+    }
+  }
+
+  // Viimane koht kinnitati: ülejäänud ootel registreeringud liiguvad huviliste nimekirja ja saavad teate
+  let movedToWaitlist = 0;
+  if (body.status === "confirmed" && current.status !== "confirmed" && updated.workshop_id) {
+    const { data: workshop } = await supabase.from("workshops").select("*").eq("id", updated.workshop_id).single();
+    const { data: taken } = await supabase.rpc("workshop_seats_taken", { w_id: updated.workshop_id });
+    if (workshop && workshop.capacity - (taken ?? 0) <= 0) {
+      const { data: moved } = await supabase
+        .from("workshop_registrations")
+        .update({ status: "waitlist" })
+        .eq("workshop_id", workshop.id)
+        .eq("status", "pending")
+        .select("*");
+      movedToWaitlist = moved?.length ?? 0;
+      const results = await Promise.allSettled(
+        (moved ?? []).map(async (reg) => {
+          const mail = await buildEmail("moved_to_waitlist", { workshop, reg });
+          await sendMail(reg.email, mail.subject, mail.html);
+        })
+      );
+      results.forEach((res) => res.status === "rejected" && console.error("Huviliste kiri ebaõnnestus", res.reason));
+      if (results.some((res) => res.status === "rejected")) {
+        emailError = (emailError ? emailError + " " : "") + "Kõigile huvilistesse tõstetutele ei õnnestunud kirja saata.";
+      }
+    }
+  }
+
+  return NextResponse.json({ registration: updated, emailSent, emailError, movedToWaitlist });
 }
