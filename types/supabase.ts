@@ -16,6 +16,7 @@ export type Workshop = {
   capacity: number;
   reserved_offline: number;
   image_url: string | null;
+  email_image_url: string | null; // lai JPEG e-kirjade jaoks
   status: WorkshopStatus;
   announced_at: string | null;
   announced_count: number;
@@ -25,7 +26,7 @@ export type Workshop = {
 
 export type WorkshopPublic = Omit<
   Workshop,
-  "reserved_offline" | "created_at" | "updated_at" | "announced_at" | "announced_count"
+  "reserved_offline" | "created_at" | "updated_at" | "announced_at" | "announced_count" | "email_image_url"
 > & {
   seats_left: number;
   pending_people: number; // broneeritud, kuid kinnitamata kohad

@@ -45,6 +45,36 @@ export async function uploadWorkshopPhoto(file: File) {
   return supabase.storage.from(WORKSHOP_PHOTO_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
+// E-kirjade jaoks lai JPEG (1200x600): püstine foto oleks kirjas liiga kõrge, Outlook ei näita WebP-i
+async function makeEmailImage(file: File): Promise<Blob> {
+  const bitmap = await createImageBitmap(file);
+  const W = 1200;
+  const H = 600;
+  const scale = Math.max(W / bitmap.width, H / bitmap.height);
+  const sw = W / scale;
+  const sh = H / scale;
+  const sx = (bitmap.width - sw) / 2;
+  const sy = Math.max(0, (bitmap.height - sh) * 0.3); // ülemine kolmandik – inimesed jäävad kaadrisse
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  canvas.getContext("2d")!.drawImage(bitmap, sx, sy, sw, sh, 0, 0, W, H);
+  bitmap.close();
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Pildi teisendamine ebaõnnestus"))), "image/jpeg", 0.82)
+  );
+}
+
+export async function uploadEmailImage(file: File) {
+  const blob = await makeEmailImage(file);
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}-kiri.jpg`;
+  const { error } = await supabase.storage
+    .from(WORKSHOP_PHOTO_BUCKET)
+    .upload(path, blob, { contentType: "image/jpeg", cacheControl: "3600", upsert: false });
+  if (error) throw error;
+  return supabase.storage.from(WORKSHOP_PHOTO_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
 export async function removeWorkshopPhoto(url: string | null) {
   const path = url?.split(`/${WORKSHOP_PHOTO_BUCKET}/`)[1];
   if (path) await supabase.storage.from(WORKSHOP_PHOTO_BUCKET).remove([path]);
@@ -123,8 +153,16 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
     setSaving(true);
     try {
       let imageUrl = form.image_url;
+      let emailImageUrl = workshop?.email_image_url ?? null;
       if (file) {
         imageUrl = await uploadWorkshopPhoto(file);
+        try {
+          emailImageUrl = await uploadEmailImage(file);
+        } catch (err) {
+          // Kui brauser ei oska pilti teisendada, kasutavad kirjad algset fotot
+          console.error(err);
+          emailImageUrl = null;
+        }
       }
       const payload = {
         ...form,
@@ -134,6 +172,7 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
         capacity: Math.floor(Number(form.capacity) || 0),
         reserved_offline: Math.max(0, Math.floor(Number(form.reserved_offline) || 0)),
         image_url: imageUrl,
+        email_image_url: emailImageUrl,
         updated_at: new Date().toISOString(),
       };
       const query = workshop
@@ -142,9 +181,13 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
       const { data, error } = await query;
       if (error || !data) {
         if (file && imageUrl !== form.image_url) await removeWorkshopPhoto(imageUrl);
+        if (file && emailImageUrl && emailImageUrl !== workshop?.email_image_url) await removeWorkshopPhoto(emailImageUrl);
         throw error || new Error("Salvestamine ebaõnnestus");
       }
       if (file && workshop?.image_url && workshop.image_url !== imageUrl) await removeWorkshopPhoto(workshop.image_url);
+      if (file && workshop?.email_image_url && workshop.email_image_url !== emailImageUrl) {
+        await removeWorkshopPhoto(workshop.email_image_url);
+      }
       onSaved(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Salvestamine ebaõnnestus");
@@ -164,6 +207,7 @@ export default function WorkshopEditor({ workshop, onClose, onSaved, onDeleted }
       return setError(error.message.includes("forbidden") ? "Sul pole õigust õpitubasid kustutada." : error.message);
     }
     if (workshop.image_url) await removeWorkshopPhoto(workshop.image_url);
+    if (workshop.email_image_url) await removeWorkshopPhoto(workshop.email_image_url);
     onDeleted?.();
   }
 
