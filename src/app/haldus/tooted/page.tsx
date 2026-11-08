@@ -5,6 +5,7 @@ import { supabase } from "@/app/lib/supabaseClient";
 import { Session } from "@supabase/supabase-js";
 import Image from "next/image";
 import { AccountButtons, AdminNav } from "@/components/admin/AdminShell";
+import { PasswordInput, cleanEmail, loginErrorMessage } from "@/components/admin/LoginFields";
 
 type Photo = {
   id: number;
@@ -24,6 +25,7 @@ export default function PildidPage() {
 
   // Login modal
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   // Väljalogimise kinnitus
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -78,10 +80,11 @@ export default function PildidPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (!email || !password) return alert("Sisesta e-post ja parool");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoginError("");
+    if (!email.trim() || !password) return setLoginError("Sisesta e-post ja parool.");
+    const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail(email), password });
     if (error) {
-      alert(error.message);
+      setLoginError(loginErrorMessage(error.message));
     } else {
       // Parooli ise me ei hoia – brauseri paroolihaldur pakub selle salvestamist,
       // sessioon jääb localStorage'i ja uueneb automaatselt
@@ -91,8 +94,8 @@ export default function PildidPage() {
   }
 
   async function handleForgotPassword() {
-    if (!email) return alert("Sisesta esmalt oma e-post, siis vajuta uuesti.");
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    if (!email.trim()) return setLoginError("Sisesta esmalt oma e-post, siis vajuta uuesti.");
+    const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail(email), {
       redirectTo: `${window.location.origin}/uus-parool`,
     });
     if (error) return alert(error.message);
@@ -450,16 +453,13 @@ async function removePhoto(id: number, imageUrl: string) {
                 onChange={(e) => setEmail(e.target.value)}
                 className="border border-gray-300 rounded-md p-2 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600"
               />
-              <input
-                type="password"
-                name="password"
+              <PasswordInput
                 id="login-password"
-                autoComplete="current-password"
-                placeholder="Parool"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={setPassword}
                 className="border border-gray-300 rounded-md p-2 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600"
               />
+              {loginError && <p className="text-red-700 text-sm leading-relaxed">{loginError}</p>}
 
               <button
                 type="submit"

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/app/lib/supabaseClient";
 import { KeyRound, LogOut } from "lucide-react";
+import { PasswordInput, cleanEmail, loginErrorMessage } from "./LoginFields";
 
 const raleway = { fontFamily: "var(--font-raleway)", fontWeight: 500 };
 
@@ -107,15 +108,15 @@ export default function AdminShell({ children }: { children: (session: Session) 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoginError("");
-    if (!email || !password) return setLoginError("Sisesta e-post ja parool.");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return setLoginError(error.message);
+    if (!email.trim() || !password) return setLoginError("Sisesta e-post ja parool.");
+    const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail(email), password });
+    if (error) return setLoginError(loginErrorMessage(error.message));
     setPassword("");
   }
 
   async function handleForgotPassword() {
-    if (!email) return setLoginError("Sisesta esmalt oma e-post, siis vajuta uuesti.");
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    if (!email.trim()) return setLoginError("Sisesta esmalt oma e-post, siis vajuta uuesti.");
+    const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail(email), {
       redirectTo: `${window.location.origin}/uus-parool`,
     });
     if (error) return setLoginError(error.message);
@@ -191,16 +192,8 @@ export default function AdminShell({ children }: { children: (session: Session) 
               onChange={(e) => setEmail(e.target.value)}
               className={inputClass}
             />
-            <input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              placeholder="Parool"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={inputClass}
-            />
-            {loginError && <p className="text-red-700 text-sm">{loginError}</p>}
+            <PasswordInput value={password} onChange={setPassword} className={inputClass} />
+            {loginError && <p className="text-red-700 text-sm leading-relaxed">{loginError}</p>}
             <button
               type="submit"
               className="bg-gray-900 cursor-pointer text-white py-2 rounded-md font-medium hover:bg-gray-800 transition mt-2"
