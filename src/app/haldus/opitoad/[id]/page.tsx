@@ -4,14 +4,19 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Download, Euro, Info, MapPin, Megaphone, Pencil, X } from "lucide-react";
+import { ArrowLeft, Calendar, ChevronDown, Download, Euro, Info, MapPin, Megaphone, Pencil, X } from "lucide-react";
 import AdminShell from "@/components/admin/AdminShell";
 import WorkshopEditor from "@/components/admin/opitoad/WorkshopEditor";
 import ShareWorkshop from "@/components/opitoad/ShareWorkshop";
 import SeatBar from "@/components/opitoad/SeatBar";
 import AnnounceModal from "@/components/admin/opitoad/AnnounceModal";
 import Portal from "@/components/ui/Portal";
-import RegistrationCard, { downloadCsv, registrationsToCsv, seatsTaken } from "@/components/admin/opitoad/RegistrationCard";
+import RegistrationCard, {
+  downloadCsv,
+  registrationPeople,
+  registrationsToCsv,
+  seatsTaken,
+} from "@/components/admin/opitoad/RegistrationCard";
 import { supabase } from "../../../lib/supabaseClient";
 import { formatDate, formatPrice, formatShortDate, formatTime } from "../../../lib/opitoad";
 import type { RegistrationStatus, Workshop, WorkshopRegistration } from "../../../../../types/supabase";
@@ -184,16 +189,19 @@ function Detail() {
         )}
       </div>
 
+      <ParticipantList regs={regs} />
+
       {GROUPS.map((g) => {
         const list = regs.filter((r) => r.status === g.status);
         if (!list.length && !g.empty) return null;
         const people = list.reduce((s, r) => s + r.participants, 0);
         return (
           <section key={g.status} className="mt-8">
-            <h2 className="text-xl text-black mb-3 flex items-center gap-3">
+            <h2 className="text-xl text-black mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
               {g.title}
               <span className="text-sm text-gray-500">
-                {list.length} registreeringut{people !== list.length ? ` · ${people} inimest` : ""}
+                {people} {people === 1 ? "inimene" : "inimest"}
+                {people !== list.length ? ` · ${list.length} ${list.length === 1 ? "broneering" : "broneeringut"}` : ""}
               </span>
             </h2>
             {list.length === 0 ? (
@@ -245,5 +253,47 @@ function Stat({ value, label, accent, warn }: { value: number; label: string; ac
       </div>
       <div className={`text-xs mt-1 ${accent ? "text-gray-300" : "text-gray-500"}`}>{label}</div>
     </div>
+  );
+}
+
+// Kõik kinnitatud osalejad ükshaaval (ka grupibroneeringu liikmed) – nt kohapeal kohalolu kontrolliks
+function ParticipantList({ regs }: { regs: WorkshopRegistration[] }) {
+  const [open, setOpen] = useState(false);
+  const people = regs
+    .filter((r) => r.status === "confirmed")
+    .flatMap((r) => registrationPeople(r).map((p, i) => ({ ...p, bookedBy: i === 0 ? null : r.name })));
+  if (!people.length) return null;
+
+  return (
+    <section className="mt-8 bg-white border border-gray-200 rounded-2xl">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between gap-3 px-5 py-4 cursor-pointer text-left"
+        aria-expanded={open}
+      >
+        <span className="text-xl text-black">
+          Osalejate nimekiri <span className="text-sm text-gray-500 ml-1">{people.length} kinnitatud inimest</span>
+        </span>
+        <ChevronDown className={`w-5 h-5 shrink-0 transition-transform duration-500 ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <ol className="border-t border-gray-100 divide-y divide-gray-100">
+          {people.map((p, i) => (
+            <li key={i} className="px-5 py-3 flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-0.5">
+              <span className="flex items-baseline gap-2 sm:w-64 shrink-0">
+                <span className="text-xs text-gray-400 w-5">{i + 1}.</span>
+                <span className="text-black font-semibold">{p.name}</span>
+              </span>
+              <span className="text-sm text-gray-600 pl-7 sm:pl-0 flex flex-wrap gap-x-4">
+                {p.phone && <a href={`tel:${p.phone}`} className="hover:text-black">{p.phone}</a>}
+                {p.email && <a href={`mailto:${p.email}`} className="hover:text-black break-all">{p.email}</a>}
+                {p.bookedBy && <span className="text-gray-400">broneeris {p.bookedBy}</span>}
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </section>
   );
 }
