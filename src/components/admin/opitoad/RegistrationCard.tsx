@@ -115,43 +115,50 @@ export default function RegistrationCard({ reg, onChanged, moveTargets, onReload
     >
       <div className="flex flex-col md:flex-row md:items-start gap-4 justify-between">
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2 mb-1">
-            <h3 className="text-lg text-black font-semibold">{reg.name}</h3>
+          {/* Broneeringu päis: staatus, kuupäev, inimeste arv */}
+          <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className={`text-xs px-2.5 py-0.5 rounded-full border ${STATUS_STYLES[reg.status]}`}>
               {STATUS_LABELS[reg.status]}
             </span>
-            <span className="text-xs text-gray-400">{formatShortDate(reg.created_at)}</span>
-          </div>
-          <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-gray-700">
-            <a href={`mailto:${reg.email}`} className="flex items-center gap-1.5 hover:text-black">
-              <Mail className="w-4 h-4" /> {reg.email}
-            </a>
-            {reg.phone && (
-              <a href={`tel:${reg.phone}`} className="flex items-center gap-1.5 hover:text-black">
-                <Phone className="w-4 h-4" /> {reg.phone}
-              </a>
+            {reg.participants > 1 && (
+              <span className="flex items-center gap-1 text-xs text-gray-600">
+                <Users className="w-3.5 h-3.5" /> Broneering · {reg.participants} inimest
+              </span>
             )}
-            <span className="flex items-center gap-1.5">
-              <Users className="w-4 h-4" /> {reg.participants} {reg.participants === 1 ? "osaleja" : "osalejat"}
-            </span>
+            <span className="text-xs text-gray-400">{formatShortDate(reg.created_at)}</span>
             {reg.wants_materials && (
-              <span className="flex items-center gap-1.5 text-[#7a5f40]">
-                <ShoppingBasket className="w-4 h-4" /> Soovib materjale osta
+              <span className="flex items-center gap-1 text-xs text-[#7a5f40]">
+                <ShoppingBasket className="w-3.5 h-3.5" /> Soovib materjale osta
               </span>
             )}
           </div>
-          {reg.extra_participants?.length > 0 && (
-            <ul className="mt-3 text-sm text-gray-700 border-l-2 border-[#be9f7a]/50 pl-3 space-y-0.5">
-              {reg.extra_participants.map((p, i) => (
-                <li key={i}>
-                  <span className="text-gray-400 mr-1">{i + 2}.</span>
-                  {p.name}
-                  {p.email && <span className="text-gray-500"> · {p.email}</span>}
-                  {p.phone && <span className="text-gray-500"> · {p.phone}</span>}
-                </li>
-              ))}
-            </ul>
-          )}
+
+          {/* Iga osaleja eraldi real */}
+          <ol className={reg.participants > 1 ? "divide-y divide-gray-100 border border-gray-100 rounded-lg" : ""}>
+            {registrationPeople(reg).map((p, i) => (
+              <li key={i} className={reg.participants > 1 ? "px-3 py-2.5" : ""}>
+                <div className="flex flex-wrap items-baseline gap-x-2">
+                  {reg.participants > 1 && <span className="text-xs text-gray-400 w-4">{i + 1}.</span>}
+                  <h3 className={`${i === 0 ? "text-lg" : "text-base"} text-black font-semibold`}>{p.name}</h3>
+                  {reg.participants > 1 && i === 0 && <span className="text-xs text-gray-500">broneerija</span>}
+                </div>
+                {(p.email || p.phone) && (
+                  <div className={`flex flex-wrap gap-x-5 gap-y-1 text-sm text-gray-700 mt-0.5 ${reg.participants > 1 ? "pl-6" : ""}`}>
+                    {p.email && (
+                      <a href={`mailto:${p.email}`} className="flex items-center gap-1.5 hover:text-black min-w-0 break-all">
+                        <Mail className="w-4 h-4 shrink-0" /> {p.email}
+                      </a>
+                    )}
+                    {p.phone && (
+                      <a href={`tel:${p.phone}`} className="flex items-center gap-1.5 hover:text-black">
+                        <Phone className="w-4 h-4 shrink-0" /> {p.phone}
+                      </a>
+                    )}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ol>
           {reg.message && (
             <p className="mt-3 text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2 whitespace-pre-line">{reg.message}</p>
           )}
@@ -439,25 +446,35 @@ function RemoveModal({
   );
 }
 
+// Broneeringu kõik inimesed eraldi (esimene on broneerija)
+export function registrationPeople(reg: WorkshopRegistration) {
+  return [
+    { name: reg.name, email: reg.email, phone: reg.phone },
+    ...(reg.extra_participants ?? []).map((p) => ({ name: p.name, email: p.email, phone: p.phone })),
+  ];
+}
+
+// CSV: üks rida iga inimese kohta (ka grupibroneeringu liikmed eraldi)
 export function registrationsToCsv(regs: WorkshopRegistration[], workshops: Workshop[] = []) {
   const titles = new Map(workshops.map((w) => [w.id, w.title]));
-  const header = ["Nimi", "E-post", "Telefon", "Osalejaid", "Kaasosalejad", "Materjalid", "Staatus", "Õpituba", "Sõnum", "Registreeritud"];
-  const rows = regs.map((r) => [
-    r.name,
-    r.email,
-    r.phone,
-    String(r.participants),
-    (r.extra_participants ?? []).map((p) => [p.name, p.email, p.phone].filter(Boolean).join(" / ")).join("; "),
-    r.wants_materials ? "Jah" : "Ei",
-    STATUS_LABELS[r.status],
-    r.workshop_id ? titles.get(r.workshop_id) ?? "" : "Üldine huviliste nimekiri",
-    r.message,
-    new Date(r.created_at).toLocaleString("et-EE"),
-  ]);
+  const header = ["Nimi", "E-post", "Telefon", "Broneerija", "Staatus", "Õpituba", "Materjalid", "Sõnum", "Registreeritud"];
+  const rows = regs.flatMap((r) =>
+    registrationPeople(r).map((p, i) => [
+      p.name,
+      p.email,
+      p.phone,
+      i === 0 ? "" : r.name,
+      STATUS_LABELS[r.status],
+      r.workshop_id ? titles.get(r.workshop_id) ?? "" : "Üldine huviliste nimekiri",
+      i === 0 ? (r.wants_materials ? "Jah" : "Ei") : "",
+      i === 0 ? r.message : "",
+      new Date(r.created_at).toLocaleString("et-EE"),
+    ])
+  );
   const csv = [header, ...rows]
     .map((row) => row.map((v) => `"${csvSafe(String(v ?? "")).replace(/"/g, '""')}"`).join(";"))
     .join("\n");
-  return "﻿" + csv;
+  return "\uFEFF" + csv;
 }
 
 // Excel ei tohi avalike väljade sisu valemina käivitada (=, +, -, @ algus)
